@@ -1,0 +1,1345 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Travel Itinerary Dashboard (Hyrox + Events)</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --panel:#101a30;
+      --panel2:#0f1730;
+      --text:#e7eefc;
+      --muted:#a9b6d3;
+      --line:#2a3a62;
+      --accent:#7aa2ff;
+      --accent2:#7ef0c1;
+      --warn:#ffcc66;
+      --danger:#ff6b6b;
+      --chip:#1a2747;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:
+        radial-gradient(1200px 800px at 10% 0%, rgba(122,162,255,.18), transparent 55%),
+        radial-gradient(1000px 700px at 90% 20%, rgba(126,240,193,.12), transparent 60%),
+        radial-gradient(900px 800px at 60% 100%, rgba(255,204,102,.08), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+    }
+    header{
+      padding:22px 18px 10px;
+      max-width:1180px;
+      margin:0 auto;
+      display:flex;
+      gap:14px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+      justify-content:space-between;
+    }
+    .titleBlock h1{
+      margin:0;
+      font-size:20px;
+      letter-spacing:.2px;
+      font-weight:800;
+    }
+    .titleBlock p{
+      margin:6px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      max-width:740px;
+      line-height:1.4;
+    }
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    button{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      box-shadow:0 6px 16px rgba(0,0,0,.25);
+      font-weight:650;
+      font-size:13px;
+    }
+    button:hover{ border-color:rgba(122,162,255,.45) }
+    button.primary{
+      border-color:rgba(122,162,255,.45);
+      background:linear-gradient(180deg, rgba(122,162,255,.22), rgba(122,162,255,.10));
+    }
+    button.danger{
+      border-color:rgba(255,107,107,.50);
+      background:linear-gradient(180deg, rgba(255,107,107,.20), rgba(255,107,107,.08));
+    }
+    main{
+      max-width:1180px;
+      margin:0 auto;
+      padding:0 18px 40px;
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:16px;
+    }
+    @media (max-width: 980px){
+      main{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .panel header{
+      padding:14px 14px 12px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      margin:0;
+      max-width:none;
+    }
+    .panel header h2{
+      margin:0;
+      font-size:14px;
+      letter-spacing:.2px;
+      font-weight:800;
+    }
+    .panel header .sub{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .panel .content{ padding:14px; }
+
+    .kpis{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .kpi{
+      background:rgba(16,26,48,.55);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+      padding:12px;
+    }
+    .kpi .label{
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:6px;
+    }
+    .kpi .value{
+      font-size:18px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .kpi .hint{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.3;
+    }
+
+    .chipRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+    }
+    .chip{
+      background:rgba(26,39,71,.8);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--text);
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+    }
+    .chip b{ font-family:var(--mono); font-weight:800; font-size:11px; color:var(--accent2); }
+
+    .fieldset{
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px dashed rgba(255,255,255,.14);
+    }
+    label{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:6px;
+    }
+    input, select, textarea{
+      width:100%;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(8,14,28,.55);
+      color:var(--text);
+      padding:10px 10px;
+      border-radius:12px;
+      outline:none;
+      font-size:13px;
+    }
+    textarea{ min-height:80px; resize:vertical; }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(122,162,255,.55);
+      box-shadow:0 0 0 3px rgba(122,162,255,.14);
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .row3{
+      display:grid;
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 520px){
+      .row,.row3{ grid-template-columns:1fr; }
+    }
+
+    /* Timeline */
+    .timelineWrap{
+      padding:14px;
+    }
+    .filters{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:10px;
+    }
+    .filters .left{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(16,26,48,.45);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .pill input{
+      width:auto;
+      padding:0;
+      border:none;
+      background:transparent;
+      box-shadow:none;
+      color:var(--text);
+      font-size:12px;
+      outline:none;
+    }
+
+    .timeline{
+      position:relative;
+      padding-left:22px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .timeline::before{
+      content:"";
+      position:absolute;
+      left:9px;
+      top:0;
+      bottom:0;
+      width:2px;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(122,162,255,.70) 0 6px,
+          rgba(122,162,255,0) 6px 13px
+        );
+      border-radius:999px;
+      opacity:.9;
+    }
+    .tItem{
+      position:relative;
+      display:grid;
+      grid-template-columns: 135px 1fr;
+      gap:12px;
+      align-items:start;
+    }
+    @media (max-width: 720px){
+      .tItem{ grid-template-columns: 1fr; }
+    }
+    .dot{
+      position:absolute;
+      left:2px;
+      top:12px;
+      width:16px;
+      height:16px;
+      border-radius:50%;
+      background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), rgba(255,255,255,.25));
+      border:2px solid rgba(122,162,255,.85);
+      box-shadow:0 0 0 4px rgba(122,162,255,.15);
+    }
+    .dateBox{
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(16,26,48,.42);
+      min-height:54px;
+    }
+    .dateBox .d{
+      font-family:var(--mono);
+      font-weight:800;
+      font-size:12px;
+      color:var(--accent2);
+      letter-spacing:.3px;
+    }
+    .dateBox .t{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.25;
+    }
+    .card{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(16,26,48,.50);
+      border-radius:16px;
+      padding:12px;
+      box-shadow:0 10px 22px rgba(0,0,0,.22);
+    }
+    .cardTop{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      justify-content:space-between;
+    }
+    .cardTop h3{
+      margin:0;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .meta{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+    .badges{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .badge{
+      font-size:11px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(26,39,71,.65);
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .badge.flight{ border-color: rgba(122,162,255,.40); }
+    .badge.lodging{ border-color: rgba(126,240,193,.40); }
+    .badge.event{ border-color: rgba(255,204,102,.50); }
+    .badge.todo{ border-color: rgba(255,107,107,.50); }
+
+    .cardGrid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    @media (max-width: 640px){
+      .cardGrid{ grid-template-columns: 1fr; }
+    }
+    .mini{
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(8,14,28,.35);
+      border-radius:14px;
+      padding:10px;
+    }
+    .mini .k{ color:var(--muted); font-size:11px; margin-bottom:6px; }
+    .mini .v{ font-family:var(--mono); font-size:12px; font-weight:800; }
+    .mini .v span{ color:var(--muted); font-weight:700; }
+
+    .cardBtns{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      justify-content:flex-end;
+    }
+    .cardBtns button{ padding:8px 10px; border-radius:12px; font-size:12px; box-shadow:none; }
+
+    /* Cost chart */
+    canvas{
+      width:100%;
+      height:160px;
+      display:block;
+      background:rgba(8,14,28,.20);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;
+    }
+    .small{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+    }
+    .footerNote{
+      color:var(--muted);
+      font-size:12px;
+      padding:14px;
+      border-top:1px solid rgba(255,255,255,.08);
+    }
+
+    /* Modal */
+    .modalBack{
+      position:fixed; inset:0;
+      background:rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:50;
+    }
+    .modal{
+      width:min(860px, 100%);
+      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px;
+      box-shadow: 0 25px 70px rgba(0,0,0,.6);
+      overflow:hidden;
+    }
+    .modal header{
+      margin:0;
+      max-width:none;
+      padding:14px 14px 12px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .modal header h2{ margin:0; font-size:14px; font-weight:900; }
+    .modal .body{ padding:14px; }
+    .modal .body .row{ margin-top:10px; }
+    .modal .footer{
+      padding:12px 14px;
+      border-top:1px solid rgba(255,255,255,.10);
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+    }
+    .hintInline{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:8px;
+      line-height:1.35;
+    }
+    .mutedLink{
+      color:var(--muted);
+      text-decoration:underline;
+      text-decoration-color: rgba(169,182,211,.35);
+      cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="titleBlock">
+      <h1>Itinerary Dashboard — Hyrox Europe + US Events</h1>
+      <p>
+        Single-page itinerary you can host on GitHub Pages (or open locally/offline). It includes a dotted travel timeline, cost summary,
+        and editable “TBD” placeholders so you can fill missing logistics as you confirm details.
+      </p>
+    </div>
+    <div class="actions">
+      <button class="primary" id="btnAdd">+ Add item</button>
+      <button id="btnExport">Export JSON</button>
+      <button id="btnImport">Import JSON</button>
+      <button class="danger" id="btnReset">Reset to your initial plan</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- LEFT: Summary / Inputs -->
+    <section class="panel">
+      <header>
+        <h2>Trip overview</h2>
+        <div class="sub">All values are editable and saved locally in your browser (LocalStorage).</div>
+      </header>
+      <div class="content">
+        <div class="kpis" id="kpis"></div>
+
+        <div class="chipRow" id="chips"></div>
+
+        <div class="fieldset">
+          <div class="row">
+            <div>
+              <label>Home base (for reference)</label>
+              <input id="homeBase" placeholder="Falls Church, VA (or your preference)" />
+            </div>
+            <div>
+              <label>Primary purpose</label>
+              <input id="purpose" placeholder="Hyrox competitions + travel + events" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label>Preferred pacing</label>
+              <select id="pacing">
+                <option>Efficient & clustered</option>
+                <option>Balanced</option>
+                <option>Relaxed</option>
+                <option>High-energy packed</option>
+              </select>
+            </div>
+            <div>
+              <label>Budget focus</label>
+              <select id="budgetFocus">
+                <option>Value</option>
+                <option>Comfort/value</option>
+                <option>Premium</option>
+                <option>Strict budget</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <label>Notes / reminders</label>
+            <textarea id="notes" placeholder="e.g., Verify BLQ→CDG→WAW segment times; confirm lodging Apr 19–30; pick hotel near DFW; etc."></textarea>
+          </div>
+        </div>
+
+        <div class="fieldset">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+            <div>
+              <div style="font-weight:900; font-size:13px; margin-bottom:6px;">Cost summary</div>
+              <div class="small">Seeded with what you provided. Add more expenses as you go; the chart updates automatically.</div>
+            </div>
+            <div class="pill" title="Currency for costs">
+              <span>Currency:</span>
+              <input id="currency" value="USD" />
+            </div>
+          </div>
+          <div style="margin-top:10px">
+            <canvas id="costChart" width="800" height="220"></canvas>
+          </div>
+          <div class="small" id="costBreakdown" style="margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <div class="footerNote">
+        Tip: Use <span class="mutedLink" id="howToGithub">GitHub Pages</span> to publish this as your personal travel dashboard (works great on phone).
+      </div>
+    </section>
+
+    <!-- RIGHT: Timeline -->
+    <section class="panel">
+      <header>
+        <h2>Dotted travel timeline</h2>
+        <div class="sub">Filter by type, search, then tap items to edit. “TBD” items are meant to be filled in later.</div>
+      </header>
+
+      <div class="timelineWrap">
+        <div class="filters">
+          <div class="left">
+            <span class="pill"><span>Search:</span> <input id="search" placeholder="city, airport, event, etc." /></span>
+            <span class="pill">
+              <span>Show:</span>
+              <select id="filterType" style="width:auto; padding:0; border:none; background:transparent; color:var(--text);">
+                <option value="all">All</option>
+                <option value="flight">Flights</option>
+                <option value="lodging">Lodging</option>
+                <option value="event">Events</option>
+                <option value="todo">To-dos / missing</option>
+              </select>
+            </span>
+          </div>
+          <div class="left">
+            <span class="pill" title="Sort order">
+              <span>Sort:</span>
+              <select id="sortOrder" style="width:auto; padding:0; border:none; background:transparent; color:var(--text);">
+                <option value="asc">Earliest → latest</option>
+                <option value="desc">Latest → earliest</option>
+              </select>
+            </span>
+          </div>
+        </div>
+
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div class="modalBack" id="modalBack" role="dialog" aria-modal="true">
+    <div class="modal">
+      <header>
+        <div>
+          <h2 id="modalTitle">Add / Edit item</h2>
+          <div class="hintInline" id="modalHint"></div>
+        </div>
+        <button id="btnClose">Close</button>
+      </header>
+      <div class="body">
+        <div class="row3">
+          <div>
+            <label>Type</label>
+            <select id="mType">
+              <option value="flight">Flight</option>
+              <option value="lodging">Lodging</option>
+              <option value="event">Event</option>
+              <option value="todo">To-do / Missing plan</option>
+              <option value="expense">Expense</option>
+              <option value="note">Note</option>
+            </select>
+          </div>
+          <div>
+            <label>Date (start)</label>
+            <input id="mStart" placeholder="2026-04-02 13:20" />
+          </div>
+          <div>
+            <label>Date (end)</label>
+            <input id="mEnd" placeholder="optional" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label>Title</label>
+            <input id="mTitle" placeholder="e.g., IAD → BLQ (one-way)" />
+          </div>
+          <div>
+            <label>Location / Route</label>
+            <input id="mWhere" placeholder="IAD → BLQ | Bologna, Italy | Warsaw, Poland" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label>Confirmation / Reference (optional)</label>
+            <input id="mConfirm" placeholder="Flight PNR / hotel conf / reservation id" />
+          </div>
+          <div>
+            <label>Cost (optional)</label>
+            <input id="mCost" placeholder="e.g., 511.92" />
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label>Details</label>
+          <textarea id="mDetails" placeholder="Include times, terminals, check-in/out, layovers, reminders, etc."></textarea>
+        </div>
+
+        <div class="hintInline">
+          Date format: <span style="font-family:var(--mono)">YYYY-MM-DD</span> or <span style="font-family:var(--mono)">YYYY-MM-DD HH:MM</span>.
+          (If times are uncertain, keep it as “TBD” in details and update later.)
+        </div>
+      </div>
+      <div class="footer">
+        <button class="danger" id="btnDelete" style="display:none;">Delete</button>
+        <button id="btnSave" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import -->
+  <input type="file" id="fileInput" accept="application/json" style="display:none" />
+
+  <script>
+    // ===== Helpers =====
+    const pad = n => String(n).padStart(2,'0');
+    const fmtDate = (iso) => {
+      if(!iso) return "";
+      const d = parseDate(iso);
+      if(!d) return iso;
+      const yyyy = d.getFullYear();
+      const mm = pad(d.getMonth()+1);
+      const dd = pad(d.getDate());
+      const hh = pad(d.getHours());
+      const mi = pad(d.getMinutes());
+      const hasTime = /\\d{2}:\\d{2}/.test(iso);
+      return hasTime ? `${yyyy}-${mm}-${dd} ${hh}:${mi}` : `${yyyy}-${mm}-${dd}`;
+    };
+
+    function parseDate(s){
+      if(!s) return null;
+      // Allow "YYYY-MM-DD" or "YYYY-MM-DD HH:MM"
+      const m = String(s).trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/);
+      if(!m) return null;
+      const y=+m[1], mo=+m[2]-1, d=+m[3], hh=+(m[4]||0), mi=+(m[5]||0);
+      const dt = new Date(Date.UTC(y,mo,d,hh,mi));
+      return isNaN(dt.getTime()) ? null : dt;
+    }
+
+    function toLocalDisplay(iso){
+      const d = parseDate(iso);
+      if(!d) return iso || "";
+      // Display in local time zone for the viewer device
+      const local = new Date(d.getTime());
+      const yyyy = local.getFullYear();
+      const mm = pad(local.getMonth()+1);
+      const dd = pad(local.getDate());
+      const hh = pad(local.getHours());
+      const mi = pad(local.getMinutes());
+      const hasTime = /\\d{2}:\\d{2}/.test(iso);
+      return hasTime ? `${yyyy}-${mm}-${dd} ${hh}:${mi}` : `${yyyy}-${mm}-${dd}`;
+    }
+
+    const uid = () => Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
+
+    // ===== Seed data based on your message =====
+    const SEED = {
+      meta:{
+        homeBase:"Falls Church, VA",
+        purpose:"Hyrox competitions + travel + events",
+        pacing:"Efficient & clustered",
+        budgetFocus:"Comfort/value",
+        currency:"USD",
+        notes:[
+          "Verify BLQ → CDG → WAW segment times/sequence (looks inconsistent as written).",
+          "Plan Apr 19–Apr 30 segment (Lithuania / Latvia / Serbia likely). Add flights/trains + lodging as you confirm.",
+          "Add missing: Dulles / Fort Worth stays (mid April / May).",
+          "Plan PA lodging ~1 week before July 17 event."
+        ].join("\\n")
+      },
+      items:[
+        {
+          id: uid(),
+          type:"flight",
+          start:"2026-04-02 13:20",
+          end:"2026-04-03 09:30",
+          title:"IAD → BLQ (one-way)",
+          where:"Washington Dulles (IAD) → Bologna (BLQ)",
+          confirm:"",
+          cost:752.83,
+          details:"Depart 1:20 PM. Land 9:30 AM next day. Paid with Capital One (multi-city: IAD→BLQ + MXP→IAD)."
+        },
+        {
+          id: uid(),
+          type:"lodging",
+          start:"2026-04-02 15:00",
+          end:"2026-04-05 12:00",
+          title:"The Social Hub Bologna",
+          where:"Via Aristotele Fioravanti 27, Bologna, IT",
+          confirm:"",
+          cost:511.92,
+          details:"Check-in 3:00 PM, check-out 12:00 PM. Paid with Capital One."
+        },
+        {
+          id: uid(),
+          type:"event",
+          start:"2026-04-04",
+          end:"",
+          title:"HYROX Bologna — Singles Pro",
+          where:"Bologna, Italy",
+          confirm:"",
+          cost:"",
+          details:"Purpose: compete as an athlete (Singles Pro)."
+        },
+
+        {
+          id: uid(),
+          type:"flight",
+          start:"2026-04-05 09:55",
+          end:"2026-04-05 15:35",
+          title:"BLQ → WAW (via CDG) — times need verification",
+          where:"Bologna (BLQ) → Paris (CDG) → Warsaw (WAW)",
+          confirm:"",
+          cost:248.10,
+          details:"As provided: Depart BLQ 9:55 AM. Land 3:35 PM (CDG layover 1h25). Segment notes: 'CDG→WAW dep 1:10 PM land 3:35 PM' appears inconsistent. Update once ticket itinerary is confirmed. Paid with Capital One."
+        },
+        {
+          id: uid(),
+          type:"lodging",
+          start:"2026-04-05 16:00",
+          end:"2026-04-19 11:00",
+          title:"Warsaw Airbnb (Hosted by Vermouth Sp. Zoo)",
+          where:"Warsaw, Poland",
+          confirm:"",
+          cost:787.76,
+          details:"Check-in Sun Apr 5 at 4:00 PM. Checkout Sun Apr 19 at 11:00 AM."
+        },
+        {
+          id: uid(),
+          type:"event",
+          start:"2026-04-16",
+          end:"",
+          title:"HYROX Warsaw — Singles Open",
+          where:"Warsaw, Poland",
+          confirm:"",
+          cost:"",
+          details:"Thursday Apr 16."
+        },
+        {
+          id: uid(),
+          type:"event",
+          start:"2026-04-17",
+          end:"",
+          title:"HYROX Warsaw — Singles Pro",
+          where:"Warsaw, Poland",
+          confirm:"",
+          cost:"",
+          details:"Friday Apr 17."
+        },
+
+        {
+          id: uid(),
+          type:"todo",
+          start:"2026-04-19",
+          end:"2026-04-30",
+          title:"Apr 19–Apr 30 — TBD: Lithuania / Latvia / Serbia (likely)",
+          where:"Baltics + Serbia (to confirm)",
+          confirm:"",
+          cost:"",
+          details:"Add city sequence, transport (flight/train/bus), and lodging once confirmed."
+        },
+
+        {
+          id: uid(),
+          type:"flight",
+          start:"2026-04-30 20:10",
+          end:"2026-05-01 11:35",
+          title:"MXP → IST → IAD (return)",
+          where:"Milan (MXP) → Istanbul (IST) → Washington Dulles (IAD)",
+          confirm:"",
+          cost:0,
+          details:"Depart MXP 8:10 PM. ~2h55 to IST. Layover ~7h35. Depart IST 7:40 AM. Land IAD 11:35 AM on May 1."
+        },
+        {
+          id: uid(),
+          type:"todo",
+          start:"2026-04-30",
+          end:"",
+          title:"Get to Milan (MXP) for return flight",
+          where:"Milan, Italy",
+          confirm:"",
+          cost:"",
+          details:"Plan how you get to Milan by Apr 30: from Serbia/Baltics? Train/flight + any overnight stay near MXP."
+        },
+
+        {
+          id: uid(),
+          type:"flight",
+          start:"2026-05-10 10:58",
+          end:"2026-05-10 13:44",
+          title:"BWI → DFW (Frontier) — direct",
+          where:"Baltimore/Washington (BWI) → Dallas/Fort Worth (DFW)",
+          confirm:"",
+          cost:379.96,
+          details:"Depart 10:58 AM. Land 1:44 PM. Paid with Capital One."
+        },
+        {
+          id: uid(),
+          type:"event",
+          start:"2026-05-10",
+          end:"2026-05-16",
+          title:"PBR Unleash the Beast — World Finals (2026)",
+          where:"Fort Worth / Arlington area (confirm venue)",
+          confirm:"",
+          cost:"",
+          details:"Trip purpose: attend PBR World Finals."
+        },
+        {
+          id: uid(),
+          type:"flight",
+          start:"2026-05-16 12:00",
+          end:"2026-05-16 16:11",
+          title:"DFW → BWI (Frontier) — direct",
+          where:"Dallas/Fort Worth (DFW) → Baltimore/Washington (BWI)",
+          confirm:"",
+          cost:0,
+          details:"Depart 12:00 PM. Land 4:11 PM."
+        },
+        {
+          id: uid(),
+          type:"todo",
+          start:"2026-05-10",
+          end:"2026-05-16",
+          title:"Dallas/Fort Worth lodging — TBD",
+          where:"DFW / Fort Worth",
+          confirm:"",
+          cost:"",
+          details:"Choose hotel/Airbnb based on event venue + transit. Add confirmation number once booked."
+        },
+        {
+          id: uid(),
+          type:"todo",
+          start:"2026-07-17 20:00",
+          end:"",
+          title:"Shane Gillis show (drive VA → PA) — lodging TBD",
+          where:"Pennsylvania (confirm city/venue)",
+          confirm:"",
+          cost:"",
+          details:"No flight; driving from VA. Book lodging about a week prior; add parking plan + drive time buffer."
+        },
+
+        // Expenses as separate items (so chart works even if you later edit flight cards)
+        { id: uid(), type:"expense", start:"2026-04-02", end:"", title:"Flights (multi-city): IAD→BLQ + MXP→IAD", where:"Capital One", confirm:"", cost:752.83, details:"Cost captured as provided." },
+        { id: uid(), type:"expense", start:"2026-04-05", end:"", title:"Flight: BLQ→WAW", where:"Capital One", confirm:"", cost:248.10, details:"Cost captured as provided." },
+        { id: uid(), type:"expense", start:"2026-05-10", end:"", title:"Flights: BWI↔DFW (Frontier)", where:"Capital One", confirm:"", cost:379.96, details:"Cost captured as provided (round-trip)." },
+        { id: uid(), type:"expense", start:"2026-04-02", end:"", title:"Hotel: Social Hub Bologna", where:"Capital One", confirm:"", cost:511.92, details:"Cost captured as provided." },
+        { id: uid(), type:"expense", start:"2026-04-05", end:"", title:"Airbnb: Warsaw (Apr 5–19)", where:"Airbnb", confirm:"", cost:787.76, details:"Cost captured as provided." }
+      ]
+    };
+
+    // ===== Storage =====
+    const KEY = "itinerary_dashboard_v1";
+    function load(){
+      try{
+        const raw = localStorage.getItem(KEY);
+        if(!raw) return structuredClone(SEED);
+        const data = JSON.parse(raw);
+        // basic safety
+        if(!data || !data.items || !data.meta) return structuredClone(SEED);
+        return data;
+      }catch(e){
+        return structuredClone(SEED);
+      }
+    }
+    function save(){
+      localStorage.setItem(KEY, JSON.stringify(state));
+    }
+
+    let state = load();
+
+    // ===== Rendering =====
+    const timelineEl = document.getElementById("timeline");
+    const kpisEl = document.getElementById("kpis");
+    const chipsEl = document.getElementById("chips");
+    const chart = document.getElementById("costChart");
+    const ctx = chart.getContext("2d");
+    const breakdownEl = document.getElementById("costBreakdown");
+
+    function compute(){
+      const items = state.items;
+      const dated = items
+        .filter(i => parseDate(i.start))
+        .sort((a,b)=>parseDate(a.start)-parseDate(b.start));
+      const start = dated.length ? parseDate(dated[0].start) : null;
+      const end = (() => {
+        const ends = items.map(i => parseDate(i.end)).filter(Boolean);
+        const maxEnd = ends.length ? new Date(Math.max(...ends.map(d=>d.getTime()))) : null;
+        const maxStart = dated.length ? new Date(Math.max(...dated.map(i=>parseDate(i.start).getTime()))) : null;
+        return maxEnd || maxStart;
+      })();
+
+      const expenses = items.filter(i => i.type === "expense" && isFinite(+i.cost)).reduce((s,i)=>s+(+i.cost),0);
+
+      const counts = {
+        flight: items.filter(i=>i.type==="flight").length,
+        lodging: items.filter(i=>i.type==="lodging").length,
+        event: items.filter(i=>i.type==="event").length,
+        todo: items.filter(i=>i.type==="todo").length,
+        expense: items.filter(i=>i.type==="expense").length
+      };
+
+      return { start, end, expenses, counts };
+    }
+
+    function renderKPIs(){
+      const { start, end, expenses, counts } = compute();
+      const currency = state.meta.currency || "USD";
+      const daySpan = (start && end) ? Math.ceil((end - start)/(1000*60*60*24)) + 1 : 0;
+
+      const items = [
+        { label:"Trip span", value: daySpan ? `${daySpan} days` : "—", hint: (start && end) ? `${toLocalDisplay(fmtDate(state.items.sort((a,b)=> (parseDate(a.start)||0)-(parseDate(b.start)||0))[0].start))} → ${toLocalDisplay(fmtDate(state.items.reduce((m,i)=> (parseDate(i.end)||parseDate(i.start)||0) > (parseDate(m)||0) ? (i.end||i.start) : m, state.items[0]?.start||"")))}` : "Add at least one dated item." },
+        { label:"Known booked costs", value: `${currency} ${expenses.toFixed(2)}`, hint:"Sum of Expense items. Add expenses as you book lodging/transport." },
+        { label:"Planned flights", value: String(counts.flight), hint:"Add confirmation numbers when you have them." },
+        { label:"To-dos / gaps", value: String(counts.todo), hint:"These are placeholders you can convert into real plans." }
+      ];
+
+      kpisEl.innerHTML = items.map(k => `
+        <div class="kpi">
+          <div class="label">${k.label}</div>
+          <div class="value">${k.value}</div>
+          <div class="hint">${k.hint}</div>
+        </div>
+      `).join("");
+
+      const chipList = [
+        ["Flights", counts.flight],
+        ["Lodging", counts.lodging],
+        ["Events", counts.event],
+        ["To-dos", counts.todo],
+      ];
+      chipsEl.innerHTML = chipList.map(([n,v]) => `<span class="chip">${n} <b>${v}</b></span>`).join("");
+    }
+
+    function typeBadge(type){
+      const map = {
+        flight: ["Flight", "flight"],
+        lodging: ["Lodging", "lodging"],
+        event: ["Event", "event"],
+        todo: ["Missing / TBD", "todo"],
+        expense: ["Expense", ""],
+        note: ["Note", ""]
+      };
+      const [label, cls] = map[type] || [type, ""];
+      return `<span class="badge ${cls}">${label}</span>`;
+    }
+
+    function renderTimeline(){
+      const q = (document.getElementById("search").value || "").toLowerCase().trim();
+      const ft = document.getElementById("filterType").value;
+      const sortOrder = document.getElementById("sortOrder").value;
+
+      let items = [...state.items].filter(i => i.type !== "expense"); // keep expenses out of main timeline by default
+      if(ft !== "all") items = items.filter(i => i.type === ft);
+      if(q){
+        items = items.filter(i => JSON.stringify(i).toLowerCase().includes(q));
+      }
+
+      // sort by start date (fallback: title)
+      items.sort((a,b)=>{
+        const da = parseDate(a.start)?.getTime() ?? Number.POSITIVE_INFINITY;
+        const db = parseDate(b.start)?.getTime() ?? Number.POSITIVE_INFINITY;
+        if(da !== db) return da - db;
+        return String(a.title||"").localeCompare(String(b.title||""));
+      });
+      if(sortOrder === "desc") items.reverse();
+
+      timelineEl.innerHTML = items.map(i => {
+        const start = i.start ? toLocalDisplay(i.start) : "TBD";
+        const end = i.end ? toLocalDisplay(i.end) : "";
+        const dateTitle = end ? `${start} → ${end}` : start;
+
+        const extra = [];
+        if(i.confirm) extra.push(["Ref", i.confirm]);
+        if(i.type === "lodging" && /check-?in/i.test(i.details||"") === false){
+          // no-op; user can add
+        }
+        if(isFinite(+i.cost) && +i.cost>0) extra.push(["Cost", `${state.meta.currency||"USD"} ${(+i.cost).toFixed(2)}`]);
+
+        const grid = extra.length ? `
+          <div class="cardGrid">
+            ${extra.slice(0,4).map(([k,v]) => `
+              <div class="mini">
+                <div class="k">${k}</div>
+                <div class="v">${escapeHtml(String(v))}</div>
+              </div>
+            `).join("")}
+          </div>` : "";
+
+        return `
+          <div class="tItem">
+            <div class="dot"></div>
+            <div class="dateBox">
+              <div class="d">${escapeHtml(dateTitle)}</div>
+              <div class="t">${escapeHtml(i.where || "")}</div>
+            </div>
+            <div class="card">
+              <div class="cardTop">
+                <div>
+                  <h3>${escapeHtml(i.title || "(untitled)")}</h3>
+                  <div class="meta">${escapeHtml(i.details || "")}</div>
+                </div>
+                <div class="badges">
+                  ${typeBadge(i.type)}
+                  ${i.confirm ? `<span class="badge">Has ref</span>` : ``}
+                  ${i.type==="todo" ? `<span class="badge todo">Action needed</span>` : ``}
+                </div>
+              </div>
+              ${grid}
+              <div class="cardBtns">
+                <button data-edit="${i.id}">Edit</button>
+                ${i.type==="todo" ? `<button class="primary" data-convert="${i.id}">Convert to plan</button>` : ``}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      timelineEl.querySelectorAll("button[data-edit]").forEach(btn=>{
+        btn.addEventListener("click", () => openModal(btn.getAttribute("data-edit")));
+      });
+      timelineEl.querySelectorAll("button[data-convert]").forEach(btn=>{
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-convert");
+          const item = state.items.find(x=>x.id===id);
+          if(!item) return;
+          // simple conversion: todo -> note, then user edits
+          item.type = "note";
+          if(!item.title?.toLowerCase().includes("converted")) item.title = item.title + " (converted)";
+          save(); renderAll();
+          openModal(id);
+        });
+      });
+    }
+
+    function escapeHtml(s){
+      return s
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function drawCostChart(){
+      const currency = state.meta.currency || "USD";
+      // gather expense buckets
+      const expenses = state.items
+        .filter(i => i.type === "expense" && isFinite(+i.cost))
+        .map(i => ({ title: i.title || "Expense", cost:+i.cost }));
+
+      // bucket heuristic
+      const buckets = [
+        { key:"Flights", test:(t)=>/flight|air|airline|iad|blq|waw|bwi|dfw|mxp|ist/i.test(t), total:0 },
+        { key:"Lodging", test:(t)=>/hotel|airbnb|stay|lodg|hub/i.test(t), total:0 },
+        { key:"Other", test:(_)=>true, total:0 }
+      ];
+      expenses.forEach(e=>{
+        const b = buckets.find(b=>b.test(e.title));
+        b.total += e.cost;
+      });
+
+      // remove empty buckets
+      const b2 = buckets.filter(b=>b.total>0);
+
+      // clear
+      const w = chart.width, h = chart.height;
+      ctx.clearRect(0,0,w,h);
+
+      // grid
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      for(let i=0;i<5;i++){
+        const y = 24 + i*((h-50)/4);
+        ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(w-12,y); ctx.stroke();
+      }
+
+      const max = Math.max(...b2.map(b=>b.total), 1);
+      const barW = (w-70) / Math.max(b2.length,1);
+      const baseY = h-22;
+
+      // bars
+      b2.forEach((b, idx)=>{
+        const x = 48 + idx*barW + 10;
+        const bw = barW - 20;
+        const barH = Math.max(8, (b.total/max)*(h-70));
+        const y = baseY - barH;
+
+        // bar
+        ctx.fillStyle = "rgba(122,162,255,0.32)";
+        if(b.key==="Lodging") ctx.fillStyle = "rgba(126,240,193,0.26)";
+        if(b.key==="Other") ctx.fillStyle = "rgba(255,204,102,0.22)";
+        roundRect(ctx, x, y, bw, barH, 10, true, false);
+
+        // labels
+        ctx.fillStyle = "rgba(231,238,252,0.92)";
+        ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
+        const money = `${currency} ${b.total.toFixed(2)}`;
+        ctx.fillText(money, x, y-6);
+
+        ctx.fillStyle = "rgba(169,182,211,0.95)";
+        ctx.font = "12px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial";
+        ctx.fillText(b.key, x, baseY+14);
+      });
+
+      // breakdown text
+      const total = b2.reduce((s,b)=>s+b.total,0);
+      breakdownEl.innerHTML = `
+        <div><b>Total known costs:</b> ${currency} ${total.toFixed(2)}</div>
+        <div style="margin-top:6px">Buckets: ${b2.map(b=>`${b.key}: ${currency} ${b.total.toFixed(2)}`).join(" · ")}</div>
+        <div style="margin-top:6px">Tip: add “Expense” items for trains, buses, extra hotels, tickets, and food budgets.</div>
+      `;
+    }
+
+    function roundRect(ctx, x, y, w, h, r, fill, stroke) {
+      if (typeof r === 'number') r = {tl:r, tr:r, br:r, bl:r};
+      ctx.beginPath();
+      ctx.moveTo(x + r.tl, y);
+      ctx.lineTo(x + w - r.tr, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r.tr);
+      ctx.lineTo(x + w, y + h - r.br);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
+      ctx.lineTo(x + r.bl, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r.bl);
+      ctx.lineTo(x, y + r.tl);
+      ctx.quadraticCurveTo(x, y, x + r.tl, y);
+      ctx.closePath();
+      if (fill) ctx.fill();
+      if (stroke) ctx.stroke();
+    }
+
+    function renderAll(){
+      // sync meta inputs
+      document.getElementById("homeBase").value = state.meta.homeBase || "";
+      document.getElementById("purpose").value = state.meta.purpose || "";
+      document.getElementById("pacing").value = state.meta.pacing || "Efficient & clustered";
+      document.getElementById("budgetFocus").value = state.meta.budgetFocus || "Comfort/value";
+      document.getElementById("currency").value = state.meta.currency || "USD";
+      document.getElementById("notes").value = state.meta.notes || "";
+
+      renderKPIs();
+      renderTimeline();
+      drawCostChart();
+    }
+
+    // ===== Meta input bindings =====
+    ["homeBase","purpose","pacing","budgetFocus","currency","notes"].forEach(id=>{
+      document.getElementById(id).addEventListener("input", (e)=>{
+        const v = e.target.value;
+        if(id==="homeBase") state.meta.homeBase=v;
+        if(id==="purpose") state.meta.purpose=v;
+        if(id==="pacing") state.meta.pacing=v;
+        if(id==="budgetFocus") state.meta.budgetFocus=v;
+        if(id==="currency") state.meta.currency=v || "USD";
+        if(id==="notes") state.meta.notes=v;
+        save(); renderKPIs(); drawCostChart();
+      });
+    });
+
+    // Filters
+    ["search","filterType","sortOrder"].forEach(id=>{
+      document.getElementById(id).addEventListener("input", ()=>renderTimeline());
+      document.getElementById(id).addEventListener("change", ()=>renderTimeline());
+    });
+
+    // ===== Modal logic =====
+    const modalBack = document.getElementById("modalBack");
+    const btnAdd = document.getElementById("btnAdd");
+    const btnClose = document.getElementById("btnClose");
+    const btnSave = document.getElementById("btnSave");
+    const btnDelete = document.getElementById("btnDelete");
+    let editingId = null;
+
+    function openModal(id=null){
+      editingId = id;
+      const isEdit = !!id;
+      const item = isEdit ? state.items.find(x=>x.id===id) : null;
+
+      document.getElementById("modalTitle").textContent = isEdit ? "Edit item" : "Add item";
+      document.getElementById("modalHint").textContent = isEdit ? "Update fields and Save. Costs on Expense items update the chart." : "Add a new itinerary item. Use type “Expense” for cost tracking.";
+
+      btnDelete.style.display = isEdit ? "inline-flex" : "none";
+
+      document.getElementById("mType").value = item?.type || "flight";
+      document.getElementById("mStart").value = item?.start || "";
+      document.getElementById("mEnd").value = item?.end || "";
+      document.getElementById("mTitle").value = item?.title || "";
+      document.getElementById("mWhere").value = item?.where || "";
+      document.getElementById("mConfirm").value = item?.confirm || "";
+      document.getElementById("mCost").value = item?.cost ?? "";
+      document.getElementById("mDetails").value = item?.details || "";
+
+      modalBack.style.display = "flex";
+    }
+
+    function closeModal(){
+      modalBack.style.display = "none";
+      editingId = null;
+    }
+
+    btnAdd.addEventListener("click", ()=>openModal(null));
+    btnClose.addEventListener("click", closeModal);
+    modalBack.addEventListener("click", (e)=>{
+      if(e.target === modalBack) closeModal();
+    });
+
+    btnSave.addEventListener("click", ()=>{
+      const item = {
+        id: editingId || uid(),
+        type: document.getElementById("mType").value,
+        start: document.getElementById("mStart").value.trim(),
+        end: document.getElementById("mEnd").value.trim(),
+        title: document.getElementById("mTitle").value.trim(),
+        where: document.getElementById("mWhere").value.trim(),
+        confirm: document.getElementById("mConfirm").value.trim(),
+        cost: document.getElementById("mCost").value.trim(),
+        details: document.getElementById("mDetails").value.trim()
+      };
+
+      // normalize cost
+      if(item.cost === "") item.cost = "";
+      else if(isFinite(+item.cost)) item.cost = +item.cost;
+      else item.cost = "";
+
+      if(editingId){
+        const idx = state.items.findIndex(x=>x.id===editingId);
+        if(idx>=0) state.items[idx] = item;
+      }else{
+        state.items.push(item);
+      }
+
+      save(); renderAll(); closeModal();
+    });
+
+    btnDelete.addEventListener("click", ()=>{
+      if(!editingId) return;
+      state.items = state.items.filter(x=>x.id !== editingId);
+      save(); renderAll(); closeModal();
+    });
+
+    // ===== Export / Import =====
+    document.getElementById("btnExport").addEventListener("click", ()=>{
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "itinerary-data.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    const fileInput = document.getElementById("fileInput");
+    document.getElementById("btnImport").addEventListener("click", ()=> fileInput.click());
+    fileInput.addEventListener("change", async (e)=>{
+      const f = e.target.files?.[0];
+      if(!f) return;
+      try{
+        const txt = await f.text();
+        const data = JSON.parse(txt);
+        if(!data || !data.items || !data.meta) throw new Error("Invalid file");
+        state = data;
+        save(); renderAll();
+      }catch(err){
+        alert("Could not import JSON. Make sure it's an export from this itinerary page.");
+      }finally{
+        fileInput.value = "";
+      }
+    });
+
+    // ===== Reset =====
+    document.getElementById("btnReset").addEventListener("click", ()=>{
+      if(!confirm("Reset itinerary to your initial plan? This will overwrite local edits.")) return;
+      state = structuredClone(SEED);
+      save(); renderAll();
+    });
+
+    // ===== GitHub Pages help =====
+    document.getElementById("howToGithub").addEventListener("click", ()=>{
+      alert(
+`GitHub Pages quick publish:
+1) Create a public repo (any name, e.g., "trip-itinerary").
+2) Upload this file as index.html (and any assets).
+3) Go to Settings → Pages
+4) Source: Deploy from branch → main → /(root)
+5) Your link appears at the top (usually https://<username>.github.io/<repo>/ )
+
+Tip: For a personal root site, name the repo <username>.github.io and your URL becomes https://<username>.github.io/`
+      );
+    });
+
+    // ===== Initial render =====
+    renderAll();
+  </script>
+</body>
+</html>
