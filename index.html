@@ -142,8 +142,8 @@
           <input type="date" id="tripStart" required>
         </div>
         <div class="form-group">
-          <label>End Date</label>
-          <input type="date" id="tripEnd" required>
+          <label>End Date (optional)</label>
+          <input type="date" id="tripEnd">
         </div>
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="closeModal('tripModal')">Cancel</button>
@@ -299,7 +299,7 @@
           <div class="list-item-main">
             <p class="list-item-title">${t.name}</p>
             <p class="list-item-subtitle">${t.destination} • ${formatCurrency(t.budget)} budget</p>
-            <p class="list-item-subtitle">${t.start} to ${t.end}</p>
+            <p class="list-item-subtitle">${t.start}${t.end ? ` to ${t.end}` : ' (one-way / open-ended)'}</p>
           </div>
           <button class="btn btn-danger" onclick="deleteTrip(${t.id})">Delete</button>
         </div>
@@ -411,7 +411,34 @@
       };
       reader.readAsText(file);
     }
+    function initializeSampleData() {
+      if (store.trips.length === 0) {
+        store.trips = [
+          { id: 1, name: "Europe Trip - Hyrox & Cities", destination: "Bologna → Warsaw → Milan", budget: 3500, start: "2026-04-02", end: "2026-05-01" },
+          { id: 2, name: "Dallas - PBR World Finals", destination: "Dallas, Texas", budget: 1500, start: "2026-05-10", end: "2026-05-16" },
+          { id: 3, name: "PA - Shane Gillis Event", destination: "Pennsylvania", budget: 500, start: "2026-07-17" }
+        ];
+        store.expenses = [
+          { id: 101, description: "IAD-BLQ Flight", amount: 752.83, category: "Transport", trip: "Europe Trip - Hyrox & Cities", date: "2026-04-02" },
+          { id: 102, description: "BLQ-WAW Flight (with CDG layover 1hr25min)", amount: 248.10, category: "Transport", trip: "Europe Trip - Hyrox & Cities", date: "2026-04-05" },
+          { id: 103, description: "MXP-IAD Return Flight (via Istanbul, 7hr35min layover)", amount: 752.83, category: "Transport", trip: "Europe Trip - Hyrox & Cities", date: "2026-05-01" },
+          { id: 104, description: "Frontier: IAD-DFW", amount: 379.96, category: "Transport", trip: "Dallas - PBR World Finals", date: "2026-05-10" },
+          { id: 201, description: "Social Hub Bologna (Apr 3-5, 3PM-12PM)", amount: 511.92, category: "Accommodation", trip: "Europe Trip - Hyrox & Cities", date: "2026-04-03" },
+          { id: 202, description: "Warsaw Airbnb (Apr 5-19, 4PM-11AM)", amount: 787.76, category: "Accommodation", trip: "Europe Trip - Hyrox & Cities", date: "2026-04-05" }
+        ];
+        store.notes = [
+          { id: 301, title: "Bologna - Hyrox Singles Pro", type: "Itinerary", content: "Event on April 4th. Staying at Social Hub Bologna, Via Aristotele Fiorvanti 27. Check-in 3PM Apr 3, Check-out 12PM Apr 5." },
+          { id: 302, title: "Warsaw - Hyrox Competitions", type: "Itinerary", content: "Hyrox Singles Open: April 16th. Hyrox Singles Pro: April 17th. Airbnb hosted by Vermouth Sp. Zoo. Arrive Apr 5 4PM, Depart Apr 19 11AM." },
+          { id: 303, title: "TBD: April 19-30 (Eastern Europe Exploration)", type: "Warning", content: "Open itinerary for Lithuania, Latvia, and Serbia visits. NEEDS PLANNING: Accommodation and specific dates." },
+          { id: 304, title: "Return Flight: Milan to DC", type: "Itinerary", content: "Depart Milan (MXP) 8:10PM, 2hr55min flight, Istanbul layover 7hr35min, Depart Istanbul 7:40AM, Arrive DC 11:35AM May 1st." },
+          { id: 305, title: "Dallas - PBR Unleash the Beast World Finals", type: "Itinerary", content: "2026 PBR Unleash the Beast event. Arrive May 10 1:44PM, Depart May 16 4:11PM. NEEDS PLANNING: Hotel in Fort Worth area." },
+          { id: 306, title: "PA Event - Shane Gillis Comedy Show", type: "Tip", content: "July 17 at 8PM in Pennsylvania. Driving from Virginia. NEEDS PLANNING: Accommodation (plan 1 week before)." }
+        ];
+        store.save();
+      }
+    }
     store.load();
+    initializeSampleData();
     render();
   </script>
 </body>
