@@ -3,124 +3,282 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Travel Itinerary Dashboard (Hyrox + Events)</title>
+  <title>Travel Itinerary Dashboard</title>
+  <meta name="color-scheme" content="dark light">
   <style>
     :root{
-      --bg:#0b1220;
-      --panel:#101a30;
-      --panel2:#0f1730;
-      --text:#e7eefc;
-      --muted:#a9b6d3;
-      --line:#2a3a62;
-      --accent:#7aa2ff;
-      --accent2:#7ef0c1;
-      --warn:#ffcc66;
-      --danger:#ff6b6b;
-      --chip:#1a2747;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius:16px;
+      --radius:14px;
+      --radius-sm:10px;
+
+      /* Light defaults */
+      --bg:#f6f8ff;
+      --surface:#ffffff;
+      --surface-2:#f2f5ff;
+      --border:rgba(20,30,60,.12);
+      --text:#0b1324;
+      --muted:rgba(11,19,36,.70);
+      --muted-2:rgba(11,19,36,.55);
+
+      --shadow: 0 8px 24px rgba(10,18,35,.10);
+      --shadow-sm: 0 6px 14px rgba(10,18,35,.08);
+
+      --flight:#2f6bff;
+      --lodging:#12b981;
+      --event:#f4b740;
+      --todo:#ff5a6f;
+
+      --chip: rgba(20,30,60,.06);
+      --focus: 0 0 0 4px rgba(47,107,255,.20);
+
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --anim: 160ms cubic-bezier(.2,.8,.2,1);
     }
-    *{box-sizing:border-box}
+
+    [data-theme="dark"]{
+      --bg:#0b1220;
+      --surface:#0f1730;
+      --surface-2:#101a30;
+      --border:rgba(255,255,255,.10);
+      --text:#e7eefc;
+      --muted:rgba(231,238,252,.72);
+      --muted-2:rgba(231,238,252,.56);
+
+      --shadow: 0 14px 32px rgba(0,0,0,.35);
+      --shadow-sm: 0 10px 20px rgba(0,0,0,.28);
+
+      --chip: rgba(255,255,255,.06);
+      --focus: 0 0 0 4px rgba(122,162,255,.18);
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
     body{
       margin:0;
+      font-family:var(--sans);
       background:
-        radial-gradient(1200px 800px at 10% 0%, rgba(122,162,255,.18), transparent 55%),
-        radial-gradient(1000px 700px at 90% 20%, rgba(126,240,193,.12), transparent 60%),
-        radial-gradient(900px 800px at 60% 100%, rgba(255,204,102,.08), transparent 55%),
+        radial-gradient(1200px 900px at 10% 0%, rgba(47,107,255,.10), transparent 60%),
+        radial-gradient(1000px 800px at 90% 20%, rgba(18,185,129,.08), transparent 62%),
+        radial-gradient(900px 900px at 55% 100%, rgba(244,183,64,.06), transparent 55%),
         var(--bg);
       color:var(--text);
-      font-family:var(--sans);
+      line-height:1.3;
     }
-    header{
-      padding:22px 18px 10px;
-      max-width:1180px;
+
+    /* ===== Top App Bar ===== */
+    .appbar{
+      position:sticky;
+      top:0;
+      z-index:20;
+      background: color-mix(in srgb, var(--bg) 70%, transparent);
+      backdrop-filter: blur(14px);
+      border-bottom:1px solid var(--border);
+    }
+    .appbarInner{
+      max-width:1200px;
       margin:0 auto;
+      padding:14px 16px 10px;
       display:flex;
-      gap:14px;
-      flex-wrap:wrap;
+      gap:12px;
       align-items:flex-end;
       justify-content:space-between;
+      flex-wrap:wrap;
     }
-    .titleBlock h1{
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width:240px;
+    }
+    .logo{
+      width:34px; height:34px;
+      border-radius:10px;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--flight) 78%, transparent), color-mix(in srgb, var(--lodging) 58%, transparent));
+      box-shadow: var(--shadow-sm);
+      border:1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    }
+    .brand h1{
       margin:0;
-      font-size:20px;
+      font-size: clamp(16px, 2.2vw, 18px);
+      font-weight: 850;
       letter-spacing:.2px;
-      font-weight:800;
     }
-    .titleBlock p{
+    .brand p{
       margin:6px 0 0;
       color:var(--muted);
-      font-size:13px;
-      max-width:740px;
-      line-height:1.4;
+      font-size: clamp(12px, 1.8vw, 13px);
+      max-width:720px;
     }
-    .actions{
+
+    .toolbar{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       align-items:center;
       justify-content:flex-end;
     }
-    button{
+
+    .iconBtn{
       appearance:none;
-      border:1px solid rgba(255,255,255,.10);
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 86%, transparent);
       color:var(--text);
       padding:10px 12px;
       border-radius:12px;
       cursor:pointer;
-      box-shadow:0 6px 16px rgba(0,0,0,.25);
-      font-weight:650;
+      box-shadow: var(--shadow-sm);
+      font-weight: 750;
+      font-size: 13px;
+      transition: transform var(--anim), box-shadow var(--anim), border-color var(--anim);
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+      touch-action: manipulation;
+    }
+    .iconBtn:hover{
+      transform: translateY(-1px);
+      border-color: color-mix(in srgb, var(--flight) 45%, var(--border));
+      box-shadow: var(--shadow);
+    }
+    .iconBtn:active{ transform: translateY(0px) scale(.99); }
+    .iconBtn:focus-visible{ outline:none; box-shadow: var(--shadow-sm), var(--focus); }
+    .iconBtn.primary{
+      border-color: color-mix(in srgb, var(--flight) 55%, var(--border));
+      background: linear-gradient(180deg, color-mix(in srgb, var(--flight) 14%, var(--surface)), color-mix(in srgb, var(--flight) 7%, var(--surface)));
+    }
+    .iconBtn.danger{
+      border-color: color-mix(in srgb, var(--todo) 55%, var(--border));
+      background: linear-gradient(180deg, color-mix(in srgb, var(--todo) 12%, var(--surface)), color-mix(in srgb, var(--todo) 6%, var(--surface)));
+    }
+
+    /* ===== Tabs ===== */
+    .tabs{
+      max-width:1200px;
+      margin:0 auto;
+      padding:0 16px 10px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .tabRow{
+      display:flex;
+      gap:8px;
+      background: color-mix(in srgb, var(--surface) 82%, transparent);
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:6px;
+      box-shadow: var(--shadow-sm);
+    }
+    .tab{
+      appearance:none;
+      border:none;
+      background: transparent;
+      color: var(--muted);
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:800;
+      cursor:pointer;
+      transition: background var(--anim), color var(--anim), transform var(--anim);
+    }
+    .tab[aria-selected="true"]{
+      background: color-mix(in srgb, var(--flight) 15%, var(--surface));
+      color: var(--text);
+      box-shadow: 0 8px 16px rgba(0,0,0,.08);
+    }
+    .tab:focus-visible{ outline:none; box-shadow: var(--focus); }
+
+    .tabTools{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .searchPill{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background: color-mix(in srgb, var(--surface) 86%, transparent);
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:8px 12px;
+      box-shadow: var(--shadow-sm);
+      min-width:min(520px, 86vw);
+    }
+    @media (max-width: 600px){
+      .searchPill{ min-width: 100%; }
+    }
+    .searchPill input{
+      width:100%;
+      border:none;
+      background:transparent;
+      color:var(--text);
+      outline:none;
       font-size:13px;
     }
-    button:hover{ border-color:rgba(122,162,255,.45) }
-    button.primary{
-      border-color:rgba(122,162,255,.45);
-      background:linear-gradient(180deg, rgba(122,162,255,.22), rgba(122,162,255,.10));
-    }
-    button.danger{
-      border-color:rgba(255,107,107,.50);
-      background:linear-gradient(180deg, rgba(255,107,107,.20), rgba(255,107,107,.08));
-    }
-    main{
-      max-width:1180px;
+    .searchPill input::placeholder{ color: var(--muted-2); }
+
+    /* ===== Layout ===== */
+    .container{
+      max-width:1200px;
       margin:0 auto;
-      padding:0 18px 40px;
-      display:grid;
-      grid-template-columns: 420px 1fr;
-      gap:16px;
+      padding:10px 16px 84px;
     }
-    @media (max-width: 980px){
-      main{ grid-template-columns: 1fr; }
+    .grid{
+      display:grid;
+      gap:14px;
+      grid-template-columns: 420px 1fr;
+      align-items:start;
+    }
+    @media (max-width: 1200px){
+      .grid{ grid-template-columns: 380px 1fr; }
+    }
+    @media (max-width: 900px){
+      .grid{ grid-template-columns: 1fr; }
     }
 
     .panel{
-      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      background: color-mix(in srgb, var(--surface) 82%, transparent);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
       overflow:hidden;
     }
-    .panel header{
+    .panelHeader{
       padding:14px 14px 12px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-      margin:0;
-      max-width:none;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
     }
-    .panel header h2{
+    .panelHeader h2{
       margin:0;
-      font-size:14px;
+      font-size: 14px;
+      font-weight: 900;
       letter-spacing:.2px;
-      font-weight:800;
     }
-    .panel header .sub{
-      margin-top:6px;
+    .panelHeader .sub{
       color:var(--muted);
       font-size:12px;
+      margin-top:6px;
+      line-height:1.35;
+      max-width:660px;
     }
-    .panel .content{ padding:14px; }
+    .panelBody{ padding:14px; }
+
+    .sticky{
+      position: sticky;
+      top: 110px;
+    }
+    @media (max-width: 900px){
+      .sticky{ position: static; top:auto; }
+    }
 
     .kpis{
       display:grid;
@@ -128,92 +286,72 @@
       gap:10px;
     }
     .kpi{
-      background:rgba(16,26,48,.55);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:14px;
+      background: color-mix(in srgb, var(--surface) 65%, transparent);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
       padding:12px;
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--anim);
     }
-    .kpi .label{
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:6px;
-    }
-    .kpi .value{
-      font-size:18px;
-      font-weight:900;
-      letter-spacing:.2px;
-    }
-    .kpi .hint{
-      margin-top:6px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.3;
-    }
+    .kpi:hover{ transform: translateY(-1px); }
+    .kpi .label{ color:var(--muted); font-size:12px; }
+    .kpi .value{ margin-top:6px; font-size:18px; font-weight:950; letter-spacing:.2px; }
+    .kpi .hint{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35; }
 
     .chipRow{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-      margin-top:10px;
+      display:flex; flex-wrap:wrap; gap:8px;
+      margin-top:12px;
     }
     .chip{
-      background:rgba(26,39,71,.8);
-      border:1px solid rgba(255,255,255,.10);
-      color:var(--text);
-      padding:6px 10px;
+      padding:7px 10px;
       border-radius:999px;
+      border:1px solid var(--border);
+      background: var(--chip);
       font-size:12px;
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
+      display:inline-flex; gap:10px; align-items:center;
+      user-select:none;
     }
-    .chip b{ font-family:var(--mono); font-weight:800; font-size:11px; color:var(--accent2); }
+    .chip b{ font-family:var(--mono); font-size:11px; }
+    .chip .dot{ width:8px; height:8px; border-radius:50%; background: var(--flight); opacity:.9; }
+    .chip .dot.lodging{ background: var(--lodging); }
+    .chip .dot.event{ background: var(--event); }
+    .chip .dot.todo{ background: var(--todo); }
 
-    .fieldset{
+    .formGrid{
       margin-top:12px;
+      border-top:1px dashed color-mix(in srgb, var(--border) 80%, transparent);
       padding-top:12px;
-      border-top:1px dashed rgba(255,255,255,.14);
-    }
-    label{
-      display:block;
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:6px;
-    }
-    input, select, textarea{
-      width:100%;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(8,14,28,.55);
-      color:var(--text);
-      padding:10px 10px;
-      border-radius:12px;
-      outline:none;
-      font-size:13px;
-    }
-    textarea{ min-height:80px; resize:vertical; }
-    input:focus, select:focus, textarea:focus{
-      border-color: rgba(122,162,255,.55);
-      box-shadow:0 0 0 3px rgba(122,162,255,.14);
-    }
-    .row{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:10px;
     }
-    .row3{
-      display:grid;
-      grid-template-columns: 1.4fr 1fr 1fr;
-      gap:10px;
-    }
     @media (max-width: 520px){
-      .row,.row3{ grid-template-columns:1fr; }
+      .formGrid{ grid-template-columns: 1fr; }
+    }
+    label{ display:block; color:var(--muted); font-size:12px; margin-bottom:6px; }
+    input, select, textarea{
+      width:100%;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 70%, transparent);
+      color:var(--text);
+      padding:10px 10px;
+      border-radius: 12px;
+      outline:none;
+      font-size: 13px;
+    }
+    textarea{ min-height:92px; resize:vertical; }
+    input:focus, select:focus, textarea:focus{ box-shadow: var(--focus); }
+
+    .helper{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
     }
 
-    /* Timeline */
-    .timelineWrap{
-      padding:14px;
-    }
-    .filters{
+    /* ===== Timeline ===== */
+    .timelineWrap{ padding:14px; }
+    .filterRow{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
@@ -221,37 +359,45 @@
       justify-content:space-between;
       margin-bottom:10px;
     }
-    .filters .left{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
+    .filterRow .left, .filterRow .right{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
     }
-    .pill{
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(16,26,48,.45);
-      font-size:12px;
-      color:var(--muted);
+    .seg{
+      display:flex; gap:6px; flex-wrap:wrap; align-items:center;
+      padding:8px 10px;
+      border-radius: 12px;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 84%, transparent);
+      box-shadow: var(--shadow-sm);
     }
-    .pill input{
-      width:auto;
-      padding:0;
-      border:none;
-      background:transparent;
+    .seg span{ color:var(--muted); font-size:12px; }
+    .seg select{
+      width:auto; padding:0;
+      border:none; background:transparent;
       box-shadow:none;
-      color:var(--text);
       font-size:12px;
-      outline:none;
     }
+    .checks{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 84%, transparent);
+      box-shadow: var(--shadow-sm);
+    }
+    .checks label{
+      margin:0;
+      display:flex; gap:8px; align-items:center;
+      color:var(--muted);
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .checks input{ width:14px; height:14px; }
 
     .timeline{
       position:relative;
-      padding-left:22px;
+      padding-left: 26px;
       display:flex;
       flex-direction:column;
       gap:12px;
@@ -259,348 +405,568 @@
     .timeline::before{
       content:"";
       position:absolute;
-      left:9px;
+      left:10px;
       top:0;
       bottom:0;
       width:2px;
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(122,162,255,.70) 0 6px,
-          rgba(122,162,255,0) 6px 13px
-        );
+      background: repeating-linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--flight) 80%, transparent) 0 7px,
+        transparent 7px 14px
+      );
       border-radius:999px;
       opacity:.9;
     }
-    .tItem{
+
+    article.item{
       position:relative;
       display:grid;
-      grid-template-columns: 135px 1fr;
+      grid-template-columns: 150px 1fr;
       gap:12px;
       align-items:start;
+      animation: fadeInUp 220ms ease both;
+    }
+    @keyframes fadeInUp{
+      from{ opacity:0; transform: translateY(6px); }
+      to{ opacity:1; transform: translateY(0); }
     }
     @media (max-width: 720px){
-      .tItem{ grid-template-columns: 1fr; }
+      article.item{ grid-template-columns: 1fr; }
     }
-    .dot{
+
+    .node{
       position:absolute;
       left:2px;
-      top:12px;
+      top:14px;
       width:16px;
       height:16px;
       border-radius:50%;
-      background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.95), rgba(255,255,255,.25));
-      border:2px solid rgba(122,162,255,.85);
-      box-shadow:0 0 0 4px rgba(122,162,255,.15);
+      background: var(--surface);
+      border: 2px solid var(--flight);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--flight) 18%, transparent);
     }
+    .node.lodging{ border-color: var(--lodging); box-shadow: 0 0 0 4px color-mix(in srgb, var(--lodging) 18%, transparent); }
+    .node.event{ border-color: var(--event); box-shadow: 0 0 0 4px color-mix(in srgb, var(--event) 18%, transparent); }
+    .node.todo{ border-color: var(--todo); box-shadow: 0 0 0 4px color-mix(in srgb, var(--todo) 18%, transparent); }
+
     .dateBox{
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(16,26,48,.42);
-      min-height:54px;
+      padding:10px;
+      border-radius: var(--radius);
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 70%, transparent);
+      box-shadow: var(--shadow-sm);
     }
     .dateBox .d{
-      font-family:var(--mono);
-      font-weight:800;
-      font-size:12px;
-      color:var(--accent2);
-      letter-spacing:.3px;
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .2px;
     }
     .dateBox .t{
       margin-top:6px;
       color:var(--muted);
       font-size:12px;
-      line-height:1.25;
+      line-height:1.35;
     }
+
     .card{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(16,26,48,.50);
-      border-radius:16px;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 76%, transparent);
+      border-radius: var(--radius);
       padding:12px;
-      box-shadow:0 10px 22px rgba(0,0,0,.22);
+      box-shadow: var(--shadow);
+      transition: transform var(--anim), box-shadow var(--anim);
     }
+    .card:hover{ transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
     .cardTop{
       display:flex;
-      gap:10px;
       align-items:flex-start;
       justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
     }
-    .cardTop h3{
+    .card h3{
       margin:0;
-      font-size:14px;
-      font-weight:900;
-      letter-spacing:.2px;
+      font-size: 14px;
+      font-weight: 950;
+      letter-spacing:.1px;
     }
     .meta{
       margin-top:6px;
       color:var(--muted);
       font-size:12px;
-      line-height:1.35;
+      line-height:1.4;
+      max-width: 820px;
     }
-    .badges{
-      display:flex;
-      gap:6px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .badge{
-      font-size:11px;
-      padding:4px 8px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(26,39,71,.65);
-      color:var(--text);
-      white-space:nowrap;
-    }
-    .badge.flight{ border-color: rgba(122,162,255,.40); }
-    .badge.lodging{ border-color: rgba(126,240,193,.40); }
-    .badge.event{ border-color: rgba(255,204,102,.50); }
-    .badge.todo{ border-color: rgba(255,107,107,.50); }
 
-    .cardGrid{
+    .badges{ display:flex; gap:6px; flex-wrap:wrap; }
+    .badge{
+      font-size: 11px;
+      padding:5px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background: var(--chip);
+      color: var(--text);
+      user-select:none;
+    }
+    .badge.flight{ border-color: color-mix(in srgb, var(--flight) 45%, var(--border)); }
+    .badge.lodging{ border-color: color-mix(in srgb, var(--lodging) 45%, var(--border)); }
+    .badge.event{ border-color: color-mix(in srgb, var(--event) 50%, var(--border)); }
+    .badge.todo{ border-color: color-mix(in srgb, var(--todo) 55%, var(--border)); }
+
+    details{
+      margin-top:10px;
+      border-top:1px dashed color-mix(in srgb, var(--border) 80%, transparent);
+      padding-top:8px;
+    }
+    summary{
+      cursor:pointer;
+      color: var(--muted);
+      font-size:12px;
+      list-style:none;
+      user-select:none;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:6px 0;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    summary:focus-visible{ outline:none; box-shadow: var(--focus); border-radius:10px; padding:6px 8px; }
+
+    .detailsGrid{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap:10px;
       margin-top:10px;
     }
     @media (max-width: 640px){
-      .cardGrid{ grid-template-columns: 1fr; }
+      .detailsGrid{ grid-template-columns: 1fr; }
     }
     .mini{
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(8,14,28,.35);
-      border-radius:14px;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 66%, transparent);
+      border-radius: var(--radius-sm);
       padding:10px;
     }
-    .mini .k{ color:var(--muted); font-size:11px; margin-bottom:6px; }
-    .mini .v{ font-family:var(--mono); font-size:12px; font-weight:800; }
-    .mini .v span{ color:var(--muted); font-weight:700; }
+    .mini .k{ color:var(--muted); font-size:11px; }
+    .mini .v{ margin-top:6px; font-family:var(--mono); font-size:12px; font-weight:900; }
 
     .cardBtns{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
+      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
       margin-top:10px;
-      justify-content:flex-end;
     }
-    .cardBtns button{ padding:8px 10px; border-radius:12px; font-size:12px; box-shadow:none; }
+    .smallBtn{
+      appearance:none;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 86%, transparent);
+      color:var(--text);
+      padding:8px 10px;
+      border-radius: 12px;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:800;
+      transition: transform var(--anim);
+      touch-action: manipulation;
+    }
+    .smallBtn:hover{ transform: translateY(-1px); }
+    .smallBtn:focus-visible{ outline:none; box-shadow: var(--focus); }
+    .smallBtn.primary{
+      border-color: color-mix(in srgb, var(--flight) 55%, var(--border));
+      background: color-mix(in srgb, var(--flight) 12%, var(--surface));
+    }
 
-    /* Cost chart */
+    .dragHint{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:10px;
+      line-height:1.35;
+    }
+    .dragging{ opacity:.55; }
+    .dropTarget{ outline: 2px dashed color-mix(in srgb, var(--flight) 70%, transparent); outline-offset: 6px; border-radius: var(--radius); }
+
+    /* ===== Costs ===== */
+    .chartWrap{ padding:14px; }
     canvas{
       width:100%;
-      height:160px;
+      height:200px;
       display:block;
-      background:rgba(8,14,28,.20);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:14px;
+      background: color-mix(in srgb, var(--surface) 62%, transparent);
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
     }
-    .small{
+    .legend{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+      margin-top:10px;
       color:var(--muted);
       font-size:12px;
-      line-height:1.4;
     }
-    .footerNote{
-      color:var(--muted);
-      font-size:12px;
-      padding:14px;
-      border-top:1px solid rgba(255,255,255,.08);
-    }
+    .legend .sw{ width:12px; height:12px; border-radius:4px; display:inline-block; background: var(--flight); }
+    .legend .sw.lodging{ background: var(--lodging); }
+    .legend .sw.other{ background: var(--muted-2); }
 
-    /* Modal */
+    .breakdown{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+    .tooltip{
+      position: fixed;
+      pointer-events:none;
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      box-shadow: var(--shadow);
+      color:var(--text);
+      font-size:12px;
+      display:none;
+      z-index: 60;
+      min-width: 180px;
+    }
+    .tooltip b{ font-family: var(--mono); }
+
+    /* ===== Modal ===== */
     .modalBack{
       position:fixed; inset:0;
-      background:rgba(0,0,0,.55);
+      background: rgba(0,0,0,.52);
       display:none;
       align-items:center;
       justify-content:center;
-      padding:18px;
-      z-index:50;
+      padding: 16px;
+      z-index: 70;
     }
     .modal{
-      width:min(860px, 100%);
-      background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:18px;
-      box-shadow: 0 25px 70px rgba(0,0,0,.6);
+      width: min(920px, 100%);
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 28px 80px rgba(0,0,0,.55);
       overflow:hidden;
+      transform: translateY(6px);
+      opacity:0;
+      transition: opacity var(--anim), transform var(--anim);
     }
-    .modal header{
-      margin:0;
-      max-width:none;
+    .modalBack[open="true"] .modal{ transform: translateY(0); opacity: 1; }
+    .modalHeader{
       padding:14px 14px 12px;
-      border-bottom:1px solid rgba(255,255,255,.10);
+      border-bottom:1px solid var(--border);
       display:flex;
       align-items:flex-end;
       justify-content:space-between;
-      gap:10px;
+      gap: 10px;
+      flex-wrap:wrap;
     }
-    .modal header h2{ margin:0; font-size:14px; font-weight:900; }
-    .modal .body{ padding:14px; }
-    .modal .body .row{ margin-top:10px; }
-    .modal .footer{
+    .modalHeader h2{ margin:0; font-size:14px; font-weight: 950; }
+    .modalHeader .hint{ color:var(--muted); font-size:12px; margin-top:6px; line-height:1.35; }
+    .modalBody{ padding: 14px; }
+    .modalFooter{
       padding:12px 14px;
-      border-top:1px solid rgba(255,255,255,.10);
-      display:flex;
-      gap:10px;
-      justify-content:flex-end;
+      border-top:1px solid var(--border);
+      display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
     }
-    .hintInline{
-      color:var(--muted);
+    .row3{ display:grid; grid-template-columns: 1.4fr 1fr 1fr; gap:10px; }
+    .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px; }
+    @media (max-width: 720px){
+      .row3, .row2{ grid-template-columns: 1fr; }
+    }
+    .error{
+      margin-top:10px;
+      color: color-mix(in srgb, var(--todo) 70%, var(--text));
       font-size:12px;
-      margin-top:8px;
-      line-height:1.35;
+      display:none;
     }
-    .mutedLink{
-      color:var(--muted);
-      text-decoration:underline;
-      text-decoration-color: rgba(169,182,211,.35);
+
+    [role="tabpanel"]{ display:none; }
+    [role="tabpanel"][data-active="true"]{ display:block; }
+
+    /* ===== Mobile Bottom Nav ===== */
+    .bottomNav{
+      position: fixed;
+      left: 0; right:0; bottom: 0;
+      border-top:1px solid var(--border);
+      background: color-mix(in srgb, var(--bg) 75%, transparent);
+      backdrop-filter: blur(14px);
+      z-index: 40;
+      display:none;
+    }
+    .bottomNavInner{
+      max-width:1200px;
+      margin:0 auto;
+      padding:10px 12px;
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+    }
+    .navBtn{
+      appearance:none;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 82%, transparent);
+      border-radius: 14px;
+      padding:10px 10px;
       cursor:pointer;
+      box-shadow: var(--shadow-sm);
+      font-size:12px;
+      font-weight:850;
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      touch-action: manipulation;
+    }
+    .navBtn:focus-visible{ outline:none; box-shadow: var(--shadow-sm), var(--focus); }
+    @media (max-width: 600px){
+      .bottomNav{ display:block; }
+      .grid{ gap:12px; }
+      .panelHeader{ padding:12px; }
+      .panelBody{ padding:12px; }
+      .timelineWrap{ padding:12px; }
+      article.item{ gap:10px; }
+      .card{ padding:12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition:none !important; animation:none !important; scroll-behavior:auto !important; }
     }
   </style>
 </head>
+
 <body>
-  <header>
-    <div class="titleBlock">
-      <h1>Itinerary Dashboard — Hyrox Europe + US Events</h1>
-      <p>
-        Single-page itinerary you can host on GitHub Pages (or open locally/offline). It includes a dotted travel timeline, cost summary,
-        and editable “TBD” placeholders so you can fill missing logistics as you confirm details.
-      </p>
-    </div>
-    <div class="actions">
-      <button class="primary" id="btnAdd">+ Add item</button>
-      <button id="btnExport">Export JSON</button>
-      <button id="btnImport">Import JSON</button>
-      <button class="danger" id="btnReset">Reset to your initial plan</button>
-    </div>
-  </header>
-
-  <main>
-    <!-- LEFT: Summary / Inputs -->
-    <section class="panel">
-      <header>
-        <h2>Trip overview</h2>
-        <div class="sub">All values are editable and saved locally in your browser (LocalStorage).</div>
-      </header>
-      <div class="content">
-        <div class="kpis" id="kpis"></div>
-
-        <div class="chipRow" id="chips"></div>
-
-        <div class="fieldset">
-          <div class="row">
-            <div>
-              <label>Home base (for reference)</label>
-              <input id="homeBase" placeholder="Falls Church, VA (or your preference)" />
-            </div>
-            <div>
-              <label>Primary purpose</label>
-              <input id="purpose" placeholder="Hyrox competitions + travel + events" />
-            </div>
-          </div>
-          <div class="row">
-            <div>
-              <label>Preferred pacing</label>
-              <select id="pacing">
-                <option>Efficient & clustered</option>
-                <option>Balanced</option>
-                <option>Relaxed</option>
-                <option>High-energy packed</option>
-              </select>
-            </div>
-            <div>
-              <label>Budget focus</label>
-              <select id="budgetFocus">
-                <option>Value</option>
-                <option>Comfort/value</option>
-                <option>Premium</option>
-                <option>Strict budget</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="margin-top:12px">
-            <label>Notes / reminders</label>
-            <textarea id="notes" placeholder="e.g., Verify BLQ→CDG→WAW segment times; confirm lodging Apr 19–30; pick hotel near DFW; etc."></textarea>
-          </div>
-        </div>
-
-        <div class="fieldset">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
-            <div>
-              <div style="font-weight:900; font-size:13px; margin-bottom:6px;">Cost summary</div>
-              <div class="small">Seeded with what you provided. Add more expenses as you go; the chart updates automatically.</div>
-            </div>
-            <div class="pill" title="Currency for costs">
-              <span>Currency:</span>
-              <input id="currency" value="USD" />
-            </div>
-          </div>
-          <div style="margin-top:10px">
-            <canvas id="costChart" width="800" height="220"></canvas>
-          </div>
-          <div class="small" id="costBreakdown" style="margin-top:10px;"></div>
+  <div class="appbar" role="banner">
+    <div class="appbarInner">
+      <div class="brand" aria-label="Itinerary Dashboard">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Itinerary Dashboard</h1>
+          <p>Hyrox Europe + US Events — editable, offline-capable, and GitHub Pages ready.</p>
         </div>
       </div>
 
-      <div class="footerNote">
-        Tip: Use <span class="mutedLink" id="howToGithub">GitHub Pages</span> to publish this as your personal travel dashboard (works great on phone).
+      <div class="toolbar" role="toolbar" aria-label="Top actions">
+        <button class="iconBtn primary" id="btnAdd" aria-label="Add new item">＋ Add</button>
+        <button class="iconBtn" id="btnTheme" aria-label="Toggle theme">☾ Theme</button>
+        <button class="iconBtn" id="btnExport" aria-label="Export JSON">Export</button>
+        <button class="iconBtn" id="btnImport" aria-label="Import JSON">Import</button>
+        <button class="iconBtn danger" id="btnReset" aria-label="Reset itinerary">Reset</button>
+      </div>
+    </div>
+
+    <div class="tabs" role="navigation" aria-label="Primary tabs">
+      <div class="tabRow" role="tablist" aria-label="Views">
+        <button class="tab" id="tabOverview" role="tab" aria-selected="true" aria-controls="panelOverview">Overview</button>
+        <button class="tab" id="tabTimeline" role="tab" aria-selected="false" aria-controls="panelTimeline">Timeline</button>
+        <button class="tab" id="tabCosts" role="tab" aria-selected="false" aria-controls="panelCosts">Costs</button>
+      </div>
+
+      <div class="tabTools">
+        <div class="searchPill" role="search">
+          <span aria-hidden="true">🔎</span>
+          <input id="search" placeholder="Search: city, airport, event, venue…" aria-label="Search itinerary items" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="container" role="main">
+    <!-- Overview -->
+    <section id="panelOverview" role="tabpanel" aria-labelledby="tabOverview" data-active="true">
+      <div class="grid">
+        <section class="panel sticky" aria-label="Trip overview">
+          <div class="panelHeader">
+            <div>
+              <h2>Trip overview</h2>
+              <div class="sub">Edits persist locally (LocalStorage). Export JSON to back up or move devices.</div>
+            </div>
+          </div>
+          <div class="panelBody">
+            <div class="kpis" id="kpis" aria-label="Key trip metrics"></div>
+            <div class="chipRow" id="chips" aria-label="Counts by category"></div>
+
+            <div class="formGrid" aria-label="Trip settings">
+              <div>
+                <label for="homeBase">Home base</label>
+                <input id="homeBase" placeholder="Falls Church, VA" />
+              </div>
+              <div>
+                <label for="purpose">Primary purpose</label>
+                <input id="purpose" placeholder="Hyrox competitions + travel + events" />
+              </div>
+              <div>
+                <label for="pacing">Preferred pacing</label>
+                <select id="pacing">
+                  <option>Efficient & clustered</option>
+                  <option>Balanced</option>
+                  <option>Relaxed</option>
+                  <option>High-energy packed</option>
+                </select>
+              </div>
+              <div>
+                <label for="budgetFocus">Budget focus</label>
+                <select id="budgetFocus">
+                  <option>Value</option>
+                  <option>Comfort/value</option>
+                  <option>Premium</option>
+                  <option>Strict budget</option>
+                </select>
+              </div>
+              <div style="grid-column:1/-1">
+                <label for="notes">Notes / reminders</label>
+                <textarea id="notes"></textarea>
+              </div>
+            </div>
+
+            <div class="helper">
+              <b>Quick publish:</b> Upload this file as <span style="font-family:var(--mono)">index.html</span> in a GitHub repo → Settings → Pages.
+              Works great on mobile. Also opens offline locally.
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-label="Overview focus">
+          <div class="panelHeader">
+            <div>
+              <h2>What’s next</h2>
+              <div class="sub">Convert TBD blocks into real plans as you book.</div>
+            </div>
+          </div>
+          <div class="panelBody">
+            <div id="todoFocus"></div>
+            <div class="helper">
+              Tip: Use <b>Add</b> → type <b>Expense</b> to track trains, extra hotels, tickets, food budgets, etc. Costs update in the Costs tab.
+            </div>
+          </div>
+        </section>
       </div>
     </section>
 
-    <!-- RIGHT: Timeline -->
-    <section class="panel">
-      <header>
-        <h2>Dotted travel timeline</h2>
-        <div class="sub">Filter by type, search, then tap items to edit. “TBD” items are meant to be filled in later.</div>
-      </header>
-
-      <div class="timelineWrap">
-        <div class="filters">
-          <div class="left">
-            <span class="pill"><span>Search:</span> <input id="search" placeholder="city, airport, event, etc." /></span>
-            <span class="pill">
-              <span>Show:</span>
-              <select id="filterType" style="width:auto; padding:0; border:none; background:transparent; color:var(--text);">
-                <option value="all">All</option>
-                <option value="flight">Flights</option>
-                <option value="lodging">Lodging</option>
-                <option value="event">Events</option>
-                <option value="todo">To-dos / missing</option>
-              </select>
-            </span>
-          </div>
-          <div class="left">
-            <span class="pill" title="Sort order">
-              <span>Sort:</span>
-              <select id="sortOrder" style="width:auto; padding:0; border:none; background:transparent; color:var(--text);">
-                <option value="asc">Earliest → latest</option>
-                <option value="desc">Latest → earliest</option>
-              </select>
-            </span>
+    <!-- Timeline -->
+    <section id="panelTimeline" role="tabpanel" aria-labelledby="tabTimeline" data-active="false">
+      <div class="panel" aria-label="Timeline">
+        <div class="panelHeader">
+          <div>
+            <h2>Dotted travel timeline</h2>
+            <div class="sub">Drag to reorder (manual order). Use filters for quick scanning.</div>
           </div>
         </div>
+        <div class="timelineWrap">
+          <div class="filterRow" aria-label="Timeline filters">
+            <div class="left">
+              <div class="checks" aria-label="Filter types">
+                <label><input type="checkbox" class="typeCheck" value="flight" checked> Flights</label>
+                <label><input type="checkbox" class="typeCheck" value="lodging" checked> Lodging</label>
+                <label><input type="checkbox" class="typeCheck" value="event" checked> Events</label>
+                <label><input type="checkbox" class="typeCheck" value="todo" checked> TBD</label>
+                <label><input type="checkbox" class="typeCheck" value="note" checked> Notes</label>
+              </div>
+            </div>
+            <div class="right">
+              <div class="seg">
+                <span>Sort:</span>
+                <select id="sortOrder" aria-label="Sort order">
+                  <option value="dateAsc">Date ↑</option>
+                  <option value="dateDesc">Date ↓</option>
+                  <option value="manual">Manual</option>
+                </select>
+              </div>
+              <div class="seg">
+                <span>Show:</span>
+                <select id="showLevel" aria-label="Timeline detail level">
+                  <option value="compact">Compact</option>
+                  <option value="expanded">Expanded</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
-        <div class="timeline" id="timeline"></div>
+          <div class="timeline" id="timeline" aria-label="Timeline items"></div>
+
+          <div class="dragHint" id="dragHint" aria-live="polite">
+            Drag & drop: grab a card and move it. Choose <b>Sort: Manual</b> to preserve your custom order.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Costs -->
+    <section id="panelCosts" role="tabpanel" aria-labelledby="tabCosts" data-active="false">
+      <div class="grid">
+        <section class="panel sticky" aria-label="Cost controls">
+          <div class="panelHeader">
+            <div>
+              <h2>Cost controls</h2>
+              <div class="sub">Costs come from items with type <b>Expense</b> (recommended) and any item where you fill a Cost value.</div>
+            </div>
+          </div>
+          <div class="panelBody">
+            <div class="formGrid" style="margin-top:0; border-top:none; padding-top:0;">
+              <div>
+                <label for="currency">Currency</label>
+                <input id="currency" value="USD" />
+              </div>
+              <div>
+                <label for="costMode">Cost mode</label>
+                <select id="costMode">
+                  <option value="expenseOnly">Expense items only</option>
+                  <option value="allCosts">Any item with cost</option>
+                </select>
+              </div>
+              <div style="grid-column:1/-1">
+                <label for="costNote">Cost notes</label>
+                <textarea id="costNote"></textarea>
+              </div>
+            </div>
+            <div class="helper">Hover the chart to see tooltips.</div>
+          </div>
+        </section>
+
+        <section class="panel" aria-label="Cost chart">
+          <div class="panelHeader">
+            <div>
+              <h2>Cost summary</h2>
+              <div class="sub">Interactive bar chart by category (Flights / Lodging / Other).</div>
+            </div>
+          </div>
+          <div class="chartWrap">
+            <canvas id="costChart" width="900" height="260" aria-label="Cost chart" role="img"></canvas>
+            <div class="legend" aria-label="Legend">
+              <span><span class="sw"></span> Flights</span>
+              <span><span class="sw lodging"></span> Lodging</span>
+              <span><span class="sw other"></span> Other</span>
+            </div>
+            <div class="breakdown" id="costBreakdown"></div>
+          </div>
+        </section>
       </div>
     </section>
   </main>
 
+  <!-- Mobile bottom nav -->
+  <nav class="bottomNav" aria-label="Mobile quick actions">
+    <div class="bottomNavInner">
+      <button class="navBtn" id="navAdd" aria-label="Add item">＋ Add</button>
+      <button class="navBtn" id="navTimeline" aria-label="Open timeline tab">🧭 Timeline</button>
+      <button class="navBtn" id="navCosts" aria-label="Open costs tab">💳 Costs</button>
+      <button class="navBtn" id="navExport" aria-label="Export JSON">⬇ Export</button>
+    </div>
+  </nav>
+
   <!-- Modal -->
-  <div class="modalBack" id="modalBack" role="dialog" aria-modal="true">
-    <div class="modal">
-      <header>
+  <div class="modalBack" id="modalBack" role="dialog" aria-modal="true" aria-label="Add or edit item">
+    <div class="modal" role="document">
+      <div class="modalHeader">
         <div>
           <h2 id="modalTitle">Add / Edit item</h2>
-          <div class="hintInline" id="modalHint"></div>
+          <div class="hint" id="modalHint"></div>
         </div>
-        <button id="btnClose">Close</button>
-      </header>
-      <div class="body">
+        <button class="iconBtn" id="btnClose" aria-label="Close modal">Close</button>
+      </div>
+      <div class="modalBody">
         <div class="row3">
           <div>
-            <label>Type</label>
+            <label for="mType">Type</label>
             <select id="mType">
               <option value="flight">Flight</option>
               <option value="lodging">Lodging</option>
@@ -611,100 +977,97 @@
             </select>
           </div>
           <div>
-            <label>Date (start)</label>
+            <label for="mStart">Date (start)</label>
             <input id="mStart" placeholder="2026-04-02 13:20" />
           </div>
           <div>
-            <label>Date (end)</label>
+            <label for="mEnd">Date (end)</label>
             <input id="mEnd" placeholder="optional" />
           </div>
         </div>
 
-        <div class="row" style="margin-top:10px">
+        <div class="row2">
           <div>
-            <label>Title</label>
+            <label for="mTitle">Title</label>
             <input id="mTitle" placeholder="e.g., IAD → BLQ (one-way)" />
           </div>
           <div>
-            <label>Location / Route</label>
+            <label for="mWhere">Location / Route</label>
             <input id="mWhere" placeholder="IAD → BLQ | Bologna, Italy | Warsaw, Poland" />
           </div>
         </div>
 
-        <div class="row" style="margin-top:10px">
+        <div class="row2">
           <div>
-            <label>Confirmation / Reference (optional)</label>
+            <label for="mConfirm">Confirmation / Reference (optional)</label>
             <input id="mConfirm" placeholder="Flight PNR / hotel conf / reservation id" />
           </div>
           <div>
-            <label>Cost (optional)</label>
+            <label for="mCost">Cost (optional)</label>
             <input id="mCost" placeholder="e.g., 511.92" />
           </div>
         </div>
 
         <div style="margin-top:10px">
-          <label>Details</label>
+          <label for="mDetails">Details</label>
           <textarea id="mDetails" placeholder="Include times, terminals, check-in/out, layovers, reminders, etc."></textarea>
         </div>
 
-        <div class="hintInline">
-          Date format: <span style="font-family:var(--mono)">YYYY-MM-DD</span> or <span style="font-family:var(--mono)">YYYY-MM-DD HH:MM</span>.
-          (If times are uncertain, keep it as “TBD” in details and update later.)
+        <div class="helper">
+          Date formats accepted: <span style="font-family:var(--mono)">YYYY-MM-DD</span> or <span style="font-family:var(--mono)">YYYY-MM-DD HH:MM</span>.
         </div>
+
+        <div class="error" id="formError" role="alert"></div>
       </div>
-      <div class="footer">
-        <button class="danger" id="btnDelete" style="display:none;">Delete</button>
-        <button id="btnSave" class="primary">Save</button>
+      <div class="modalFooter">
+        <button class="iconBtn danger" id="btnDelete" style="display:none;" aria-label="Delete item">Delete</button>
+        <button class="iconBtn primary" id="btnSave" aria-label="Save item">Save</button>
       </div>
     </div>
   </div>
 
-  <!-- Import -->
+  <div class="tooltip" id="tip" aria-hidden="true"></div>
   <input type="file" id="fileInput" accept="application/json" style="display:none" />
 
   <script>
-    // ===== Helpers =====
+    const KEY = "itinerary_dashboard_v2";
+    const uid = () => Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
     const pad = n => String(n).padStart(2,'0');
-    const fmtDate = (iso) => {
-      if(!iso) return "";
-      const d = parseDate(iso);
-      if(!d) return iso;
-      const yyyy = d.getFullYear();
-      const mm = pad(d.getMonth()+1);
-      const dd = pad(d.getDate());
-      const hh = pad(d.getHours());
-      const mi = pad(d.getMinutes());
-      const hasTime = /\\d{2}:\\d{2}/.test(iso);
-      return hasTime ? `${yyyy}-${mm}-${dd} ${hh}:${mi}` : `${yyyy}-${mm}-${dd}`;
-    };
 
     function parseDate(s){
       if(!s) return null;
-      // Allow "YYYY-MM-DD" or "YYYY-MM-DD HH:MM"
       const m = String(s).trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/);
       if(!m) return null;
       const y=+m[1], mo=+m[2]-1, d=+m[3], hh=+(m[4]||0), mi=+(m[5]||0);
       const dt = new Date(Date.UTC(y,mo,d,hh,mi));
       return isNaN(dt.getTime()) ? null : dt;
     }
-
-    function toLocalDisplay(iso){
+    function fmt(iso){
+      if(!iso) return "TBD";
       const d = parseDate(iso);
-      if(!d) return iso || "";
-      // Display in local time zone for the viewer device
+      if(!d) return iso;
       const local = new Date(d.getTime());
       const yyyy = local.getFullYear();
       const mm = pad(local.getMonth()+1);
       const dd = pad(local.getDate());
       const hh = pad(local.getHours());
       const mi = pad(local.getMinutes());
-      const hasTime = /\\d{2}:\\d{2}/.test(iso);
+      const hasTime = /\d{2}:\d{2}/.test(iso);
       return hasTime ? `${yyyy}-${mm}-${dd} ${hh}:${mi}` : `${yyyy}-${mm}-${dd}`;
     }
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function debounce(fn, ms){
+      let t=null;
+      return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
+    }
 
-    const uid = () => Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
-
-    // ===== Seed data based on your message =====
     const SEED = {
       meta:{
         homeBase:"Falls Church, VA",
@@ -712,186 +1075,41 @@
         pacing:"Efficient & clustered",
         budgetFocus:"Comfort/value",
         currency:"USD",
+        costMode:"expenseOnly",
+        costNote:"",
         notes:[
           "Verify BLQ → CDG → WAW segment times/sequence (looks inconsistent as written).",
-          "Plan Apr 19–Apr 30 segment (Lithuania / Latvia / Serbia likely). Add flights/trains + lodging as you confirm.",
+          "Plan Apr 19–Apr 30 segment (Lithuania / Latvia / Serbia likely). Add transport + lodging as you confirm.",
           "Add missing: Dulles / Fort Worth stays (mid April / May).",
           "Plan PA lodging ~1 week before July 17 event."
-        ].join("\\n")
+        ].join("\n"),
+        theme:"dark",
+        manualOrder:[]
       },
       items:[
-        {
-          id: uid(),
-          type:"flight",
-          start:"2026-04-02 13:20",
-          end:"2026-04-03 09:30",
-          title:"IAD → BLQ (one-way)",
-          where:"Washington Dulles (IAD) → Bologna (BLQ)",
-          confirm:"",
-          cost:752.83,
-          details:"Depart 1:20 PM. Land 9:30 AM next day. Paid with Capital One (multi-city: IAD→BLQ + MXP→IAD)."
-        },
-        {
-          id: uid(),
-          type:"lodging",
-          start:"2026-04-02 15:00",
-          end:"2026-04-05 12:00",
-          title:"The Social Hub Bologna",
-          where:"Via Aristotele Fioravanti 27, Bologna, IT",
-          confirm:"",
-          cost:511.92,
-          details:"Check-in 3:00 PM, check-out 12:00 PM. Paid with Capital One."
-        },
-        {
-          id: uid(),
-          type:"event",
-          start:"2026-04-04",
-          end:"",
-          title:"HYROX Bologna — Singles Pro",
-          where:"Bologna, Italy",
-          confirm:"",
-          cost:"",
-          details:"Purpose: compete as an athlete (Singles Pro)."
-        },
+        { id: uid(), type:"flight", start:"2026-04-02 13:20", end:"2026-04-03 09:30", title:"IAD → BLQ (one-way)", where:"Washington Dulles (IAD) → Bologna (BLQ)", confirm:"", cost:752.83, details:"Depart 1:20 PM. Land 9:30 AM next day. Paid with Capital One (multi-city: IAD→BLQ + MXP→IAD)." },
+        { id: uid(), type:"lodging", start:"2026-04-02 15:00", end:"2026-04-05 12:00", title:"The Social Hub Bologna", where:"Via Aristotele Fioravanti 27, Bologna, IT", confirm:"", cost:511.92, details:"Check-in 3:00 PM, check-out 12:00 PM. Paid with Capital One." },
+        { id: uid(), type:"event", start:"2026-04-04", end:"", title:"HYROX Bologna — Singles Pro", where:"Bologna, Italy", confirm:"", cost:"", details:"Purpose: compete as an athlete (Singles Pro)." },
 
-        {
-          id: uid(),
-          type:"flight",
-          start:"2026-04-05 09:55",
-          end:"2026-04-05 15:35",
-          title:"BLQ → WAW (via CDG) — times need verification",
-          where:"Bologna (BLQ) → Paris (CDG) → Warsaw (WAW)",
-          confirm:"",
-          cost:248.10,
-          details:"As provided: Depart BLQ 9:55 AM. Land 3:35 PM (CDG layover 1h25). Segment notes: 'CDG→WAW dep 1:10 PM land 3:35 PM' appears inconsistent. Update once ticket itinerary is confirmed. Paid with Capital One."
-        },
-        {
-          id: uid(),
-          type:"lodging",
-          start:"2026-04-05 16:00",
-          end:"2026-04-19 11:00",
-          title:"Warsaw Airbnb (Hosted by Vermouth Sp. Zoo)",
-          where:"Warsaw, Poland",
-          confirm:"",
-          cost:787.76,
-          details:"Check-in Sun Apr 5 at 4:00 PM. Checkout Sun Apr 19 at 11:00 AM."
-        },
-        {
-          id: uid(),
-          type:"event",
-          start:"2026-04-16",
-          end:"",
-          title:"HYROX Warsaw — Singles Open",
-          where:"Warsaw, Poland",
-          confirm:"",
-          cost:"",
-          details:"Thursday Apr 16."
-        },
-        {
-          id: uid(),
-          type:"event",
-          start:"2026-04-17",
-          end:"",
-          title:"HYROX Warsaw — Singles Pro",
-          where:"Warsaw, Poland",
-          confirm:"",
-          cost:"",
-          details:"Friday Apr 17."
-        },
+        { id: uid(), type:"flight", start:"2026-04-05 09:55", end:"2026-04-05 15:35", title:"BLQ → WAW (via CDG) — verify times", where:"Bologna (BLQ) → Paris (CDG) → Warsaw (WAW)", confirm:"", cost:248.10, details:"As provided: Depart BLQ 9:55 AM. Land 3:35 PM (CDG layover 1h25). Note: 'CDG→WAW dep 1:10 PM land 3:35 PM' appears inconsistent; update when confirmed. Paid with Capital One." },
 
-        {
-          id: uid(),
-          type:"todo",
-          start:"2026-04-19",
-          end:"2026-04-30",
-          title:"Apr 19–Apr 30 — TBD: Lithuania / Latvia / Serbia (likely)",
-          where:"Baltics + Serbia (to confirm)",
-          confirm:"",
-          cost:"",
-          details:"Add city sequence, transport (flight/train/bus), and lodging once confirmed."
-        },
+        { id: uid(), type:"lodging", start:"2026-04-05 16:00", end:"2026-04-19 11:00", title:"Warsaw Airbnb (Hosted by Vermouth Sp. Zoo)", where:"Warsaw, Poland", confirm:"", cost:787.76, details:"Check-in Sun Apr 5 at 4:00 PM. Checkout Sun Apr 19 at 11:00 AM." },
+        { id: uid(), type:"event", start:"2026-04-16", end:"", title:"HYROX Warsaw — Singles Open", where:"Warsaw, Poland", confirm:"", cost:"", details:"Thursday Apr 16." },
+        { id: uid(), type:"event", start:"2026-04-17", end:"", title:"HYROX Warsaw — Singles Pro", where:"Warsaw, Poland", confirm:"", cost:"", details:"Friday Apr 17." },
 
-        {
-          id: uid(),
-          type:"flight",
-          start:"2026-04-30 20:10",
-          end:"2026-05-01 11:35",
-          title:"MXP → IST → IAD (return)",
-          where:"Milan (MXP) → Istanbul (IST) → Washington Dulles (IAD)",
-          confirm:"",
-          cost:0,
-          details:"Depart MXP 8:10 PM. ~2h55 to IST. Layover ~7h35. Depart IST 7:40 AM. Land IAD 11:35 AM on May 1."
-        },
-        {
-          id: uid(),
-          type:"todo",
-          start:"2026-04-30",
-          end:"",
-          title:"Get to Milan (MXP) for return flight",
-          where:"Milan, Italy",
-          confirm:"",
-          cost:"",
-          details:"Plan how you get to Milan by Apr 30: from Serbia/Baltics? Train/flight + any overnight stay near MXP."
-        },
+        { id: uid(), type:"todo", start:"2026-04-19", end:"2026-04-30", title:"Apr 19–Apr 30 — TBD: Lithuania / Latvia / Serbia (likely)", where:"Baltics + Serbia (to confirm)", confirm:"", cost:"", details:"Add city sequence, transport (flight/train/bus), and lodging once confirmed." },
 
-        {
-          id: uid(),
-          type:"flight",
-          start:"2026-05-10 10:58",
-          end:"2026-05-10 13:44",
-          title:"BWI → DFW (Frontier) — direct",
-          where:"Baltimore/Washington (BWI) → Dallas/Fort Worth (DFW)",
-          confirm:"",
-          cost:379.96,
-          details:"Depart 10:58 AM. Land 1:44 PM. Paid with Capital One."
-        },
-        {
-          id: uid(),
-          type:"event",
-          start:"2026-05-10",
-          end:"2026-05-16",
-          title:"PBR Unleash the Beast — World Finals (2026)",
-          where:"Fort Worth / Arlington area (confirm venue)",
-          confirm:"",
-          cost:"",
-          details:"Trip purpose: attend PBR World Finals."
-        },
-        {
-          id: uid(),
-          type:"flight",
-          start:"2026-05-16 12:00",
-          end:"2026-05-16 16:11",
-          title:"DFW → BWI (Frontier) — direct",
-          where:"Dallas/Fort Worth (DFW) → Baltimore/Washington (BWI)",
-          confirm:"",
-          cost:0,
-          details:"Depart 12:00 PM. Land 4:11 PM."
-        },
-        {
-          id: uid(),
-          type:"todo",
-          start:"2026-05-10",
-          end:"2026-05-16",
-          title:"Dallas/Fort Worth lodging — TBD",
-          where:"DFW / Fort Worth",
-          confirm:"",
-          cost:"",
-          details:"Choose hotel/Airbnb based on event venue + transit. Add confirmation number once booked."
-        },
-        {
-          id: uid(),
-          type:"todo",
-          start:"2026-07-17 20:00",
-          end:"",
-          title:"Shane Gillis show (drive VA → PA) — lodging TBD",
-          where:"Pennsylvania (confirm city/venue)",
-          confirm:"",
-          cost:"",
-          details:"No flight; driving from VA. Book lodging about a week prior; add parking plan + drive time buffer."
-        },
+        { id: uid(), type:"flight", start:"2026-04-30 20:10", end:"2026-05-01 11:35", title:"MXP → IST → IAD (return)", where:"Milan (MXP) → Istanbul (IST) → Washington Dulles (IAD)", confirm:"", cost:0, details:"Depart MXP 8:10 PM. ~2h55 to IST. Layover ~7h35. Depart IST 7:40 AM. Land IAD 11:35 AM on May 1." },
+        { id: uid(), type:"todo", start:"2026-04-30", end:"", title:"Get to Milan (MXP) for return flight", where:"Milan, Italy", confirm:"", cost:"", details:"Plan how you get to Milan by Apr 30 (from Serbia/Baltics?). Train/flight + potential overnight near MXP." },
 
-        // Expenses as separate items (so chart works even if you later edit flight cards)
-        { id: uid(), type:"expense", start:"2026-04-02", end:"", title:"Flights (multi-city): IAD→BLQ + MXP→IAD", where:"Capital One", confirm:"", cost:752.83, details:"Cost captured as provided." },
+        { id: uid(), type:"flight", start:"2026-05-10 10:58", end:"2026-05-10 13:44", title:"BWI → DFW (Frontier) — direct", where:"Baltimore/Washington (BWI) → Dallas/Fort Worth (DFW)", confirm:"", cost:379.96, details:"Depart 10:58 AM. Land 1:44 PM. Paid with Capital One." },
+        { id: uid(), type:"event", start:"2026-05-10", end:"2026-05-16", title:"PBR Unleash the Beast — World Finals (2026)", where:"Fort Worth / Arlington area (confirm venue)", confirm:"", cost:"", details:"Trip purpose: attend PBR World Finals." },
+        { id: uid(), type:"flight", start:"2026-05-16 12:00", end:"2026-05-16 16:11", title:"DFW → BWI (Frontier) — direct", where:"Dallas/Fort Worth (DFW) → Baltimore/Washington (BWI)", confirm:"", cost:0, details:"Depart 12:00 PM. Land 4:11 PM." },
+        { id: uid(), type:"todo", start:"2026-05-10", end:"2026-05-16", title:"Dallas/Fort Worth lodging — TBD", where:"DFW / Fort Worth", confirm:"", cost:"", details:"Choose hotel/Airbnb based on event venue + transit. Add confirmation once booked." },
+
+        { id: uid(), type:"todo", start:"2026-07-17 20:00", end:"", title:"Shane Gillis show (drive VA → PA) — lodging TBD", where:"Pennsylvania (confirm city/venue)", confirm:"", cost:"", details:"No flight; driving from VA. Book lodging about a week prior; add parking plan + drive time buffer." },
+
+        { id: uid(), type:"expense", start:"2026-04-02", end:"", title:"Flights: IAD→BLQ + MXP→IAD", where:"Capital One", confirm:"", cost:752.83, details:"Cost captured as provided." },
         { id: uid(), type:"expense", start:"2026-04-05", end:"", title:"Flight: BLQ→WAW", where:"Capital One", confirm:"", cost:248.10, details:"Cost captured as provided." },
         { id: uid(), type:"expense", start:"2026-05-10", end:"", title:"Flights: BWI↔DFW (Frontier)", where:"Capital One", confirm:"", cost:379.96, details:"Cost captured as provided (round-trip)." },
         { id: uid(), type:"expense", start:"2026-04-02", end:"", title:"Hotel: Social Hub Bologna", where:"Capital One", confirm:"", cost:511.92, details:"Cost captured as provided." },
@@ -899,151 +1117,243 @@
       ]
     };
 
-    // ===== Storage =====
-    const KEY = "itinerary_dashboard_v1";
     function load(){
       try{
         const raw = localStorage.getItem(KEY);
         if(!raw) return structuredClone(SEED);
         const data = JSON.parse(raw);
-        // basic safety
-        if(!data || !data.items || !data.meta) return structuredClone(SEED);
+        if(!data?.items || !data?.meta) return structuredClone(SEED);
         return data;
-      }catch(e){
-        return structuredClone(SEED);
-      }
+      }catch(_){ return structuredClone(SEED); }
     }
-    function save(){
-      localStorage.setItem(KEY, JSON.stringify(state));
-    }
-
+    function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
     let state = load();
 
-    // ===== Rendering =====
-    const timelineEl = document.getElementById("timeline");
-    const kpisEl = document.getElementById("kpis");
-    const chipsEl = document.getElementById("chips");
-    const chart = document.getElementById("costChart");
-    const ctx = chart.getContext("2d");
-    const breakdownEl = document.getElementById("costBreakdown");
-
-    function compute(){
-      const items = state.items;
-      const dated = items
-        .filter(i => parseDate(i.start))
-        .sort((a,b)=>parseDate(a.start)-parseDate(b.start));
-      const start = dated.length ? parseDate(dated[0].start) : null;
-      const end = (() => {
-        const ends = items.map(i => parseDate(i.end)).filter(Boolean);
-        const maxEnd = ends.length ? new Date(Math.max(...ends.map(d=>d.getTime()))) : null;
-        const maxStart = dated.length ? new Date(Math.max(...dated.map(i=>parseDate(i.start).getTime()))) : null;
-        return maxEnd || maxStart;
-      })();
-
-      const expenses = items.filter(i => i.type === "expense" && isFinite(+i.cost)).reduce((s,i)=>s+(+i.cost),0);
-
-      const counts = {
-        flight: items.filter(i=>i.type==="flight").length,
-        lodging: items.filter(i=>i.type==="lodging").length,
-        event: items.filter(i=>i.type==="event").length,
-        todo: items.filter(i=>i.type==="todo").length,
-        expense: items.filter(i=>i.type==="expense").length
-      };
-
-      return { start, end, expenses, counts };
+    function applyTheme(theme){
+      const t = theme || "dark";
+      document.documentElement.setAttribute("data-theme", t);
+      state.meta.theme = t;
+      save();
+      document.getElementById("btnTheme").innerHTML = (t==="dark" ? "☾" : "☀") + " Theme";
     }
 
-    function renderKPIs(){
-      const { start, end, expenses, counts } = compute();
+    const tabs = [
+      { id:"tabOverview", panel:"panelOverview" },
+      { id:"tabTimeline", panel:"panelTimeline" },
+      { id:"tabCosts", panel:"panelCosts" }
+    ];
+    function setActiveTab(tabId){
+      tabs.forEach(t=>{
+        const el = document.getElementById(t.id);
+        const p = document.getElementById(t.panel);
+        const active = (t.id === tabId);
+        el.setAttribute("aria-selected", active ? "true" : "false");
+        p.setAttribute("data-active", active ? "true" : "false");
+      });
+      document.getElementById(tabId).focus({preventScroll:true});
+    }
+    tabs.forEach(t=>{
+      document.getElementById(t.id).addEventListener("click", ()=> setActiveTab(t.id));
+      document.getElementById(t.id).addEventListener("keydown", (e)=>{
+        if(e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        e.preventDefault();
+        const idx = tabs.findIndex(x=>x.id===t.id);
+        const next = e.key==="ArrowRight" ? (idx+1)%tabs.length : (idx-1+tabs.length)%tabs.length;
+        setActiveTab(tabs[next].id);
+      });
+    });
+
+    document.getElementById("navAdd").addEventListener("click", ()=> openModal(null));
+    document.getElementById("navTimeline").addEventListener("click", ()=> setActiveTab("tabTimeline"));
+    document.getElementById("navCosts").addEventListener("click", ()=> setActiveTab("tabCosts"));
+    document.getElementById("navExport").addEventListener("click", ()=> exportJson());
+
+    function computeSpan(){
+      const dated = state.items.filter(i=>parseDate(i.start)).sort((a,b)=>parseDate(a.start)-parseDate(b.start));
+      const start = dated[0]?.start ? parseDate(dated[0].start) : null;
+      const max = state.items.map(i=>parseDate(i.end) || parseDate(i.start)).filter(Boolean)
+        .reduce((m,d)=> Math.max(m, d.getTime()), -Infinity);
+      const end = isFinite(max) ? new Date(max) : null;
+      return { start, end };
+    }
+    function computeCounts(){
+      const types = ["flight","lodging","event","todo","note","expense"];
+      const out = {};
+      types.forEach(t=> out[t] = state.items.filter(i=>i.type===t).length);
+      return out;
+    }
+    function getCostItems(){
+      const mode = state.meta.costMode || "expenseOnly";
+      const items = (mode === "expenseOnly")
+        ? state.items.filter(i=>i.type==="expense")
+        : state.items.filter(i=> isFinite(+i.cost));
+      return items.filter(i=> isFinite(+i.cost)).map(i=>({ ...i, cost:+i.cost }));
+    }
+    function bucketCosts(costItems){
+      const buckets = [
+        { key:"Flights", test:(t)=>/flight|air|airline|iad|blq|waw|bwi|dfw|mxp|ist|cdg/i.test(t), total:0, items:[] },
+        { key:"Lodging", test:(t)=>/hotel|airbnb|stay|lodg|hub/i.test(t), total:0, items:[] },
+        { key:"Other", test:(_)=>true, total:0, items:[] }
+      ];
+      costItems.forEach(e=>{
+        const title = ((e.title||"") + " " + (e.where||"")).toLowerCase();
+        const b = buckets.find(b=>b.test(title)) || buckets[2];
+        b.total += e.cost;
+        b.items.push(e);
+      });
+      return buckets;
+    }
+
+    const kpisEl = document.getElementById("kpis");
+    const chipsEl = document.getElementById("chips");
+    const todoFocusEl = document.getElementById("todoFocus");
+    const timelineEl = document.getElementById("timeline");
+    const dragHintEl = document.getElementById("dragHint");
+
+    function toIsoLocal(d){
+      const yyyy = d.getFullYear();
+      const mm = pad(d.getMonth()+1);
+      const dd = pad(d.getDate());
+      const hh = pad(d.getHours());
+      const mi = pad(d.getMinutes());
+      const hasTime = (hh !== 0 || mi !== 0);
+      return hasTime ? `${yyyy}-${mm}-${dd} ${hh}:${mi}` : `${yyyy}-${mm}-${dd}`;
+    }
+
+    function renderOverview(){
+      const { start, end } = computeSpan();
+      const counts = computeCounts();
       const currency = state.meta.currency || "USD";
       const daySpan = (start && end) ? Math.ceil((end - start)/(1000*60*60*24)) + 1 : 0;
 
-      const items = [
-        { label:"Trip span", value: daySpan ? `${daySpan} days` : "—", hint: (start && end) ? `${toLocalDisplay(fmtDate(state.items.sort((a,b)=> (parseDate(a.start)||0)-(parseDate(b.start)||0))[0].start))} → ${toLocalDisplay(fmtDate(state.items.reduce((m,i)=> (parseDate(i.end)||parseDate(i.start)||0) > (parseDate(m)||0) ? (i.end||i.start) : m, state.items[0]?.start||"")))}` : "Add at least one dated item." },
-        { label:"Known booked costs", value: `${currency} ${expenses.toFixed(2)}`, hint:"Sum of Expense items. Add expenses as you book lodging/transport." },
-        { label:"Planned flights", value: String(counts.flight), hint:"Add confirmation numbers when you have them." },
-        { label:"To-dos / gaps", value: String(counts.todo), hint:"These are placeholders you can convert into real plans." }
+      const costItems = getCostItems();
+      const totalCost = costItems.reduce((s,i)=>s+(+i.cost||0),0);
+
+      const kpis = [
+        { label:"Trip span", value: daySpan ? `${daySpan} days` : "—", hint: (start && end) ? `${fmt(toIsoLocal(start))} → ${fmt(toIsoLocal(end))}` : "Add at least one dated item." },
+        { label:"Known costs", value: `${currency} ${totalCost.toFixed(2)}`, hint: "From Costs tab mode (Expense-only by default)." },
+        { label:"Planned flights", value: String(counts.flight), hint:"Add confirmation numbers once available." },
+        { label:"Gaps / TBD", value: String(counts.todo), hint:"Convert TBD blocks into real plans as you confirm." }
       ];
 
-      kpisEl.innerHTML = items.map(k => `
+      kpisEl.innerHTML = kpis.map(k=>`
         <div class="kpi">
-          <div class="label">${k.label}</div>
-          <div class="value">${k.value}</div>
-          <div class="hint">${k.hint}</div>
+          <div class="label">${escapeHtml(k.label)}</div>
+          <div class="value">${escapeHtml(k.value)}</div>
+          <div class="hint">${escapeHtml(k.hint)}</div>
         </div>
       `).join("");
 
-      const chipList = [
-        ["Flights", counts.flight],
-        ["Lodging", counts.lodging],
-        ["Events", counts.event],
-        ["To-dos", counts.todo],
-      ];
-      chipsEl.innerHTML = chipList.map(([n,v]) => `<span class="chip">${n} <b>${v}</b></span>`).join("");
+      chipsEl.innerHTML = `
+        <span class="chip"><span class="dot"></span> Flights <b>${counts.flight}</b></span>
+        <span class="chip"><span class="dot lodging"></span> Lodging <b>${counts.lodging}</b></span>
+        <span class="chip"><span class="dot event"></span> Events <b>${counts.event}</b></span>
+        <span class="chip"><span class="dot todo"></span> TBD <b>${counts.todo}</b></span>
+      `;
+
+      const todos = state.items.filter(i=>i.type==="todo");
+      todoFocusEl.innerHTML = todos.length ? todos.slice(0,6).map(t=>`
+        <div class="card" style="margin-bottom:10px">
+          <div class="cardTop">
+            <div>
+              <h3>${escapeHtml(t.title||"TBD")}</h3>
+              <div class="meta">${escapeHtml(t.where||"")}</div>
+              <div class="meta" style="margin-top:6px;"><b>${escapeHtml(fmt(t.start))}</b>${t.end?` → <b>${escapeHtml(fmt(t.end))}</b>`:""}</div>
+            </div>
+            <div class="badges"><span class="badge todo">TBD</span></div>
+          </div>
+          <div class="cardBtns">
+            <button class="smallBtn" data-edit="${t.id}">Edit</button>
+            <button class="smallBtn primary" data-convert="${t.id}">Convert</button>
+          </div>
+        </div>
+      `).join("") : `<div class="helper">No TBD items right now.</div>`;
+
+      todoFocusEl.querySelectorAll("button[data-edit]").forEach(b=> b.addEventListener("click", ()=> openModal(b.dataset.edit)));
+      todoFocusEl.querySelectorAll("button[data-convert]").forEach(b=> b.addEventListener("click", ()=> convertTodo(b.dataset.convert)));
     }
 
     function typeBadge(type){
       const map = {
-        flight: ["Flight", "flight"],
-        lodging: ["Lodging", "lodging"],
-        event: ["Event", "event"],
-        todo: ["Missing / TBD", "todo"],
-        expense: ["Expense", ""],
-        note: ["Note", ""]
+        flight: `<span class="badge flight">Flight</span>`,
+        lodging: `<span class="badge lodging">Lodging</span>`,
+        event: `<span class="badge event">Event</span>`,
+        todo: `<span class="badge todo">TBD</span>`,
+        note: `<span class="badge">Note</span>`
       };
-      const [label, cls] = map[type] || [type, ""];
-      return `<span class="badge ${cls}">${label}</span>`;
+      return map[type] || `<span class="badge">${escapeHtml(type)}</span>`;
+    }
+    function nodeClass(type){
+      if(type==="lodging") return "lodging";
+      if(type==="event") return "event";
+      if(type==="todo") return "todo";
+      return "";
+    }
+    function getActiveTypes(){
+      return Array.from(document.querySelectorAll(".typeCheck")).filter(c=>c.checked).map(c=>c.value);
+    }
+    function sortItems(items){
+      const order = document.getElementById("sortOrder").value;
+      if(order === "manual"){
+        const manual = state.meta.manualOrder || [];
+        const pos = new Map(manual.map((id, idx)=>[id, idx]));
+        return [...items].sort((a,b)=>{
+          const pa = pos.has(a.id) ? pos.get(a.id) : 1e9;
+          const pb = pos.has(b.id) ? pos.get(b.id) : 1e9;
+          if(pa !== pb) return pa - pb;
+          const da = parseDate(a.start)?.getTime() ?? 1e12;
+          const db = parseDate(b.start)?.getTime() ?? 1e12;
+          return da - db;
+        });
+      }
+      const sorted = [...items].sort((a,b)=>{
+        const da = parseDate(a.start)?.getTime() ?? 1e12;
+        const db = parseDate(b.start)?.getTime() ?? 1e12;
+        if(da !== db) return da - db;
+        return String(a.title||"").localeCompare(String(b.title||""));
+      });
+      if(order === "dateDesc") sorted.reverse();
+      return sorted;
     }
 
     function renderTimeline(){
       const q = (document.getElementById("search").value || "").toLowerCase().trim();
-      const ft = document.getElementById("filterType").value;
-      const sortOrder = document.getElementById("sortOrder").value;
+      const types = getActiveTypes();
+      const showLevel = document.getElementById("showLevel").value;
 
-      let items = [...state.items].filter(i => i.type !== "expense"); // keep expenses out of main timeline by default
-      if(ft !== "all") items = items.filter(i => i.type === ft);
-      if(q){
-        items = items.filter(i => JSON.stringify(i).toLowerCase().includes(q));
-      }
+      let items = state.items.filter(i=> i.type !== "expense");
+      items = items.filter(i => types.includes(i.type));
+      if(q) items = items.filter(i => JSON.stringify(i).toLowerCase().includes(q));
+      items = sortItems(items);
 
-      // sort by start date (fallback: title)
-      items.sort((a,b)=>{
-        const da = parseDate(a.start)?.getTime() ?? Number.POSITIVE_INFINITY;
-        const db = parseDate(b.start)?.getTime() ?? Number.POSITIVE_INFINITY;
-        if(da !== db) return da - db;
-        return String(a.title||"").localeCompare(String(b.title||""));
-      });
-      if(sortOrder === "desc") items.reverse();
+      const expandedByDefault = (showLevel === "expanded");
 
-      timelineEl.innerHTML = items.map(i => {
-        const start = i.start ? toLocalDisplay(i.start) : "TBD";
-        const end = i.end ? toLocalDisplay(i.end) : "";
-        const dateTitle = end ? `${start} → ${end}` : start;
-
-        const extra = [];
-        if(i.confirm) extra.push(["Ref", i.confirm]);
-        if(i.type === "lodging" && /check-?in/i.test(i.details||"") === false){
-          // no-op; user can add
-        }
-        if(isFinite(+i.cost) && +i.cost>0) extra.push(["Cost", `${state.meta.currency||"USD"} ${(+i.cost).toFixed(2)}`]);
-
-        const grid = extra.length ? `
-          <div class="cardGrid">
-            ${extra.slice(0,4).map(([k,v]) => `
+      timelineEl.innerHTML = items.map(i=>{
+        const dateTitle = i.end ? `${fmt(i.start)} → ${fmt(i.end)}` : fmt(i.start);
+        const extras = [];
+        if(i.confirm) extras.push(["Ref", i.confirm]);
+        if(isFinite(+i.cost) && +i.cost>0) extras.push(["Cost", `${state.meta.currency||"USD"} ${(+i.cost).toFixed(2)}`]);
+        if(i.where) extras.push(["Where", i.where]);
+        const grid = extras.length ? `
+          <div class="detailsGrid">
+            ${extras.slice(0,4).map(([k,v])=>`
               <div class="mini">
-                <div class="k">${k}</div>
-                <div class="v">${escapeHtml(String(v))}</div>
+                <div class="k">${escapeHtml(k)}</div>
+                <div class="v">${escapeHtml(v)}</div>
               </div>
             `).join("")}
-          </div>` : "";
+          </div>
+        ` : `<div class="helper" style="margin-top:8px">Add confirmations or costs to show more detail here.</div>`;
 
         return `
-          <div class="tItem">
-            <div class="dot"></div>
-            <div class="dateBox">
+          <article class="item" draggable="true" data-id="${escapeHtml(i.id)}" aria-label="Itinerary item">
+            <div class="node ${nodeClass(i.type)}" aria-hidden="true"></div>
+
+            <div class="dateBox" aria-label="Date and route">
               <div class="d">${escapeHtml(dateTitle)}</div>
               <div class="t">${escapeHtml(i.where || "")}</div>
             </div>
+
             <div class="card">
               <div class="cardTop">
                 <div>
@@ -1053,173 +1363,147 @@
                 <div class="badges">
                   ${typeBadge(i.type)}
                   ${i.confirm ? `<span class="badge">Has ref</span>` : ``}
-                  ${i.type==="todo" ? `<span class="badge todo">Action needed</span>` : ``}
                 </div>
               </div>
-              ${grid}
-              <div class="cardBtns">
-                <button data-edit="${i.id}">Edit</button>
-                ${i.type==="todo" ? `<button class="primary" data-convert="${i.id}">Convert to plan</button>` : ``}
-              </div>
+
+              <details ${expandedByDefault ? "open" : ""}>
+                <summary aria-label="Toggle details">Details & quick actions</summary>
+                ${grid}
+                <div class="cardBtns">
+                  <button class="smallBtn" data-edit="${escapeHtml(i.id)}">Edit</button>
+                  ${i.type==="todo" ? `<button class="smallBtn primary" data-convert="${escapeHtml(i.id)}">Convert</button>` : ``}
+                </div>
+              </details>
             </div>
-          </div>
+          </article>
         `;
       }).join("");
 
-      timelineEl.querySelectorAll("button[data-edit]").forEach(btn=>{
-        btn.addEventListener("click", () => openModal(btn.getAttribute("data-edit")));
-      });
-      timelineEl.querySelectorAll("button[data-convert]").forEach(btn=>{
-        btn.addEventListener("click", () => {
-          const id = btn.getAttribute("data-convert");
-          const item = state.items.find(x=>x.id===id);
-          if(!item) return;
-          // simple conversion: todo -> note, then user edits
-          item.type = "note";
-          if(!item.title?.toLowerCase().includes("converted")) item.title = item.title + " (converted)";
-          save(); renderAll();
-          openModal(id);
-        });
-      });
+      timelineEl.querySelectorAll("button[data-edit]").forEach(b=> b.addEventListener("click", ()=> openModal(b.dataset.edit)));
+      timelineEl.querySelectorAll("button[data-convert]").forEach(b=> b.addEventListener("click", ()=> convertTodo(b.dataset.convert)));
+
+      wireDragSort();
+
+      const mode = document.getElementById("sortOrder").value;
+      dragHintEl.innerHTML = mode === "manual"
+        ? `Manual order is ON. Dragging will be saved across sessions.`
+        : `Drag works, but to persist custom order choose <b>Sort: Manual</b>.`;
     }
 
-    function escapeHtml(s){
-      return s
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+    const chart = document.getElementById("costChart");
+    const ctx = chart.getContext("2d");
+    const breakdownEl = document.getElementById("costBreakdown");
+    const tip = document.getElementById("tip");
+    let chartBars = [];
+
+    function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+    function hexToRgba(hex, a){
+      if(hex.startsWith("rgb")){
+        const m = hex.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if(!m) return `rgba(120,140,180,${a})`;
+        return `rgba(${m[1]},${m[2]},${m[3]},${a})`;
+      }
+      const h = hex.replace("#","").trim();
+      if(h.length !== 6) return `rgba(120,140,180,${a})`;
+      const r = parseInt(h.slice(0,2),16);
+      const g = parseInt(h.slice(2,4),16);
+      const b = parseInt(h.slice(4,6),16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+    function roundRect(ctx, x, y, w, h, r, fill){
+      ctx.beginPath();
+      ctx.moveTo(x+r, y);
+      ctx.lineTo(x+w-r, y);
+      ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+      ctx.lineTo(x+w, y+h-r);
+      ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+      ctx.lineTo(x+r, y+h);
+      ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+      ctx.lineTo(x, y+r);
+      ctx.quadraticCurveTo(x, y, x+r, y);
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
     }
 
-    function drawCostChart(){
+    function drawCosts(){
       const currency = state.meta.currency || "USD";
-      // gather expense buckets
-      const expenses = state.items
-        .filter(i => i.type === "expense" && isFinite(+i.cost))
-        .map(i => ({ title: i.title || "Expense", cost:+i.cost }));
-
-      // bucket heuristic
-      const buckets = [
-        { key:"Flights", test:(t)=>/flight|air|airline|iad|blq|waw|bwi|dfw|mxp|ist/i.test(t), total:0 },
-        { key:"Lodging", test:(t)=>/hotel|airbnb|stay|lodg|hub/i.test(t), total:0 },
-        { key:"Other", test:(_)=>true, total:0 }
-      ];
-      expenses.forEach(e=>{
-        const b = buckets.find(b=>b.test(e.title));
-        b.total += e.cost;
-      });
-
-      // remove empty buckets
-      const b2 = buckets.filter(b=>b.total>0);
-
-      // clear
+      const items = getCostItems();
+      const buckets = bucketCosts(items);
       const w = chart.width, h = chart.height;
       ctx.clearRect(0,0,w,h);
 
-      // grid
-      ctx.globalAlpha = 1;
+      ctx.strokeStyle = "rgba(128,128,128,0.18)";
       ctx.lineWidth = 1;
-      ctx.strokeStyle = "rgba(255,255,255,0.08)";
       for(let i=0;i<5;i++){
-        const y = 24 + i*((h-50)/4);
-        ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(w-12,y); ctx.stroke();
+        const y = 26 + i*((h-60)/4);
+        ctx.beginPath(); ctx.moveTo(44,y); ctx.lineTo(w-16,y); ctx.stroke();
       }
 
-      const max = Math.max(...b2.map(b=>b.total), 1);
-      const barW = (w-70) / Math.max(b2.length,1);
-      const baseY = h-22;
+      const max = Math.max(...buckets.map(b=>b.total), 1);
+      const barW = (w-70) / Math.max(buckets.length,1);
+      const baseY = h-26;
+      chartBars = [];
 
-      // bars
-      b2.forEach((b, idx)=>{
-        const x = 48 + idx*barW + 10;
+      buckets.forEach((b, idx)=>{
+        const x = 52 + idx*barW + 10;
         const bw = barW - 20;
-        const barH = Math.max(8, (b.total/max)*(h-70));
+        const barH = Math.max(10, (b.total/max)*(h-82));
         const y = baseY - barH;
 
-        // bar
-        ctx.fillStyle = "rgba(122,162,255,0.32)";
-        if(b.key==="Lodging") ctx.fillStyle = "rgba(126,240,193,0.26)";
-        if(b.key==="Other") ctx.fillStyle = "rgba(255,204,102,0.22)";
-        roundRect(ctx, x, y, bw, barH, 10, true, false);
+        let fill = hexToRgba(cssVar("--muted-2"), 0.22);
+        if(b.key==="Flights") fill = hexToRgba(cssVar("--flight"), 0.28);
+        if(b.key==="Lodging") fill = hexToRgba(cssVar("--lodging"), 0.24);
 
-        // labels
-        ctx.fillStyle = "rgba(231,238,252,0.92)";
-        ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace";
-        const money = `${currency} ${b.total.toFixed(2)}`;
-        ctx.fillText(money, x, y-6);
+        roundRect(ctx, x, y, bw, barH, 12, fill);
 
-        ctx.fillStyle = "rgba(169,182,211,0.95)";
-        ctx.font = "12px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial";
-        ctx.fillText(b.key, x, baseY+14);
+        ctx.fillStyle = cssVar("--text");
+        ctx.font = "12px " + cssVar("--mono");
+        ctx.fillText(`${currency} ${b.total.toFixed(2)}`, x, y-7);
+
+        ctx.fillStyle = cssVar("--muted");
+        ctx.font = "12px " + cssVar("--sans");
+        ctx.fillText(b.key, x, baseY+16);
+
+        chartBars.push({ x, y, w:bw, h:barH, bucket:b });
       });
 
-      // breakdown text
-      const total = b2.reduce((s,b)=>s+b.total,0);
+      const total = buckets.reduce((s,b)=>s+b.total,0);
       breakdownEl.innerHTML = `
-        <div><b>Total known costs:</b> ${currency} ${total.toFixed(2)}</div>
-        <div style="margin-top:6px">Buckets: ${b2.map(b=>`${b.key}: ${currency} ${b.total.toFixed(2)}`).join(" · ")}</div>
-        <div style="margin-top:6px">Tip: add “Expense” items for trains, buses, extra hotels, tickets, and food budgets.</div>
+        <div><b>Total:</b> ${escapeHtml(currency)} ${total.toFixed(2)}</div>
+        <div style="margin-top:6px">
+          ${buckets.map(b=>`${escapeHtml(b.key)}: ${escapeHtml(currency)} ${b.total.toFixed(2)}`).join(" · ")}
+        </div>
+        <div style="margin-top:8px">Mode: <b>${state.meta.costMode==="expenseOnly" ? "Expense items only" : "Any item with cost"}</b></div>
       `;
     }
 
-    function roundRect(ctx, x, y, w, h, r, fill, stroke) {
-      if (typeof r === 'number') r = {tl:r, tr:r, br:r, bl:r};
-      ctx.beginPath();
-      ctx.moveTo(x + r.tl, y);
-      ctx.lineTo(x + w - r.tr, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + r.tr);
-      ctx.lineTo(x + w, y + h - r.br);
-      ctx.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
-      ctx.lineTo(x + r.bl, y + h);
-      ctx.quadraticCurveTo(x, y + h, x, y + h - r.bl);
-      ctx.lineTo(x, y + r.tl);
-      ctx.quadraticCurveTo(x, y, x + r.tl, y);
-      ctx.closePath();
-      if (fill) ctx.fill();
-      if (stroke) ctx.stroke();
+    function hitBar(evt){
+      const rect = chart.getBoundingClientRect();
+      const x = (evt.clientX - rect.left) * (chart.width / rect.width);
+      const y = (evt.clientY - rect.top) * (chart.height / rect.height);
+      return chartBars.find(b => x>=b.x && x<=b.x+b.w && y>=b.y && y<=b.y+b.h) || null;
     }
-
-    function renderAll(){
-      // sync meta inputs
-      document.getElementById("homeBase").value = state.meta.homeBase || "";
-      document.getElementById("purpose").value = state.meta.purpose || "";
-      document.getElementById("pacing").value = state.meta.pacing || "Efficient & clustered";
-      document.getElementById("budgetFocus").value = state.meta.budgetFocus || "Comfort/value";
-      document.getElementById("currency").value = state.meta.currency || "USD";
-      document.getElementById("notes").value = state.meta.notes || "";
-
-      renderKPIs();
-      renderTimeline();
-      drawCostChart();
-    }
-
-    // ===== Meta input bindings =====
-    ["homeBase","purpose","pacing","budgetFocus","currency","notes"].forEach(id=>{
-      document.getElementById(id).addEventListener("input", (e)=>{
-        const v = e.target.value;
-        if(id==="homeBase") state.meta.homeBase=v;
-        if(id==="purpose") state.meta.purpose=v;
-        if(id==="pacing") state.meta.pacing=v;
-        if(id==="budgetFocus") state.meta.budgetFocus=v;
-        if(id==="currency") state.meta.currency=v || "USD";
-        if(id==="notes") state.meta.notes=v;
-        save(); renderKPIs(); drawCostChart();
-      });
+    chart.addEventListener("mousemove", (e)=>{
+      const h = hitBar(e);
+      if(!h){ tip.style.display="none"; return; }
+      const currency = state.meta.currency || "USD";
+      const lines = h.bucket.items.slice(0,5).map(i => `• ${escapeHtml(i.title)} — ${escapeHtml(currency)} ${(+i.cost).toFixed(2)}`).join("<br>");
+      tip.innerHTML = `<div style="font-weight:900">${escapeHtml(h.bucket.key)}</div>
+        <div style="margin-top:4px"><b>${escapeHtml(currency)} ${h.bucket.total.toFixed(2)}</b></div>
+        <div style="margin-top:6px; color:var(--muted); line-height:1.35">${lines}${h.bucket.items.length>5 ? "<br>…":""}</div>`;
+      tip.style.display="block";
+      tip.style.left = (e.clientX + 12) + "px";
+      tip.style.top = (e.clientY + 12) + "px";
     });
+    chart.addEventListener("mouseleave", ()=> tip.style.display="none");
 
-    // Filters
-    ["search","filterType","sortOrder"].forEach(id=>{
-      document.getElementById(id).addEventListener("input", ()=>renderTimeline());
-      document.getElementById(id).addEventListener("change", ()=>renderTimeline());
-    });
-
-    // ===== Modal logic =====
     const modalBack = document.getElementById("modalBack");
     const btnAdd = document.getElementById("btnAdd");
     const btnClose = document.getElementById("btnClose");
     const btnSave = document.getElementById("btnSave");
     const btnDelete = document.getElementById("btnDelete");
+    const formError = document.getElementById("formError");
     let editingId = null;
 
     function openModal(id=null){
@@ -1228,9 +1512,13 @@
       const item = isEdit ? state.items.find(x=>x.id===id) : null;
 
       document.getElementById("modalTitle").textContent = isEdit ? "Edit item" : "Add item";
-      document.getElementById("modalHint").textContent = isEdit ? "Update fields and Save. Costs on Expense items update the chart." : "Add a new itinerary item. Use type “Expense” for cost tracking.";
+      document.getElementById("modalHint").textContent = isEdit
+        ? "Update fields and Save. Use Expense type for cost tracking."
+        : "Add a new itinerary item. Expense type updates the Costs tab.";
 
       btnDelete.style.display = isEdit ? "inline-flex" : "none";
+      formError.style.display = "none";
+      formError.textContent = "";
 
       document.getElementById("mType").value = item?.type || "flight";
       document.getElementById("mStart").value = item?.start || "";
@@ -1238,24 +1526,25 @@
       document.getElementById("mTitle").value = item?.title || "";
       document.getElementById("mWhere").value = item?.where || "";
       document.getElementById("mConfirm").value = item?.confirm || "";
-      document.getElementById("mCost").value = item?.cost ?? "";
+      document.getElementById("mCost").value = (item?.cost ?? "");
       document.getElementById("mDetails").value = item?.details || "";
 
       modalBack.style.display = "flex";
+      modalBack.setAttribute("open","true");
+      setTimeout(()=> document.getElementById("mType").focus({preventScroll:true}), 10);
     }
-
     function closeModal(){
       modalBack.style.display = "none";
+      modalBack.removeAttribute("open");
       editingId = null;
     }
+    function validDateOrEmpty(v){ return !v || !!parseDate(v); }
 
-    btnAdd.addEventListener("click", ()=>openModal(null));
-    btnClose.addEventListener("click", closeModal);
-    modalBack.addEventListener("click", (e)=>{
-      if(e.target === modalBack) closeModal();
-    });
-
-    btnSave.addEventListener("click", ()=>{
+    function showError(msg){
+      formError.textContent = msg;
+      formError.style.display = "block";
+    }
+    function saveModal(){
       const item = {
         id: editingId || uid(),
         type: document.getElementById("mType").value,
@@ -1268,77 +1557,164 @@
         details: document.getElementById("mDetails").value.trim()
       };
 
-      // normalize cost
+      if(!item.title) return showError("Title is required.");
+      if(!validDateOrEmpty(item.start) || !validDateOrEmpty(item.end)) return showError("Date must be YYYY-MM-DD or YYYY-MM-DD HH:MM.");
       if(item.cost === "") item.cost = "";
       else if(isFinite(+item.cost)) item.cost = +item.cost;
-      else item.cost = "";
+      else return showError("Cost must be a number (e.g., 511.92).");
 
       if(editingId){
         const idx = state.items.findIndex(x=>x.id===editingId);
         if(idx>=0) state.items[idx] = item;
       }else{
         state.items.push(item);
+        const order = state.meta.manualOrder || [];
+        order.push(item.id);
+        state.meta.manualOrder = order;
       }
-
       save(); renderAll(); closeModal();
-    });
-
-    btnDelete.addEventListener("click", ()=>{
+    }
+    function deleteItem(){
       if(!editingId) return;
       state.items = state.items.filter(x=>x.id !== editingId);
+      state.meta.manualOrder = (state.meta.manualOrder || []).filter(id=>id!==editingId);
       save(); renderAll(); closeModal();
-    });
+    }
+    function convertTodo(id){
+      const item = state.items.find(x=>x.id===id);
+      if(!item) return;
+      item.type="note";
+      item.title=(item.title||"TBD")+" (converted)";
+      save(); renderAll(); openModal(id);
+    }
 
-    // ===== Export / Import =====
-    document.getElementById("btnExport").addEventListener("click", ()=>{
+    btnAdd.addEventListener("click", ()=> openModal(null));
+    btnClose.addEventListener("click", closeModal);
+    modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
+    btnSave.addEventListener("click", saveModal);
+    btnDelete.addEventListener("click", deleteItem);
+    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape" && modalBack.style.display==="flex") closeModal(); });
+
+    function exportJson(){
       const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = "itinerary-data.json";
       a.click();
       URL.revokeObjectURL(a.href);
-    });
-
-    const fileInput = document.getElementById("fileInput");
-    document.getElementById("btnImport").addEventListener("click", ()=> fileInput.click());
-    fileInput.addEventListener("change", async (e)=>{
+    }
+    document.getElementById("btnExport").addEventListener("click", exportJson);
+    document.getElementById("btnImport").addEventListener("click", ()=> document.getElementById("fileInput").click());
+    document.getElementById("fileInput").addEventListener("change", async (e)=>{
       const f = e.target.files?.[0];
       if(!f) return;
       try{
         const txt = await f.text();
         const data = JSON.parse(txt);
-        if(!data || !data.items || !data.meta) throw new Error("Invalid file");
+        if(!data?.items || !data?.meta) throw new Error("Invalid file");
         state = data;
-        save(); renderAll();
-      }catch(err){
+        save();
+        applyTheme(state.meta.theme || "dark");
+        renderAll();
+      }catch(_){
         alert("Could not import JSON. Make sure it's an export from this itinerary page.");
       }finally{
-        fileInput.value = "";
+        e.target.value = "";
       }
     });
-
-    // ===== Reset =====
     document.getElementById("btnReset").addEventListener("click", ()=>{
       if(!confirm("Reset itinerary to your initial plan? This will overwrite local edits.")) return;
       state = structuredClone(SEED);
-      save(); renderAll();
+      save();
+      applyTheme(state.meta.theme || "dark");
+      renderAll();
     });
 
-    // ===== GitHub Pages help =====
-    document.getElementById("howToGithub").addEventListener("click", ()=>{
-      alert(
-`GitHub Pages quick publish:
-1) Create a public repo (any name, e.g., "trip-itinerary").
-2) Upload this file as index.html (and any assets).
-3) Go to Settings → Pages
-4) Source: Deploy from branch → main → /(root)
-5) Your link appears at the top (usually https://<username>.github.io/<repo>/ )
+    let dragId=null;
+    function wireDragSort(){
+      const items = Array.from(document.querySelectorAll("article.item"));
+      items.forEach(el=>{
+        el.addEventListener("dragstart", (e)=>{
+          dragId = el.dataset.id;
+          el.classList.add("dragging");
+          e.dataTransfer.effectAllowed="move";
+        });
+        el.addEventListener("dragend", ()=>{
+          dragId=null;
+          el.classList.remove("dragging");
+          items.forEach(x=>x.classList.remove("dropTarget"));
+        });
+        el.addEventListener("dragover", (e)=>{
+          e.preventDefault();
+          if(!dragId || el.dataset.id===dragId) return;
+          el.classList.add("dropTarget");
+        });
+        el.addEventListener("dragleave", ()=> el.classList.remove("dropTarget"));
+        el.addEventListener("drop", (e)=>{
+          e.preventDefault();
+          el.classList.remove("dropTarget");
+          if(!dragId || el.dataset.id===dragId) return;
 
-Tip: For a personal root site, name the repo <username>.github.io and your URL becomes https://<username>.github.io/`
-      );
+          const list = Array.from(document.querySelectorAll("article.item")).map(x=>x.dataset.id);
+          const from = list.indexOf(dragId);
+          const to = list.indexOf(el.dataset.id);
+          if(from<0 || to<0) return;
+          list.splice(from, 1);
+          list.splice(to, 0, dragId);
+          state.meta.manualOrder = list;
+          save();
+          renderTimeline();
+        });
+      });
+    }
+
+    const metaMap = [
+      ["homeBase","homeBase"],
+      ["purpose","purpose"],
+      ["pacing","pacing"],
+      ["budgetFocus","budgetFocus"],
+      ["currency","currency"],
+      ["notes","notes"],
+      ["costMode","costMode"],
+      ["costNote","costNote"]
+    ];
+    metaMap.forEach(([id,key])=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.addEventListener("input", ()=>{ state.meta[key]=el.value; save(); renderOverview(); drawCosts(); });
+      el.addEventListener("change", ()=>{ state.meta[key]=el.value; save(); renderOverview(); drawCosts(); });
     });
 
-    // ===== Initial render =====
+    document.getElementById("search").addEventListener("input", debounce(()=>{ renderTimeline(); renderOverview(); }, 250));
+    document.querySelectorAll(".typeCheck").forEach(c=> c.addEventListener("change", renderTimeline));
+    document.getElementById("sortOrder").addEventListener("change", renderTimeline);
+    document.getElementById("showLevel").addEventListener("change", renderTimeline);
+
+    document.getElementById("btnTheme").addEventListener("click", ()=>{
+      const cur = state.meta.theme || "dark";
+      applyTheme(cur==="dark" ? "light" : "dark");
+      drawCosts();
+    });
+
+    function hydrateInputs(){
+      document.getElementById("homeBase").value = state.meta.homeBase || "";
+      document.getElementById("purpose").value = state.meta.purpose || "";
+      document.getElementById("pacing").value = state.meta.pacing || "Efficient & clustered";
+      document.getElementById("budgetFocus").value = state.meta.budgetFocus || "Comfort/value";
+      document.getElementById("currency").value = state.meta.currency || "USD";
+      document.getElementById("notes").value = state.meta.notes || "";
+      document.getElementById("costMode").value = state.meta.costMode || "expenseOnly";
+      document.getElementById("costNote").value = state.meta.costNote || "";
+    }
+
+    function renderAll(){
+      hydrateInputs();
+      renderOverview();
+      renderTimeline();
+      drawCosts();
+    }
+
+    applyTheme(state.meta.theme || "dark");
     renderAll();
   </script>
 </body>
