@@ -3,51 +3,49 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Travel Itinerary Dashboard</title>
+  <title>Trip Legs Planner</title>
   <meta name="color-scheme" content="dark light">
   <style>
     :root{
       --radius:14px;
       --radius-sm:10px;
 
-      /* Light defaults */
-      --bg:#f6f8ff;
+      --bg:#f7f8fc;
       --surface:#ffffff;
-      --surface-2:#f2f5ff;
+      --surface2:#f3f5ff;
       --border:rgba(20,30,60,.12);
       --text:#0b1324;
       --muted:rgba(11,19,36,.70);
-      --muted-2:rgba(11,19,36,.55);
+      --muted2:rgba(11,19,36,.55);
 
-      --shadow: 0 8px 24px rgba(10,18,35,.10);
-      --shadow-sm: 0 6px 14px rgba(10,18,35,.08);
+      --shadow: 0 10px 28px rgba(10,18,35,.10);
+      --shadow-sm: 0 8px 18px rgba(10,18,35,.08);
 
       --flight:#2f6bff;
       --lodging:#12b981;
       --event:#f4b740;
       --todo:#ff5a6f;
+      --note:#7a8aa6;
+      --expense:#7a5cff;
 
-      --chip: rgba(20,30,60,.06);
       --focus: 0 0 0 4px rgba(47,107,255,.20);
-
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+
       --anim: 160ms cubic-bezier(.2,.8,.2,1);
     }
-
     [data-theme="dark"]{
       --bg:#0b1220;
       --surface:#0f1730;
-      --surface-2:#101a30;
+      --surface2:#101a30;
       --border:rgba(255,255,255,.10);
       --text:#e7eefc;
       --muted:rgba(231,238,252,.72);
-      --muted-2:rgba(231,238,252,.56);
+      --muted2:rgba(231,238,252,.56);
 
-      --shadow: 0 14px 32px rgba(0,0,0,.35);
-      --shadow-sm: 0 10px 20px rgba(0,0,0,.28);
+      --shadow: 0 18px 44px rgba(0,0,0,.38);
+      --shadow-sm: 0 12px 26px rgba(0,0,0,.30);
 
-      --chip: rgba(255,255,255,.06);
       --focus: 0 0 0 4px rgba(122,162,255,.18);
     }
 
@@ -56,116 +54,72 @@
     body{
       margin:0;
       font-family:var(--sans);
+      color:var(--text);
       background:
-        radial-gradient(1200px 900px at 10% 0%, rgba(47,107,255,.10), transparent 60%),
-        radial-gradient(1000px 800px at 90% 20%, rgba(18,185,129,.08), transparent 62%),
+        radial-gradient(1100px 800px at 10% 0%, rgba(47,107,255,.10), transparent 60%),
+        radial-gradient(1000px 700px at 90% 20%, rgba(18,185,129,.08), transparent 62%),
         radial-gradient(900px 900px at 55% 100%, rgba(244,183,64,.06), transparent 55%),
         var(--bg);
-      color:var(--text);
-      line-height:1.3;
+      line-height:1.35;
     }
 
-    /* ===== Top App Bar ===== */
     .appbar{
-      position:sticky;
-      top:0;
-      z-index:20;
-      background: color-mix(in srgb, var(--bg) 70%, transparent);
+      position:sticky; top:0; z-index:30;
+      background: color-mix(in srgb, var(--bg) 72%, transparent);
       backdrop-filter: blur(14px);
       border-bottom:1px solid var(--border);
     }
     .appbarInner{
-      max-width:1200px;
-      margin:0 auto;
+      max-width:1280px; margin:0 auto;
       padding:14px 16px 10px;
-      display:flex;
-      gap:12px;
-      align-items:flex-end;
-      justify-content:space-between;
-      flex-wrap:wrap;
+      display:flex; gap:12px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap;
     }
-    .brand{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      min-width:240px;
-    }
+    .brand{ display:flex; gap:10px; align-items:center; min-width:260px; }
     .logo{
-      width:34px; height:34px;
-      border-radius:10px;
+      width:36px; height:36px; border-radius:12px;
       background: linear-gradient(135deg, color-mix(in srgb, var(--flight) 78%, transparent), color-mix(in srgb, var(--lodging) 58%, transparent));
-      box-shadow: var(--shadow-sm);
       border:1px solid color-mix(in srgb, var(--border) 80%, transparent);
+      box-shadow: var(--shadow-sm);
+      flex:0 0 auto;
     }
-    .brand h1{
-      margin:0;
-      font-size: clamp(16px, 2.2vw, 18px);
-      font-weight: 850;
-      letter-spacing:.2px;
-    }
-    .brand p{
-      margin:6px 0 0;
-      color:var(--muted);
-      font-size: clamp(12px, 1.8vw, 13px);
-      max-width:720px;
-    }
+    .brand h1{ margin:0; font-size: clamp(16px, 2vw, 18px); font-weight: 920; letter-spacing:.2px; }
+    .brand p{ margin:6px 0 0; color:var(--muted); font-size:13px; max-width:740px; }
 
-    .toolbar{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:flex-end;
-    }
-
-    .iconBtn{
-      appearance:none;
-      border:1px solid var(--border);
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
+    .btn{
+      appearance:none; border:1px solid var(--border);
       background: color-mix(in srgb, var(--surface) 86%, transparent);
       color:var(--text);
       padding:10px 12px;
       border-radius:12px;
-      cursor:pointer;
       box-shadow: var(--shadow-sm);
-      font-weight: 750;
+      font-weight: 850;
       font-size: 13px;
+      cursor:pointer;
       transition: transform var(--anim), box-shadow var(--anim), border-color var(--anim);
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      user-select:none;
+      display:inline-flex; align-items:center; gap:10px;
       touch-action: manipulation;
+      user-select:none;
     }
-    .iconBtn:hover{
-      transform: translateY(-1px);
-      border-color: color-mix(in srgb, var(--flight) 45%, var(--border));
-      box-shadow: var(--shadow);
-    }
-    .iconBtn:active{ transform: translateY(0px) scale(.99); }
-    .iconBtn:focus-visible{ outline:none; box-shadow: var(--shadow-sm), var(--focus); }
-    .iconBtn.primary{
+    .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--flight) 45%, var(--border)); }
+    .btn:active{ transform: translateY(0px) scale(.99); }
+    .btn:focus-visible{ outline:none; box-shadow: var(--shadow-sm), var(--focus); }
+    .btn.primary{
       border-color: color-mix(in srgb, var(--flight) 55%, var(--border));
       background: linear-gradient(180deg, color-mix(in srgb, var(--flight) 14%, var(--surface)), color-mix(in srgb, var(--flight) 7%, var(--surface)));
     }
-    .iconBtn.danger{
+    .btn.danger{
       border-color: color-mix(in srgb, var(--todo) 55%, var(--border));
       background: linear-gradient(180deg, color-mix(in srgb, var(--todo) 12%, var(--surface)), color-mix(in srgb, var(--todo) 6%, var(--surface)));
     }
 
-    /* ===== Tabs ===== */
     .tabs{
-      max-width:1200px;
-      margin:0 auto;
-      padding:0 16px 10px;
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
+      max-width:1280px; margin:0 auto;
+      padding:0 16px 12px;
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
     }
     .tabRow{
-      display:flex;
-      gap:8px;
+      display:flex; gap:8px;
       background: color-mix(in srgb, var(--surface) 82%, transparent);
       border:1px solid var(--border);
       border-radius:999px;
@@ -173,864 +127,455 @@
       box-shadow: var(--shadow-sm);
     }
     .tab{
-      appearance:none;
-      border:none;
-      background: transparent;
-      color: var(--muted);
+      border:none; background:transparent;
+      color:var(--muted);
       padding:8px 12px;
       border-radius:999px;
       font-size:13px;
-      font-weight:800;
+      font-weight:900;
       cursor:pointer;
-      transition: background var(--anim), color var(--anim), transform var(--anim);
+      transition: background var(--anim), color var(--anim);
     }
     .tab[aria-selected="true"]{
-      background: color-mix(in srgb, var(--flight) 15%, var(--surface));
-      color: var(--text);
-      box-shadow: 0 8px 16px rgba(0,0,0,.08);
+      color:var(--text);
+      background: color-mix(in srgb, var(--flight) 14%, var(--surface));
+      box-shadow: 0 10px 18px rgba(0,0,0,.08);
     }
     .tab:focus-visible{ outline:none; box-shadow: var(--focus); }
 
-    .tabTools{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:flex-end;
-    }
-    .searchPill{
-      display:flex;
-      align-items:center;
-      gap:10px;
+    .search{
+      display:flex; align-items:center; gap:10px;
       background: color-mix(in srgb, var(--surface) 86%, transparent);
       border:1px solid var(--border);
       border-radius:999px;
-      padding:8px 12px;
+      padding:9px 12px;
       box-shadow: var(--shadow-sm);
-      min-width:min(520px, 86vw);
+      min-width:min(560px, 88vw);
     }
-    @media (max-width: 600px){
-      .searchPill{ min-width: 100%; }
-    }
-    .searchPill input{
+    .search input{
+      border:none; outline:none; background:transparent; color:var(--text);
       width:100%;
-      border:none;
-      background:transparent;
-      color:var(--text);
-      outline:none;
       font-size:13px;
     }
-    .searchPill input::placeholder{ color: var(--muted-2); }
+    .search input::placeholder{ color:var(--muted2); }
 
-    /* ===== Layout ===== */
-    .container{
-      max-width:1200px;
-      margin:0 auto;
-      padding:10px 16px 84px;
-    }
-    .grid{
+    .container{ max-width:1280px; margin:0 auto; padding:10px 16px 86px; }
+    .split{
       display:grid;
+      grid-template-columns: 370px 1fr;
       gap:14px;
-      grid-template-columns: 420px 1fr;
       align-items:start;
     }
-    @media (max-width: 1200px){
-      .grid{ grid-template-columns: 380px 1fr; }
-    }
-    @media (max-width: 900px){
-      .grid{ grid-template-columns: 1fr; }
+    @media (max-width: 980px){
+      .split{ grid-template-columns: 1fr; }
+      .search{ min-width: 100%; }
     }
 
     .panel{
-      background: color-mix(in srgb, var(--surface) 82%, transparent);
+      background: color-mix(in srgb, var(--surface) 84%, transparent);
       border:1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
-    .panelHeader{
+    .ph{
       padding:14px 14px 12px;
       border-bottom:1px solid var(--border);
-      display:flex;
-      align-items:flex-end;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
+      display:flex; gap:12px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap;
     }
-    .panelHeader h2{
-      margin:0;
-      font-size: 14px;
-      font-weight: 900;
-      letter-spacing:.2px;
-    }
-    .panelHeader .sub{
-      color:var(--muted);
-      font-size:12px;
-      margin-top:6px;
-      line-height:1.35;
-      max-width:660px;
-    }
-    .panelBody{ padding:14px; }
+    .ph h2{ margin:0; font-size:14px; font-weight: 950; letter-spacing:.2px; }
+    .ph .sub{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35; max-width:760px; }
+    .pb{ padding:14px; }
 
-    .sticky{
-      position: sticky;
-      top: 110px;
-    }
-    @media (max-width: 900px){
-      .sticky{ position: static; top:auto; }
-    }
+    .sticky{ position:sticky; top:112px; }
+    @media (max-width:980px){ .sticky{ position:static; top:auto; } }
 
-    .kpis{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    .kpi{
-      background: color-mix(in srgb, var(--surface) 65%, transparent);
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      padding:12px;
-      box-shadow: var(--shadow-sm);
-      transition: transform var(--anim);
-    }
-    .kpi:hover{ transform: translateY(-1px); }
-    .kpi .label{ color:var(--muted); font-size:12px; }
-    .kpi .value{ margin-top:6px; font-size:18px; font-weight:950; letter-spacing:.2px; }
-    .kpi .hint{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35; }
-
-    .chipRow{
-      display:flex; flex-wrap:wrap; gap:8px;
-      margin-top:12px;
-    }
-    .chip{
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background: var(--chip);
-      font-size:12px;
-      display:inline-flex; gap:10px; align-items:center;
-      user-select:none;
-    }
-    .chip b{ font-family:var(--mono); font-size:11px; }
-    .chip .dot{ width:8px; height:8px; border-radius:50%; background: var(--flight); opacity:.9; }
-    .chip .dot.lodging{ background: var(--lodging); }
-    .chip .dot.event{ background: var(--event); }
-    .chip .dot.todo{ background: var(--todo); }
-
-    .formGrid{
-      margin-top:12px;
-      border-top:1px dashed color-mix(in srgb, var(--border) 80%, transparent);
-      padding-top:12px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width: 520px){
-      .formGrid{ grid-template-columns: 1fr; }
-    }
-    label{ display:block; color:var(--muted); font-size:12px; margin-bottom:6px; }
-    input, select, textarea{
-      width:100%;
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 70%, transparent);
-      color:var(--text);
-      padding:10px 10px;
-      border-radius: 12px;
-      outline:none;
-      font-size: 13px;
-    }
-    textarea{ min-height:92px; resize:vertical; }
-    input:focus, select:focus, textarea:focus{ box-shadow: var(--focus); }
-
-    .helper{
-      margin-top:10px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.35;
-    }
-
-    /* ===== Timeline ===== */
-    .timelineWrap{ padding:14px; }
-    .filterRow{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:10px;
-    }
-    .filterRow .left, .filterRow .right{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-    }
-    .seg{
-      display:flex; gap:6px; flex-wrap:wrap; align-items:center;
-      padding:8px 10px;
-      border-radius: 12px;
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 84%, transparent);
-      box-shadow: var(--shadow-sm);
-    }
-    .seg span{ color:var(--muted); font-size:12px; }
-    .seg select{
-      width:auto; padding:0;
-      border:none; background:transparent;
-      box-shadow:none;
-      font-size:12px;
-    }
-    .checks{
-      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 84%, transparent);
-      box-shadow: var(--shadow-sm);
-    }
-    .checks label{
-      margin:0;
-      display:flex; gap:8px; align-items:center;
-      color:var(--muted);
-      font-size:12px;
-      cursor:pointer;
-      user-select:none;
-    }
-    .checks input{ width:14px; height:14px; }
-
-    .timeline{
-      position:relative;
-      padding-left: 26px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-    }
-    .timeline::before{
-      content:"";
-      position:absolute;
-      left:10px;
-      top:0;
-      bottom:0;
-      width:2px;
-      background: repeating-linear-gradient(
-        to bottom,
-        color-mix(in srgb, var(--flight) 80%, transparent) 0 7px,
-        transparent 7px 14px
-      );
-      border-radius:999px;
-      opacity:.9;
-    }
-
-    article.item{
-      position:relative;
-      display:grid;
-      grid-template-columns: 150px 1fr;
-      gap:12px;
-      align-items:start;
-      animation: fadeInUp 220ms ease both;
-    }
-    @keyframes fadeInUp{
-      from{ opacity:0; transform: translateY(6px); }
-      to{ opacity:1; transform: translateY(0); }
-    }
-    @media (max-width: 720px){
-      article.item{ grid-template-columns: 1fr; }
-    }
-
-    .node{
-      position:absolute;
-      left:2px;
-      top:14px;
-      width:16px;
-      height:16px;
-      border-radius:50%;
-      background: var(--surface);
-      border: 2px solid var(--flight);
-      box-shadow: 0 0 0 4px color-mix(in srgb, var(--flight) 18%, transparent);
-    }
-    .node.lodging{ border-color: var(--lodging); box-shadow: 0 0 0 4px color-mix(in srgb, var(--lodging) 18%, transparent); }
-    .node.event{ border-color: var(--event); box-shadow: 0 0 0 4px color-mix(in srgb, var(--event) 18%, transparent); }
-    .node.todo{ border-color: var(--todo); box-shadow: 0 0 0 4px color-mix(in srgb, var(--todo) 18%, transparent); }
-
-    .dateBox{
-      padding:10px;
-      border-radius: var(--radius);
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 70%, transparent);
-      box-shadow: var(--shadow-sm);
-    }
-    .dateBox .d{
-      font-family: var(--mono);
-      font-weight: 900;
-      font-size: 12px;
-      letter-spacing: .2px;
-    }
-    .dateBox .t{
-      margin-top:6px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.35;
-    }
-
-    .card{
+    .legList{ display:flex; flex-direction:column; gap:10px; }
+    .legCard{
       border:1px solid var(--border);
       background: color-mix(in srgb, var(--surface) 76%, transparent);
       border-radius: var(--radius);
       padding:12px;
-      box-shadow: var(--shadow);
-      transition: transform var(--anim), box-shadow var(--anim);
-    }
-    .card:hover{ transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-
-    .cardTop{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-    .card h3{
-      margin:0;
-      font-size: 14px;
-      font-weight: 950;
-      letter-spacing:.1px;
-    }
-    .meta{
-      margin-top:6px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.4;
-      max-width: 820px;
-    }
-
-    .badges{ display:flex; gap:6px; flex-wrap:wrap; }
-    .badge{
-      font-size: 11px;
-      padding:5px 8px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background: var(--chip);
-      color: var(--text);
-      user-select:none;
-    }
-    .badge.flight{ border-color: color-mix(in srgb, var(--flight) 45%, var(--border)); }
-    .badge.lodging{ border-color: color-mix(in srgb, var(--lodging) 45%, var(--border)); }
-    .badge.event{ border-color: color-mix(in srgb, var(--event) 50%, var(--border)); }
-    .badge.todo{ border-color: color-mix(in srgb, var(--todo) 55%, var(--border)); }
-
-    details{
-      margin-top:10px;
-      border-top:1px dashed color-mix(in srgb, var(--border) 80%, transparent);
-      padding-top:8px;
-    }
-    summary{
+      box-shadow: var(--shadow-sm);
       cursor:pointer;
-      color: var(--muted);
-      font-size:12px;
-      list-style:none;
-      user-select:none;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      padding:6px 0;
+      transition: transform var(--anim), box-shadow var(--anim), border-color var(--anim);
     }
-    summary::-webkit-details-marker{ display:none; }
-    summary:focus-visible{ outline:none; box-shadow: var(--focus); border-radius:10px; padding:6px 8px; }
-
-    .detailsGrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-      margin-top:10px;
+    .legCard:hover{ transform: translateY(-1px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--flight) 40%, var(--border)); }
+    .legCard[aria-selected="true"]{
+      border-color: color-mix(in srgb, var(--flight) 60%, var(--border));
+      box-shadow: var(--shadow);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--flight) 9%, var(--surface)), color-mix(in srgb, var(--surface) 90%, transparent));
     }
-    @media (max-width: 640px){
-      .detailsGrid{ grid-template-columns: 1fr; }
-    }
-    .mini{
+    .legTop{ display:flex; gap:10px; align-items:flex-start; justify-content:space-between; }
+    .legTitle{ margin:0; font-weight: 950; font-size: 14px; }
+    .legMeta{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35; }
+    .chips{ display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+    .chip{
       border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 66%, transparent);
-      border-radius: var(--radius-sm);
-      padding:10px;
+      background: color-mix(in srgb, var(--surface2) 70%, transparent);
+      border-radius:999px;
+      padding:5px 8px;
+      font-size:11px;
+      color:var(--text);
+      user-select:none;
+      display:inline-flex; gap:8px; align-items:center;
     }
-    .mini .k{ color:var(--muted); font-size:11px; }
-    .mini .v{ margin-top:6px; font-family:var(--mono); font-size:12px; font-weight:900; }
+    .dot{ width:8px; height:8px; border-radius:50%; background: var(--note); }
+    .dot.flight{ background: var(--flight); }
+    .dot.lodging{ background: var(--lodging); }
+    .dot.event{ background: var(--event); }
+    .dot.todo{ background: var(--todo); }
+    .dot.expense{ background: var(--expense); }
 
-    .cardBtns{
-      display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
-      margin-top:10px;
-    }
-    .smallBtn{
-      appearance:none;
+    .pill{
       border:1px solid var(--border);
       background: color-mix(in srgb, var(--surface) 86%, transparent);
-      color:var(--text);
-      padding:8px 10px;
-      border-radius: 12px;
-      cursor:pointer;
+      border-radius:999px;
+      padding:6px 10px;
       font-size:12px;
-      font-weight:800;
-      transition: transform var(--anim);
-      touch-action: manipulation;
+      color:var(--muted);
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
     }
-    .smallBtn:hover{ transform: translateY(-1px); }
-    .smallBtn:focus-visible{ outline:none; box-shadow: var(--focus); }
-    .smallBtn.primary{
+    .pill select{ border:none; background:transparent; color:var(--text); font-size:12px; outline:none; }
+
+    .hero{
+      display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+    }
+    .hero h3{ margin:0; font-size:16px; font-weight: 980; letter-spacing:.2px; }
+    .hero .sub{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35; max-width:860px; }
+    .heroRight{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
+    .kpiRow{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; margin-top:12px; }
+    @media (max-width: 980px){ .kpiRow{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    .kpi{
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 70%, transparent);
+      border-radius: var(--radius);
+      padding:12px;
+      box-shadow: var(--shadow-sm);
+    }
+    .kpi .k{ color:var(--muted); font-size:12px; }
+    .kpi .v{ margin-top:6px; font-size:16px; font-weight: 980; font-family: var(--mono); }
+    .kpi .h{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35; }
+
+    .section{
+      margin-top:14px;
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      background: color-mix(in srgb, var(--surface) 78%, transparent);
+      box-shadow: var(--shadow-sm);
+      overflow:hidden;
+    }
+    .sh{
+      padding:12px 12px 10px;
+      border-bottom:1px solid var(--border);
+      display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    }
+    .sh h4{ margin:0; font-size:13px; font-weight: 950; letter-spacing:.2px; display:flex; gap:8px; align-items:center; }
+    .sh .hint{ color:var(--muted); font-size:12px; }
+    .sb{ padding:12px; }
+
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .table th, .table td{
+      text-align:left;
+      padding:10px 8px;
+      border-bottom:1px solid color-mix(in srgb, var(--border) 80%, transparent);
+      vertical-align: top;
+    }
+    .table th{
+      color:var(--muted);
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing:.3px;
+      text-transform: uppercase;
+    }
+    .rowBtn{
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      border-radius: 12px;
+      padding:7px 10px;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+      transition: transform var(--anim);
+      display:inline-flex; gap:8px; align-items:center;
+    }
+    .rowBtn:hover{ transform: translateY(-1px); }
+    .rowBtn:focus-visible{ outline:none; box-shadow: var(--focus); }
+    .rowBtn.primary{
       border-color: color-mix(in srgb, var(--flight) 55%, var(--border));
       background: color-mix(in srgb, var(--flight) 12%, var(--surface));
     }
 
-    .dragHint{
+    .inlineForm{
+      display:grid;
+      grid-template-columns: 140px 1fr 1fr;
+      gap:10px;
+      align-items:end;
+      margin-top:12px;
+      padding-top:12px;
+      border-top:1px dashed color-mix(in srgb, var(--border) 80%, transparent);
+    }
+    @media (max-width: 980px){
+      .inlineForm{ grid-template-columns: 1fr; }
+    }
+    .field label{ display:block; color:var(--muted); font-size:12px; margin-bottom:6px; }
+    .field input, .field select, .field textarea{
+      width:100%;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface) 70%, transparent);
+      border-radius: 12px;
+      padding:10px 10px;
+      font-size: 13px;
+      color: var(--text);
+      outline:none;
+    }
+    .field textarea{ min-height:84px; resize:vertical; grid-column: 1 / -1; }
+    .field input:focus, .field select:focus, .field textarea:focus{ box-shadow: var(--focus); }
+
+    .editBox{
+      margin-top:10px;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface2) 70%, transparent);
+      border-radius: var(--radius);
+      padding:12px;
+      box-shadow: var(--shadow-sm);
+      display:none;
+    }
+    .editBox[data-open="true"]{ display:block; }
+
+    .help{
+      margin-top:10px;
       color:var(--muted);
       font-size:12px;
-      margin-top:10px;
       line-height:1.35;
     }
-    .dragging{ opacity:.55; }
-    .dropTarget{ outline: 2px dashed color-mix(in srgb, var(--flight) 70%, transparent); outline-offset: 6px; border-radius: var(--radius); }
+    .warn{
+      display:inline-flex; gap:8px; align-items:center;
+      color: color-mix(in srgb, var(--todo) 70%, var(--text));
+      font-weight:900;
+      font-size:12px;
+    }
 
-    /* ===== Costs ===== */
-    .chartWrap{ padding:14px; }
-    canvas{
-      width:100%;
-      height:200px;
-      display:block;
-      background: color-mix(in srgb, var(--surface) 62%, transparent);
+    .agendaDay{
       border:1px solid var(--border);
       border-radius: var(--radius);
+      background: color-mix(in srgb, var(--surface) 78%, transparent);
       box-shadow: var(--shadow-sm);
-    }
-    .legend{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-      margin-top:10px;
-      color:var(--muted);
-      font-size:12px;
-    }
-    .legend .sw{ width:12px; height:12px; border-radius:4px; display:inline-block; background: var(--flight); }
-    .legend .sw.lodging{ background: var(--lodging); }
-    .legend .sw.other{ background: var(--muted-2); }
-
-    .breakdown{
-      margin-top:10px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.45;
-    }
-    .tooltip{
-      position: fixed;
-      pointer-events:none;
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 92%, transparent);
-      box-shadow: var(--shadow);
-      color:var(--text);
-      font-size:12px;
-      display:none;
-      z-index: 60;
-      min-width: 180px;
-    }
-    .tooltip b{ font-family: var(--mono); }
-
-    /* ===== Modal ===== */
-    .modalBack{
-      position:fixed; inset:0;
-      background: rgba(0,0,0,.52);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding: 16px;
-      z-index: 70;
-    }
-    .modal{
-      width: min(920px, 100%);
-      background: color-mix(in srgb, var(--surface) 88%, transparent);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: 0 28px 80px rgba(0,0,0,.55);
       overflow:hidden;
-      transform: translateY(6px);
-      opacity:0;
-      transition: opacity var(--anim), transform var(--anim);
+      margin-bottom:12px;
     }
-    .modalBack[open="true"] .modal{ transform: translateY(0); opacity: 1; }
-    .modalHeader{
-      padding:14px 14px 12px;
+    .agendaHead{
+      padding:12px 12px 10px;
       border-bottom:1px solid var(--border);
-      display:flex;
+      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
       align-items:flex-end;
-      justify-content:space-between;
-      gap: 10px;
-      flex-wrap:wrap;
     }
-    .modalHeader h2{ margin:0; font-size:14px; font-weight: 950; }
-    .modalHeader .hint{ color:var(--muted); font-size:12px; margin-top:6px; line-height:1.35; }
-    .modalBody{ padding: 14px; }
-    .modalFooter{
-      padding:12px 14px;
-      border-top:1px solid var(--border);
-      display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
-    }
-    .row3{ display:grid; grid-template-columns: 1.4fr 1fr 1fr; gap:10px; }
-    .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px; }
-    @media (max-width: 720px){
-      .row3, .row2{ grid-template-columns: 1fr; }
-    }
-    .error{
-      margin-top:10px;
-      color: color-mix(in srgb, var(--todo) 70%, var(--text));
-      font-size:12px;
-      display:none;
+    .agendaHead h4{ margin:0; font-size:13px; font-weight: 950; }
+    .agendaHead .sub{ color:var(--muted); font-size:12px; }
+    .agendaBody{ padding:10px 12px; }
+    .line{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px dashed color-mix(in srgb, var(--border) 70%, transparent); }
+    .line:last-child{ border-bottom:none; }
+    .time{ font-family:var(--mono); font-weight: 950; font-size:12px; width:130px; color:var(--muted); }
+    @media (max-width: 520px){ .time{ width: 86px; } }
+    .desc{ font-size:12px; color:var(--text); line-height:1.45; }
+    .tag{
+      display:inline-flex; gap:8px; align-items:center;
+      border:1px solid var(--border);
+      background: color-mix(in srgb, var(--surface2) 70%, transparent);
+      border-radius:999px;
+      padding:4px 8px;
+      font-size:11px;
+      color:var(--muted);
+      margin-left:8px;
+      user-select:none;
     }
 
-    [role="tabpanel"]{ display:none; }
-    [role="tabpanel"][data-active="true"]{ display:block; }
+    .costGrid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    @media (max-width: 980px){ .costGrid{ grid-template-columns: 1fr; } }
+    .bar{
+      height:10px;
+      border-radius:999px;
+      background: color-mix(in srgb, var(--border) 60%, transparent);
+      overflow:hidden;
+      margin-top:8px;
+    }
+    .bar > div{ height:100%; width:0; border-radius:999px; background: color-mix(in srgb, var(--flight) 65%, transparent); }
 
-    /* ===== Mobile Bottom Nav ===== */
     .bottomNav{
-      position: fixed;
-      left: 0; right:0; bottom: 0;
+      position:fixed; left:0; right:0; bottom:0; z-index:40;
+      display:none;
       border-top:1px solid var(--border);
       background: color-mix(in srgb, var(--bg) 75%, transparent);
       backdrop-filter: blur(14px);
-      z-index: 40;
-      display:none;
     }
     .bottomNavInner{
-      max-width:1200px;
-      margin:0 auto;
+      max-width:1280px; margin:0 auto;
       padding:10px 12px;
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap:10px;
+      display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;
     }
     .navBtn{
-      appearance:none;
-      border:1px solid var(--border);
+      appearance:none; border:1px solid var(--border);
       background: color-mix(in srgb, var(--surface) 82%, transparent);
       border-radius: 14px;
       padding:10px 10px;
       cursor:pointer;
       box-shadow: var(--shadow-sm);
       font-size:12px;
-      font-weight:850;
+      font-weight:900;
       color:var(--text);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
+      display:flex; align-items:center; justify-content:center; gap:8px;
       touch-action: manipulation;
     }
     .navBtn:focus-visible{ outline:none; box-shadow: var(--shadow-sm), var(--focus); }
+
     @media (max-width: 600px){
       .bottomNav{ display:block; }
-      .grid{ gap:12px; }
-      .panelHeader{ padding:12px; }
-      .panelBody{ padding:12px; }
-      .timelineWrap{ padding:12px; }
-      article.item{ gap:10px; }
-      .card{ padding:12px; }
+      .container{ padding-bottom: 92px; }
+      .ph, .pb{ padding:12px; }
+      .sh, .sb{ padding:12px; }
+      .kpiRow{ grid-template-columns: 1fr 1fr; }
+      .split{ gap:12px; }
     }
-
     @media (prefers-reduced-motion: reduce){
-      *{ transition:none !important; animation:none !important; scroll-behavior:auto !important; }
+      *{ transition:none !important; animation:none !important; }
     }
   </style>
 </head>
-
 <body>
-  <div class="appbar" role="banner">
+  <header class="appbar" role="banner">
     <div class="appbarInner">
-      <div class="brand" aria-label="Itinerary Dashboard">
+      <div class="brand">
         <div class="logo" aria-hidden="true"></div>
         <div>
-          <h1>Itinerary Dashboard</h1>
-          <p>Hyrox Europe + US Events — editable, offline-capable, and GitHub Pages ready.</p>
+          <h1>Trip Legs Planner</h1>
+          <p>Plan by <b>legs</b> (Bologna → Warsaw → TBD → DFW → PA). Cleaner planning now, clean agenda later.</p>
         </div>
       </div>
-
-      <div class="toolbar" role="toolbar" aria-label="Top actions">
-        <button class="iconBtn primary" id="btnAdd" aria-label="Add new item">＋ Add</button>
-        <button class="iconBtn" id="btnTheme" aria-label="Toggle theme">☾ Theme</button>
-        <button class="iconBtn" id="btnExport" aria-label="Export JSON">Export</button>
-        <button class="iconBtn" id="btnImport" aria-label="Import JSON">Import</button>
-        <button class="iconBtn danger" id="btnReset" aria-label="Reset itinerary">Reset</button>
+      <div class="actions" role="toolbar" aria-label="Top actions">
+        <button class="btn primary" id="btnAddLeg" aria-label="Add leg">＋ Add leg</button>
+        <button class="btn" id="btnTheme" aria-label="Toggle theme">☾ Theme</button>
+        <button class="btn" id="btnShare" aria-label="Create share link">Share</button>
+        <button class="btn" id="btnExport" aria-label="Export JSON">Export</button>
+        <button class="btn" id="btnImport" aria-label="Import JSON">Import</button>
+        <button class="btn danger" id="btnReset" aria-label="Reset">Reset</button>
       </div>
     </div>
 
     <div class="tabs" role="navigation" aria-label="Primary tabs">
       <div class="tabRow" role="tablist" aria-label="Views">
-        <button class="tab" id="tabOverview" role="tab" aria-selected="true" aria-controls="panelOverview">Overview</button>
-        <button class="tab" id="tabTimeline" role="tab" aria-selected="false" aria-controls="panelTimeline">Timeline</button>
+        <button class="tab" id="tabLegs" role="tab" aria-selected="true" aria-controls="panelLegs">Legs</button>
+        <button class="tab" id="tabAgenda" role="tab" aria-selected="false" aria-controls="panelAgenda">Agenda</button>
         <button class="tab" id="tabCosts" role="tab" aria-selected="false" aria-controls="panelCosts">Costs</button>
       </div>
-
-      <div class="tabTools">
-        <div class="searchPill" role="search">
-          <span aria-hidden="true">🔎</span>
-          <input id="search" placeholder="Search: city, airport, event, venue…" aria-label="Search itinerary items" />
-        </div>
+      <div class="search" role="search">
+        <span aria-hidden="true">🔎</span>
+        <input id="search" placeholder="Search across all legs: city, airport, event, venue…" aria-label="Search items" />
       </div>
     </div>
-  </div>
+  </header>
 
   <main class="container" role="main">
-    <!-- Overview -->
-    <section id="panelOverview" role="tabpanel" aria-labelledby="tabOverview" data-active="true">
-      <div class="grid">
-        <section class="panel sticky" aria-label="Trip overview">
-          <div class="panelHeader">
+    <section id="panelLegs" role="tabpanel" aria-labelledby="tabLegs" data-active="true">
+      <div class="split">
+        <aside class="panel sticky" aria-label="Legs list">
+          <div class="ph">
             <div>
-              <h2>Trip overview</h2>
-              <div class="sub">Edits persist locally (LocalStorage). Export JSON to back up or move devices.</div>
+              <h2>Trip legs</h2>
+              <div class="sub">Think in chunks: a leg contains flights, lodging, events, and budgets. Click a leg to focus.</div>
+            </div>
+            <div class="pill" aria-label="Leg status filter">
+              <span>Filter:</span>
+              <select id="legFilter">
+                <option value="all">All</option>
+                <option value="planned">Planned</option>
+                <option value="tbd">TBD</option>
+                <option value="locked">Locked</option>
+              </select>
             </div>
           </div>
-          <div class="panelBody">
-            <div class="kpis" id="kpis" aria-label="Key trip metrics"></div>
-            <div class="chipRow" id="chips" aria-label="Counts by category"></div>
-
-            <div class="formGrid" aria-label="Trip settings">
-              <div>
-                <label for="homeBase">Home base</label>
-                <input id="homeBase" placeholder="Falls Church, VA" />
-              </div>
-              <div>
-                <label for="purpose">Primary purpose</label>
-                <input id="purpose" placeholder="Hyrox competitions + travel + events" />
-              </div>
-              <div>
-                <label for="pacing">Preferred pacing</label>
-                <select id="pacing">
-                  <option>Efficient & clustered</option>
-                  <option>Balanced</option>
-                  <option>Relaxed</option>
-                  <option>High-energy packed</option>
-                </select>
-              </div>
-              <div>
-                <label for="budgetFocus">Budget focus</label>
-                <select id="budgetFocus">
-                  <option>Value</option>
-                  <option>Comfort/value</option>
-                  <option>Premium</option>
-                  <option>Strict budget</option>
-                </select>
-              </div>
-              <div style="grid-column:1/-1">
-                <label for="notes">Notes / reminders</label>
-                <textarea id="notes"></textarea>
-              </div>
-            </div>
-
-            <div class="helper">
-              <b>Quick publish:</b> Upload this file as <span style="font-family:var(--mono)">index.html</span> in a GitHub repo → Settings → Pages.
-              Works great on mobile. Also opens offline locally.
-            </div>
+          <div class="pb">
+            <div class="legList" id="legList"></div>
+            <div class="help">Pro tip: keep the Baltics/Serbia stretch as one TBD leg now; split later once cities are locked.</div>
           </div>
-        </section>
+        </aside>
 
-        <section class="panel" aria-label="Overview focus">
-          <div class="panelHeader">
+        <section class="panel" aria-label="Leg detail">
+          <div class="ph">
             <div>
-              <h2>What’s next</h2>
-              <div class="sub">Convert TBD blocks into real plans as you book.</div>
+              <h2 id="detailTitle">Select a leg</h2>
+              <div class="sub" id="detailSub">Pick a leg on the left to see a clean, editable plan. No clutter.</div>
+            </div>
+            <div class="heroRight">
+              <button class="btn" id="btnEditLeg" style="display:none;">Edit leg</button>
+              <button class="btn danger" id="btnDeleteLeg" style="display:none;">Delete leg</button>
             </div>
           </div>
-          <div class="panelBody">
-            <div id="todoFocus"></div>
-            <div class="helper">
-              Tip: Use <b>Add</b> → type <b>Expense</b> to track trains, extra hotels, tickets, food budgets, etc. Costs update in the Costs tab.
-            </div>
+          <div class="pb" id="detailBody">
+            <div class="help">Your data is saved locally on this device. Use Export or Share to move it to another device.</div>
           </div>
         </section>
       </div>
     </section>
 
-    <!-- Timeline -->
-    <section id="panelTimeline" role="tabpanel" aria-labelledby="tabTimeline" data-active="false">
-      <div class="panel" aria-label="Timeline">
-        <div class="panelHeader">
+    <section id="panelAgenda" role="tabpanel" aria-labelledby="tabAgenda" data-active="false">
+      <div class="panel" aria-label="Agenda">
+        <div class="ph">
           <div>
-            <h2>Dotted travel timeline</h2>
-            <div class="sub">Drag to reorder (manual order). Use filters for quick scanning.</div>
+            <h2>Agenda (day-by-day)</h2>
+            <div class="sub">Auto-generated from your legs and items. Great for “final itinerary” viewing.</div>
+          </div>
+          <div class="heroRight">
+            <button class="btn" id="btnPrint" aria-label="Print agenda">Print</button>
           </div>
         </div>
-        <div class="timelineWrap">
-          <div class="filterRow" aria-label="Timeline filters">
-            <div class="left">
-              <div class="checks" aria-label="Filter types">
-                <label><input type="checkbox" class="typeCheck" value="flight" checked> Flights</label>
-                <label><input type="checkbox" class="typeCheck" value="lodging" checked> Lodging</label>
-                <label><input type="checkbox" class="typeCheck" value="event" checked> Events</label>
-                <label><input type="checkbox" class="typeCheck" value="todo" checked> TBD</label>
-                <label><input type="checkbox" class="typeCheck" value="note" checked> Notes</label>
-              </div>
-            </div>
-            <div class="right">
-              <div class="seg">
-                <span>Sort:</span>
-                <select id="sortOrder" aria-label="Sort order">
-                  <option value="dateAsc">Date ↑</option>
-                  <option value="dateDesc">Date ↓</option>
-                  <option value="manual">Manual</option>
-                </select>
-              </div>
-              <div class="seg">
-                <span>Show:</span>
-                <select id="showLevel" aria-label="Timeline detail level">
-                  <option value="compact">Compact</option>
-                  <option value="expanded">Expanded</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="timeline" id="timeline" aria-label="Timeline items"></div>
-
-          <div class="dragHint" id="dragHint" aria-live="polite">
-            Drag & drop: grab a card and move it. Choose <b>Sort: Manual</b> to preserve your custom order.
-          </div>
-        </div>
+        <div class="pb" id="agendaBody"></div>
       </div>
     </section>
 
-    <!-- Costs -->
     <section id="panelCosts" role="tabpanel" aria-labelledby="tabCosts" data-active="false">
-      <div class="grid">
-        <section class="panel sticky" aria-label="Cost controls">
-          <div class="panelHeader">
-            <div>
-              <h2>Cost controls</h2>
-              <div class="sub">Costs come from items with type <b>Expense</b> (recommended) and any item where you fill a Cost value.</div>
-            </div>
+      <div class="panel" aria-label="Costs">
+        <div class="ph">
+          <div>
+            <h2>Costs (by leg)</h2>
+            <div class="sub">Track budgets + confirmed spend. Expenses are easiest (but any item can have cost).</div>
           </div>
-          <div class="panelBody">
-            <div class="formGrid" style="margin-top:0; border-top:none; padding-top:0;">
-              <div>
-                <label for="currency">Currency</label>
-                <input id="currency" value="USD" />
-              </div>
-              <div>
-                <label for="costMode">Cost mode</label>
-                <select id="costMode">
-                  <option value="expenseOnly">Expense items only</option>
-                  <option value="allCosts">Any item with cost</option>
-                </select>
-              </div>
-              <div style="grid-column:1/-1">
-                <label for="costNote">Cost notes</label>
-                <textarea id="costNote"></textarea>
-              </div>
-            </div>
-            <div class="helper">Hover the chart to see tooltips.</div>
+          <div class="pill" aria-label="Cost mode">
+            <span>Mode:</span>
+            <select id="costMode">
+              <option value="expenseOnly">Expenses only</option>
+              <option value="allCosts">Any item with cost</option>
+            </select>
           </div>
-        </section>
-
-        <section class="panel" aria-label="Cost chart">
-          <div class="panelHeader">
-            <div>
-              <h2>Cost summary</h2>
-              <div class="sub">Interactive bar chart by category (Flights / Lodging / Other).</div>
-            </div>
-          </div>
-          <div class="chartWrap">
-            <canvas id="costChart" width="900" height="260" aria-label="Cost chart" role="img"></canvas>
-            <div class="legend" aria-label="Legend">
-              <span><span class="sw"></span> Flights</span>
-              <span><span class="sw lodging"></span> Lodging</span>
-              <span><span class="sw other"></span> Other</span>
-            </div>
-            <div class="breakdown" id="costBreakdown"></div>
-          </div>
-        </section>
+        </div>
+        <div class="pb">
+          <div class="costGrid" id="costGrid"></div>
+          <div class="help">Tip: set a leg budget (Edit leg) and add “Expense” items (e.g., trains, hotels, tickets).</div>
+        </div>
       </div>
     </section>
   </main>
 
-  <!-- Mobile bottom nav -->
   <nav class="bottomNav" aria-label="Mobile quick actions">
     <div class="bottomNavInner">
-      <button class="navBtn" id="navAdd" aria-label="Add item">＋ Add</button>
-      <button class="navBtn" id="navTimeline" aria-label="Open timeline tab">🧭 Timeline</button>
-      <button class="navBtn" id="navCosts" aria-label="Open costs tab">💳 Costs</button>
-      <button class="navBtn" id="navExport" aria-label="Export JSON">⬇ Export</button>
+      <button class="navBtn" id="navLegs">🧩 Legs</button>
+      <button class="navBtn" id="navAgenda">📅 Agenda</button>
+      <button class="navBtn" id="navCosts">💳 Costs</button>
+      <button class="navBtn" id="navAdd">＋ Add</button>
     </div>
   </nav>
 
-  <!-- Modal -->
-  <div class="modalBack" id="modalBack" role="dialog" aria-modal="true" aria-label="Add or edit item">
-    <div class="modal" role="document">
-      <div class="modalHeader">
-        <div>
-          <h2 id="modalTitle">Add / Edit item</h2>
-          <div class="hint" id="modalHint"></div>
-        </div>
-        <button class="iconBtn" id="btnClose" aria-label="Close modal">Close</button>
-      </div>
-      <div class="modalBody">
-        <div class="row3">
-          <div>
-            <label for="mType">Type</label>
-            <select id="mType">
-              <option value="flight">Flight</option>
-              <option value="lodging">Lodging</option>
-              <option value="event">Event</option>
-              <option value="todo">To-do / Missing plan</option>
-              <option value="expense">Expense</option>
-              <option value="note">Note</option>
-            </select>
-          </div>
-          <div>
-            <label for="mStart">Date (start)</label>
-            <input id="mStart" placeholder="2026-04-02 13:20" />
-          </div>
-          <div>
-            <label for="mEnd">Date (end)</label>
-            <input id="mEnd" placeholder="optional" />
-          </div>
-        </div>
-
-        <div class="row2">
-          <div>
-            <label for="mTitle">Title</label>
-            <input id="mTitle" placeholder="e.g., IAD → BLQ (one-way)" />
-          </div>
-          <div>
-            <label for="mWhere">Location / Route</label>
-            <input id="mWhere" placeholder="IAD → BLQ | Bologna, Italy | Warsaw, Poland" />
-          </div>
-        </div>
-
-        <div class="row2">
-          <div>
-            <label for="mConfirm">Confirmation / Reference (optional)</label>
-            <input id="mConfirm" placeholder="Flight PNR / hotel conf / reservation id" />
-          </div>
-          <div>
-            <label for="mCost">Cost (optional)</label>
-            <input id="mCost" placeholder="e.g., 511.92" />
-          </div>
-        </div>
-
-        <div style="margin-top:10px">
-          <label for="mDetails">Details</label>
-          <textarea id="mDetails" placeholder="Include times, terminals, check-in/out, layovers, reminders, etc."></textarea>
-        </div>
-
-        <div class="helper">
-          Date formats accepted: <span style="font-family:var(--mono)">YYYY-MM-DD</span> or <span style="font-family:var(--mono)">YYYY-MM-DD HH:MM</span>.
-        </div>
-
-        <div class="error" id="formError" role="alert"></div>
-      </div>
-      <div class="modalFooter">
-        <button class="iconBtn danger" id="btnDelete" style="display:none;" aria-label="Delete item">Delete</button>
-        <button class="iconBtn primary" id="btnSave" aria-label="Save item">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="tooltip" id="tip" aria-hidden="true"></div>
   <input type="file" id="fileInput" accept="application/json" style="display:none" />
 
   <script>
-    const KEY = "itinerary_dashboard_v2";
+    const KEY_V3 = "trip_legs_planner_v3";
+    const KEY_V2 = "itinerary_dashboard_v2";
+
     const uid = () => Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
     const pad = n => String(n).padStart(2,'0');
 
@@ -1042,6 +587,7 @@
       const dt = new Date(Date.UTC(y,mo,d,hh,mi));
       return isNaN(dt.getTime()) ? null : dt;
     }
+
     function fmt(iso){
       if(!iso) return "TBD";
       const d = parseDate(iso);
@@ -1055,6 +601,15 @@
       const hasTime = /\d{2}:\d{2}/.test(iso);
       return hasTime ? `${yyyy}-${mm}-${dd} ${hh}:${mi}` : `${yyyy}-${mm}-${dd}`;
     }
+
+    function dayKey(iso){
+      if(!iso) return null;
+      const d = parseDate(iso);
+      if(!d) return null;
+      const local = new Date(d.getTime());
+      return `${local.getFullYear()}-${pad(local.getMonth()+1)}-${pad(local.getDate())}`;
+    }
+
     function escapeHtml(s){
       return String(s ?? "")
         .replaceAll("&","&amp;")
@@ -1063,83 +618,157 @@
         .replaceAll('"',"&quot;")
         .replaceAll("'","&#039;");
     }
+
     function debounce(fn, ms){
       let t=null;
       return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
     }
 
+    function byDate(a,b){
+      const da = parseDate(a)?.getTime() ?? 1e12;
+      const db = parseDate(b)?.getTime() ?? 1e12;
+      return da - db;
+    }
+
     const SEED = {
       meta:{
+        theme:"dark",
+        tripName:"Hyrox Europe + US Events",
         homeBase:"Falls Church, VA",
-        purpose:"Hyrox competitions + travel + events",
-        pacing:"Efficient & clustered",
-        budgetFocus:"Comfort/value",
         currency:"USD",
         costMode:"expenseOnly",
-        costNote:"",
-        notes:[
-          "Verify BLQ → CDG → WAW segment times/sequence (looks inconsistent as written).",
-          "Plan Apr 19–Apr 30 segment (Lithuania / Latvia / Serbia likely). Add transport + lodging as you confirm.",
-          "Add missing: Dulles / Fort Worth stays (mid April / May).",
-          "Plan PA lodging ~1 week before July 17 event."
-        ].join("\n"),
-        theme:"dark",
-        manualOrder:[]
+        createdAt: Date.now()
       },
+      legs:[
+        { id:"leg-bologna", title:"Bologna — HYROX Singles Pro", status:"planned", start:"2026-04-02", end:"2026-04-05", from:"Washington DC (IAD)", to:"Bologna (BLQ)", budget:"", notes:"Purpose: compete at HYROX Bologna Singles Pro on Apr 4." },
+        { id:"leg-warsaw", title:"Warsaw — HYROX Singles Open + Pro", status:"planned", start:"2026-04-05", end:"2026-04-19", from:"Bologna (BLQ)", to:"Warsaw (WAW)", budget:"", notes:"Competitions: Singles Open (Apr 16) + Singles Pro (Apr 17)." },
+        { id:"leg-tbd-europe", title:"Baltics + Serbia — TBD stretch", status:"tbd", start:"2026-04-19", end:"2026-04-30", from:"Warsaw", to:"Milan (MXP)", budget:"", notes:"Likely Lithuania, Latvia, Serbia. Decide order + transport + lodging." },
+        { id:"leg-return", title:"Return — MXP → IST → IAD", status:"planned", start:"2026-04-30", end:"2026-05-01", from:"Milan (MXP)", to:"Washington DC (IAD)", budget:"", notes:"Depart MXP 8:10 PM. Layover IST ~7h35. Land IAD May 1 11:35 AM." },
+        { id:"leg-dfw", title:"Dallas/Fort Worth — PBR World Finals", status:"tbd", start:"2026-05-10", end:"2026-05-16", from:"BWI", to:"DFW", budget:"", notes:"Purpose: Attend 2026 PBR Unleash the Beast World Finals. Lodging TBD." },
+        { id:"leg-pa", title:"PA road trip — Shane Gillis", status:"tbd", start:"2026-07-17", end:"", from:"Virginia", to:"Pennsylvania", budget:"", notes:"Drive VA → PA. Show July 17 at 8:00 PM. Lodging TBD." }
+      ],
       items:[
-        { id: uid(), type:"flight", start:"2026-04-02 13:20", end:"2026-04-03 09:30", title:"IAD → BLQ (one-way)", where:"Washington Dulles (IAD) → Bologna (BLQ)", confirm:"", cost:752.83, details:"Depart 1:20 PM. Land 9:30 AM next day. Paid with Capital One (multi-city: IAD→BLQ + MXP→IAD)." },
-        { id: uid(), type:"lodging", start:"2026-04-02 15:00", end:"2026-04-05 12:00", title:"The Social Hub Bologna", where:"Via Aristotele Fioravanti 27, Bologna, IT", confirm:"", cost:511.92, details:"Check-in 3:00 PM, check-out 12:00 PM. Paid with Capital One." },
-        { id: uid(), type:"event", start:"2026-04-04", end:"", title:"HYROX Bologna — Singles Pro", where:"Bologna, Italy", confirm:"", cost:"", details:"Purpose: compete as an athlete (Singles Pro)." },
+        { id: uid(), legId:"leg-bologna", type:"flight", start:"2026-04-02 13:20", end:"2026-04-03 09:30", title:"IAD → BLQ (one-way)", where:"Washington Dulles (IAD) → Bologna (BLQ)", ref:"", cost:752.83, details:"Paid with Capital One (multi-city: IAD→BLQ + MXP→IAD)." },
+        { id: uid(), legId:"leg-bologna", type:"lodging", start:"2026-04-02 15:00", end:"2026-04-05 12:00", title:"The Social Hub Bologna", where:"Via Aristotele Fioravanti 27, Bologna, IT", ref:"", cost:511.92, details:"Check-in 3:00 PM; check-out 12:00 PM. Paid with Capital One." },
+        { id: uid(), legId:"leg-bologna", type:"event", start:"2026-04-04", end:"", title:"HYROX Bologna — Singles Pro", where:"Bologna, Italy", ref:"", cost:"", details:"Athlete event day." },
 
-        { id: uid(), type:"flight", start:"2026-04-05 09:55", end:"2026-04-05 15:35", title:"BLQ → WAW (via CDG) — verify times", where:"Bologna (BLQ) → Paris (CDG) → Warsaw (WAW)", confirm:"", cost:248.10, details:"As provided: Depart BLQ 9:55 AM. Land 3:35 PM (CDG layover 1h25). Note: 'CDG→WAW dep 1:10 PM land 3:35 PM' appears inconsistent; update when confirmed. Paid with Capital One." },
+        { id: uid(), legId:"leg-warsaw", type:"flight", start:"2026-04-05 09:55", end:"2026-04-05 15:35", title:"BLQ → WAW (via CDG) — verify times", where:"BLQ → CDG → WAW", ref:"", cost:248.10, details:"As provided: layover ~1h25 at CDG. Times look inconsistent; update when confirmed." },
+        { id: uid(), legId:"leg-warsaw", type:"lodging", start:"2026-04-05 16:00", end:"2026-04-19 11:00", title:"Warsaw Airbnb (Hosted by Vermouth Sp. Zoo)", where:"Warsaw, Poland", ref:"", cost:787.76, details:"Check-in Apr 5 4:00 PM; checkout Apr 19 11:00 AM." },
+        { id: uid(), legId:"leg-warsaw", type:"event", start:"2026-04-16", end:"", title:"HYROX Warsaw — Singles Open", where:"Warsaw, Poland", ref:"", cost:"", details:"Thursday Apr 16." },
+        { id: uid(), legId:"leg-warsaw", type:"event", start:"2026-04-17", end:"", title:"HYROX Warsaw — Singles Pro", where:"Warsaw, Poland", ref:"", cost:"", details:"Friday Apr 17." },
 
-        { id: uid(), type:"lodging", start:"2026-04-05 16:00", end:"2026-04-19 11:00", title:"Warsaw Airbnb (Hosted by Vermouth Sp. Zoo)", where:"Warsaw, Poland", confirm:"", cost:787.76, details:"Check-in Sun Apr 5 at 4:00 PM. Checkout Sun Apr 19 at 11:00 AM." },
-        { id: uid(), type:"event", start:"2026-04-16", end:"", title:"HYROX Warsaw — Singles Open", where:"Warsaw, Poland", confirm:"", cost:"", details:"Thursday Apr 16." },
-        { id: uid(), type:"event", start:"2026-04-17", end:"", title:"HYROX Warsaw — Singles Pro", where:"Warsaw, Poland", confirm:"", cost:"", details:"Friday Apr 17." },
+        { id: uid(), legId:"leg-tbd-europe", type:"todo", start:"2026-04-19", end:"2026-04-30", title:"Decide route: Lithuania → Latvia → Serbia (or reorder)", where:"Vilnius / Riga / Belgrade (TBD)", ref:"", cost:"", details:"Add transport + hotels once sequence is decided." },
+        { id: uid(), legId:"leg-tbd-europe", type:"todo", start:"2026-04-30", end:"", title:"Positioning to Milan (MXP)", where:"From TBD leg to MXP", ref:"", cost:"", details:"Plan flight/train and consider an overnight near MXP." },
 
-        { id: uid(), type:"todo", start:"2026-04-19", end:"2026-04-30", title:"Apr 19–Apr 30 — TBD: Lithuania / Latvia / Serbia (likely)", where:"Baltics + Serbia (to confirm)", confirm:"", cost:"", details:"Add city sequence, transport (flight/train/bus), and lodging once confirmed." },
+        { id: uid(), legId:"leg-return", type:"flight", start:"2026-04-30 20:10", end:"2026-05-01 11:35", title:"MXP → IST → IAD (return)", where:"Milan (MXP) → Istanbul (IST) → Washington Dulles (IAD)", ref:"", cost:0, details:"Depart MXP 8:10 PM; arrive IAD May 1 11:35 AM." },
 
-        { id: uid(), type:"flight", start:"2026-04-30 20:10", end:"2026-05-01 11:35", title:"MXP → IST → IAD (return)", where:"Milan (MXP) → Istanbul (IST) → Washington Dulles (IAD)", confirm:"", cost:0, details:"Depart MXP 8:10 PM. ~2h55 to IST. Layover ~7h35. Depart IST 7:40 AM. Land IAD 11:35 AM on May 1." },
-        { id: uid(), type:"todo", start:"2026-04-30", end:"", title:"Get to Milan (MXP) for return flight", where:"Milan, Italy", confirm:"", cost:"", details:"Plan how you get to Milan by Apr 30 (from Serbia/Baltics?). Train/flight + potential overnight near MXP." },
+        { id: uid(), legId:"leg-dfw", type:"flight", start:"2026-05-10 10:58", end:"2026-05-10 13:44", title:"BWI → DFW (Frontier) — direct", where:"BWI → DFW", ref:"", cost:379.96, details:"Paid with Capital One." },
+        { id: uid(), legId:"leg-dfw", type:"flight", start:"2026-05-16 12:00", end:"2026-05-16 16:11", title:"DFW → BWI (Frontier) — direct", where:"DFW → BWI", ref:"", cost:0, details:"Return flight." },
+        { id: uid(), legId:"leg-dfw", type:"event", start:"2026-05-10", end:"2026-05-16", title:"PBR World Finals (2026)", where:"Fort Worth / Arlington area (confirm venue)", ref:"", cost:"", details:"Main purpose of the DFW leg." },
+        { id: uid(), legId:"leg-dfw", type:"todo", start:"2026-05-10", end:"2026-05-16", title:"DFW lodging — TBD", where:"Fort Worth / Arlington / Dallas", ref:"", cost:"", details:"Pick based on venue + transit + budget." },
 
-        { id: uid(), type:"flight", start:"2026-05-10 10:58", end:"2026-05-10 13:44", title:"BWI → DFW (Frontier) — direct", where:"Baltimore/Washington (BWI) → Dallas/Fort Worth (DFW)", confirm:"", cost:379.96, details:"Depart 10:58 AM. Land 1:44 PM. Paid with Capital One." },
-        { id: uid(), type:"event", start:"2026-05-10", end:"2026-05-16", title:"PBR Unleash the Beast — World Finals (2026)", where:"Fort Worth / Arlington area (confirm venue)", confirm:"", cost:"", details:"Trip purpose: attend PBR World Finals." },
-        { id: uid(), type:"flight", start:"2026-05-16 12:00", end:"2026-05-16 16:11", title:"DFW → BWI (Frontier) — direct", where:"Dallas/Fort Worth (DFW) → Baltimore/Washington (BWI)", confirm:"", cost:0, details:"Depart 12:00 PM. Land 4:11 PM." },
-        { id: uid(), type:"todo", start:"2026-05-10", end:"2026-05-16", title:"Dallas/Fort Worth lodging — TBD", where:"DFW / Fort Worth", confirm:"", cost:"", details:"Choose hotel/Airbnb based on event venue + transit. Add confirmation once booked." },
+        { id: uid(), legId:"leg-pa", type:"event", start:"2026-07-17 20:00", end:"", title:"Shane Gillis show", where:"Pennsylvania (confirm city/venue)", ref:"", cost:"", details:"Drive VA → PA." },
+        { id: uid(), legId:"leg-pa", type:"todo", start:"2026-07-17", end:"", title:"PA lodging — TBD", where:"Near venue", ref:"", cost:"", details:"Book ~1 week prior; add parking plan." },
 
-        { id: uid(), type:"todo", start:"2026-07-17 20:00", end:"", title:"Shane Gillis show (drive VA → PA) — lodging TBD", where:"Pennsylvania (confirm city/venue)", confirm:"", cost:"", details:"No flight; driving from VA. Book lodging about a week prior; add parking plan + drive time buffer." },
-
-        { id: uid(), type:"expense", start:"2026-04-02", end:"", title:"Flights: IAD→BLQ + MXP→IAD", where:"Capital One", confirm:"", cost:752.83, details:"Cost captured as provided." },
-        { id: uid(), type:"expense", start:"2026-04-05", end:"", title:"Flight: BLQ→WAW", where:"Capital One", confirm:"", cost:248.10, details:"Cost captured as provided." },
-        { id: uid(), type:"expense", start:"2026-05-10", end:"", title:"Flights: BWI↔DFW (Frontier)", where:"Capital One", confirm:"", cost:379.96, details:"Cost captured as provided (round-trip)." },
-        { id: uid(), type:"expense", start:"2026-04-02", end:"", title:"Hotel: Social Hub Bologna", where:"Capital One", confirm:"", cost:511.92, details:"Cost captured as provided." },
-        { id: uid(), type:"expense", start:"2026-04-05", end:"", title:"Airbnb: Warsaw (Apr 5–19)", where:"Airbnb", confirm:"", cost:787.76, details:"Cost captured as provided." }
+        { id: uid(), legId:"leg-bologna", type:"expense", start:"2026-04-02", end:"", title:"Flights: IAD→BLQ + MXP→IAD", where:"Capital One", ref:"", cost:752.83, details:"Cost captured as provided." },
+        { id: uid(), legId:"leg-warsaw", type:"expense", start:"2026-04-05", end:"", title:"Flight: BLQ→WAW", where:"Capital One", ref:"", cost:248.10, details:"Cost captured as provided." },
+        { id: uid(), legId:"leg-dfw", type:"expense", start:"2026-05-10", end:"", title:"Flights: BWI↔DFW (Frontier)", where:"Capital One", ref:"", cost:379.96, details:"Cost captured as provided." },
+        { id: uid(), legId:"leg-bologna", type:"expense", start:"2026-04-02", end:"", title:"Hotel: Social Hub Bologna", where:"Capital One", ref:"", cost:511.92, details:"Cost captured as provided." },
+        { id: uid(), legId:"leg-warsaw", type:"expense", start:"2026-04-05", end:"", title:"Airbnb: Warsaw (Apr 5–19)", where:"Airbnb", ref:"", cost:787.76, details:"Cost captured as provided." }
       ]
     };
 
-    function load(){
-      try{
-        const raw = localStorage.getItem(KEY);
-        if(!raw) return structuredClone(SEED);
-        const data = JSON.parse(raw);
-        if(!data?.items || !data?.meta) return structuredClone(SEED);
-        return data;
-      }catch(_){ return structuredClone(SEED); }
+    function migrateFromV2(v2){
+      const s = structuredClone(SEED);
+      s.meta.theme = v2?.meta?.theme || "dark";
+      s.meta.currency = v2?.meta?.currency || "USD";
+
+      const items = (v2.items || []).filter(i=>i.type !== "expense");
+      const mapLeg = (start)=>{
+        const d = parseDate(start);
+        if(!d) return "leg-tbd-europe";
+        const t = d.getTime();
+        const inRange = (a,b)=> t >= parseDate(a).getTime() && t <= parseDate(b).getTime();
+        if(inRange("2026-04-02","2026-04-05")) return "leg-bologna";
+        if(inRange("2026-04-05","2026-04-19")) return "leg-warsaw";
+        if(inRange("2026-04-19","2026-04-30")) return "leg-tbd-europe";
+        if(inRange("2026-04-30","2026-05-01")) return "leg-return";
+        if(inRange("2026-05-10","2026-05-16")) return "leg-dfw";
+        if(inRange("2026-07-17","2026-07-18")) return "leg-pa";
+        return "leg-tbd-europe";
+      };
+
+      const mapped = items.map(i=>({
+        id: uid(),
+        legId: mapLeg(i.start),
+        type: i.type || "note",
+        start: i.start || "",
+        end: i.end || "",
+        title: i.title || "(untitled)",
+        where: i.where || i.location || "",
+        ref: i.confirm || "",
+        cost: (typeof i.cost === "number" || typeof i.cost === "string") ? i.cost : "",
+        details: i.details || ""
+      }));
+
+      const key = x => `${(x.title||"").toLowerCase()}|${x.start||""}`;
+      const existing = new Set(s.items.map(key));
+      mapped.forEach(it=>{
+        if(!existing.has(key(it))){
+          s.items.push(it);
+          existing.add(key(it));
+        }
+      });
+
+      return s;
     }
-    function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+    function load(){
+      const hash = location.hash || "";
+      const m = hash.match(/data=([^&]+)/);
+      if(m){
+        try{
+          const decoded = decodeURIComponent(m[1]);
+          const json = atob(decoded);
+          const data = JSON.parse(json);
+          if(data?.legs && data?.items && data?.meta) return data;
+        }catch(_){}
+      }
+
+      try{
+        const raw = localStorage.getItem(KEY_V3);
+        if(raw){
+          const data = JSON.parse(raw);
+          if(data?.legs && data?.items && data?.meta) return data;
+        }
+      }catch(_){}
+
+      try{
+        const raw2 = localStorage.getItem(KEY_V2);
+        if(raw2){
+          const v2 = JSON.parse(raw2);
+          if(v2?.items && v2?.meta) return migrateFromV2(v2);
+        }
+      }catch(_){}
+
+      return structuredClone(SEED);
+    }
+
+    function save(){ localStorage.setItem(KEY_V3, JSON.stringify(state)); }
+
     let state = load();
+    let selectedLegId = state.legs?.[0]?.id || null;
 
     function applyTheme(theme){
-      const t = theme || "dark";
-      document.documentElement.setAttribute("data-theme", t);
-      state.meta.theme = t;
+      document.documentElement.setAttribute("data-theme", theme || "dark");
+      state.meta.theme = theme || "dark";
       save();
-      document.getElementById("btnTheme").innerHTML = (t==="dark" ? "☾" : "☀") + " Theme";
+      document.getElementById("btnTheme").textContent = (theme==="dark" ? "☾" : "☀") + " Theme";
     }
 
     const tabs = [
-      { id:"tabOverview", panel:"panelOverview" },
-      { id:"tabTimeline", panel:"panelTimeline" },
+      { id:"tabLegs", panel:"panelLegs" },
+      { id:"tabAgenda", panel:"panelAgenda" },
       { id:"tabCosts", panel:"panelCosts" }
     ];
     function setActiveTab(tabId){
@@ -1151,6 +780,8 @@
         p.setAttribute("data-active", active ? "true" : "false");
       });
       document.getElementById(tabId).focus({preventScroll:true});
+      if(tabId==="tabAgenda") renderAgenda();
+      if(tabId==="tabCosts") renderCosts();
     }
     tabs.forEach(t=>{
       document.getElementById(t.id).addEventListener("click", ()=> setActiveTab(t.id));
@@ -1163,555 +794,752 @@
       });
     });
 
-    document.getElementById("navAdd").addEventListener("click", ()=> openModal(null));
-    document.getElementById("navTimeline").addEventListener("click", ()=> setActiveTab("tabTimeline"));
+    document.getElementById("navLegs").addEventListener("click", ()=> setActiveTab("tabLegs"));
+    document.getElementById("navAgenda").addEventListener("click", ()=> setActiveTab("tabAgenda"));
     document.getElementById("navCosts").addEventListener("click", ()=> setActiveTab("tabCosts"));
-    document.getElementById("navExport").addEventListener("click", ()=> exportJson());
+    document.getElementById("navAdd").addEventListener("click", ()=> addItemInlineFocus());
 
-    function computeSpan(){
-      const dated = state.items.filter(i=>parseDate(i.start)).sort((a,b)=>parseDate(a.start)-parseDate(b.start));
-      const start = dated[0]?.start ? parseDate(dated[0].start) : null;
-      const max = state.items.map(i=>parseDate(i.end) || parseDate(i.start)).filter(Boolean)
-        .reduce((m,d)=> Math.max(m, d.getTime()), -Infinity);
-      const end = isFinite(max) ? new Date(max) : null;
-      return { start, end };
+    function itemsForLeg(legId){ return state.items.filter(i=>i.legId === legId); }
+    function countsForLeg(legId){
+      const items = itemsForLeg(legId);
+      const c = { flight:0,lodging:0,event:0,todo:0,note:0,expense:0 };
+      items.forEach(i=>{ if(c[i.type] !== undefined) c[i.type]++; else c.note++; });
+      return c;
     }
-    function computeCounts(){
-      const types = ["flight","lodging","event","todo","note","expense"];
-      const out = {};
-      types.forEach(t=> out[t] = state.items.filter(i=>i.type===t).length);
-      return out;
-    }
-    function getCostItems(){
+
+    function getCostItemsForLeg(legId){
       const mode = state.meta.costMode || "expenseOnly";
-      const items = (mode === "expenseOnly")
-        ? state.items.filter(i=>i.type==="expense")
-        : state.items.filter(i=> isFinite(+i.cost));
-      return items.filter(i=> isFinite(+i.cost)).map(i=>({ ...i, cost:+i.cost }));
+      const items = itemsForLeg(legId);
+      const filtered = mode==="expenseOnly" ? items.filter(i=>i.type==="expense") : items;
+      return filtered.filter(i=>isFinite(+i.cost)).map(i=>({ ...i, cost:+i.cost }));
     }
+
     function bucketCosts(costItems){
       const buckets = [
-        { key:"Flights", test:(t)=>/flight|air|airline|iad|blq|waw|bwi|dfw|mxp|ist|cdg/i.test(t), total:0, items:[] },
-        { key:"Lodging", test:(t)=>/hotel|airbnb|stay|lodg|hub/i.test(t), total:0, items:[] },
-        { key:"Other", test:(_)=>true, total:0, items:[] }
+        { key:"Flights", total:0, test:(t)=>/flight|air|airline|iad|blq|waw|bwi|dfw|mxp|ist|cdg/i.test(t) },
+        { key:"Lodging", total:0, test:(t)=>/hotel|airbnb|stay|lodg|hub/i.test(t) },
+        { key:"Other", total:0, test:(_)=>true }
       ];
       costItems.forEach(e=>{
-        const title = ((e.title||"") + " " + (e.where||"")).toLowerCase();
-        const b = buckets.find(b=>b.test(title)) || buckets[2];
+        const t = ((e.title||"") + " " + (e.where||"")).toLowerCase();
+        const b = buckets.find(b=>b.test(t)) || buckets[2];
         b.total += e.cost;
-        b.items.push(e);
       });
       return buckets;
     }
 
-    const kpisEl = document.getElementById("kpis");
-    const chipsEl = document.getElementById("chips");
-    const todoFocusEl = document.getElementById("todoFocus");
-    const timelineEl = document.getElementById("timeline");
-    const dragHintEl = document.getElementById("dragHint");
-
-    function toIsoLocal(d){
-      const yyyy = d.getFullYear();
-      const mm = pad(d.getMonth()+1);
-      const dd = pad(d.getDate());
-      const hh = pad(d.getHours());
-      const mi = pad(d.getMinutes());
-      const hasTime = (hh !== 0 || mi !== 0);
-      return hasTime ? `${yyyy}-${mm}-${dd} ${hh}:${mi}` : `${yyyy}-${mm}-${dd}`;
+    function legSpan(leg){
+      const s = leg.start ? parseDate(leg.start) : null;
+      const e = leg.end ? parseDate(leg.end) : null;
+      if(!s && !e) return "TBD";
+      if(s && !e) return fmt(leg.start);
+      return `${fmt(leg.start)} → ${fmt(leg.end)}`;
     }
 
-    function renderOverview(){
-      const { start, end } = computeSpan();
-      const counts = computeCounts();
-      const currency = state.meta.currency || "USD";
-      const daySpan = (start && end) ? Math.ceil((end - start)/(1000*60*60*24)) + 1 : 0;
-
-      const costItems = getCostItems();
-      const totalCost = costItems.reduce((s,i)=>s+(+i.cost||0),0);
-
-      const kpis = [
-        { label:"Trip span", value: daySpan ? `${daySpan} days` : "—", hint: (start && end) ? `${fmt(toIsoLocal(start))} → ${fmt(toIsoLocal(end))}` : "Add at least one dated item." },
-        { label:"Known costs", value: `${currency} ${totalCost.toFixed(2)}`, hint: "From Costs tab mode (Expense-only by default)." },
-        { label:"Planned flights", value: String(counts.flight), hint:"Add confirmation numbers once available." },
-        { label:"Gaps / TBD", value: String(counts.todo), hint:"Convert TBD blocks into real plans as you confirm." }
-      ];
-
-      kpisEl.innerHTML = kpis.map(k=>`
-        <div class="kpi">
-          <div class="label">${escapeHtml(k.label)}</div>
-          <div class="value">${escapeHtml(k.value)}</div>
-          <div class="hint">${escapeHtml(k.hint)}</div>
-        </div>
-      `).join("");
-
-      chipsEl.innerHTML = `
-        <span class="chip"><span class="dot"></span> Flights <b>${counts.flight}</b></span>
-        <span class="chip"><span class="dot lodging"></span> Lodging <b>${counts.lodging}</b></span>
-        <span class="chip"><span class="dot event"></span> Events <b>${counts.event}</b></span>
-        <span class="chip"><span class="dot todo"></span> TBD <b>${counts.todo}</b></span>
-      `;
-
-      const todos = state.items.filter(i=>i.type==="todo");
-      todoFocusEl.innerHTML = todos.length ? todos.slice(0,6).map(t=>`
-        <div class="card" style="margin-bottom:10px">
-          <div class="cardTop">
-            <div>
-              <h3>${escapeHtml(t.title||"TBD")}</h3>
-              <div class="meta">${escapeHtml(t.where||"")}</div>
-              <div class="meta" style="margin-top:6px;"><b>${escapeHtml(fmt(t.start))}</b>${t.end?` → <b>${escapeHtml(fmt(t.end))}</b>`:""}</div>
-            </div>
-            <div class="badges"><span class="badge todo">TBD</span></div>
-          </div>
-          <div class="cardBtns">
-            <button class="smallBtn" data-edit="${t.id}">Edit</button>
-            <button class="smallBtn primary" data-convert="${t.id}">Convert</button>
-          </div>
-        </div>
-      `).join("") : `<div class="helper">No TBD items right now.</div>`;
-
-      todoFocusEl.querySelectorAll("button[data-edit]").forEach(b=> b.addEventListener("click", ()=> openModal(b.dataset.edit)));
-      todoFocusEl.querySelectorAll("button[data-convert]").forEach(b=> b.addEventListener("click", ()=> convertTodo(b.dataset.convert)));
+    function missingSignals(legId){
+      const c = countsForLeg(legId);
+      const signals = [];
+      if(c.flight===0 && c.todo>0) signals.push("Flight?");
+      if(c.lodging===0 && (c.todo>0 || c.event>0)) signals.push("Stay?");
+      if(c.todo>0) signals.push("TBD");
+      return signals;
     }
 
-    function typeBadge(type){
-      const map = {
-        flight: `<span class="badge flight">Flight</span>`,
-        lodging: `<span class="badge lodging">Lodging</span>`,
-        event: `<span class="badge event">Event</span>`,
-        todo: `<span class="badge todo">TBD</span>`,
-        note: `<span class="badge">Note</span>`
-      };
-      return map[type] || `<span class="badge">${escapeHtml(type)}</span>`;
+    function typeColorDot(type){
+      const map = { flight:"flight", lodging:"lodging", event:"event", todo:"todo", note:"", expense:"expense" };
+      return map[type] || "";
     }
-    function nodeClass(type){
-      if(type==="lodging") return "lodging";
-      if(type==="event") return "event";
-      if(type==="todo") return "todo";
-      return "";
-    }
-    function getActiveTypes(){
-      return Array.from(document.querySelectorAll(".typeCheck")).filter(c=>c.checked).map(c=>c.value);
-    }
-    function sortItems(items){
-      const order = document.getElementById("sortOrder").value;
-      if(order === "manual"){
-        const manual = state.meta.manualOrder || [];
-        const pos = new Map(manual.map((id, idx)=>[id, idx]));
-        return [...items].sort((a,b)=>{
-          const pa = pos.has(a.id) ? pos.get(a.id) : 1e9;
-          const pb = pos.has(b.id) ? pos.get(b.id) : 1e9;
-          if(pa !== pb) return pa - pb;
-          const da = parseDate(a.start)?.getTime() ?? 1e12;
-          const db = parseDate(b.start)?.getTime() ?? 1e12;
-          return da - db;
+
+    const legListEl = document.getElementById("legList");
+    const legFilterEl = document.getElementById("legFilter");
+
+    function renderLegList(){
+      const q = (document.getElementById("search").value || "").toLowerCase().trim();
+      const filter = legFilterEl.value;
+      let legs = [...state.legs];
+      if(filter !== "all") legs = legs.filter(l => l.status === filter);
+
+      if(q){
+        legs = legs.filter(leg=>{
+          const legText = JSON.stringify(leg).toLowerCase();
+          if(legText.includes(q)) return true;
+          return itemsForLeg(leg.id).some(it => JSON.stringify(it).toLowerCase().includes(q));
         });
       }
-      const sorted = [...items].sort((a,b)=>{
-        const da = parseDate(a.start)?.getTime() ?? 1e12;
-        const db = parseDate(b.start)?.getTime() ?? 1e12;
-        if(da !== db) return da - db;
-        return String(a.title||"").localeCompare(String(b.title||""));
-      });
-      if(order === "dateDesc") sorted.reverse();
-      return sorted;
-    }
 
-    function renderTimeline(){
-      const q = (document.getElementById("search").value || "").toLowerCase().trim();
-      const types = getActiveTypes();
-      const showLevel = document.getElementById("showLevel").value;
-
-      let items = state.items.filter(i=> i.type !== "expense");
-      items = items.filter(i => types.includes(i.type));
-      if(q) items = items.filter(i => JSON.stringify(i).toLowerCase().includes(q));
-      items = sortItems(items);
-
-      const expandedByDefault = (showLevel === "expanded");
-
-      timelineEl.innerHTML = items.map(i=>{
-        const dateTitle = i.end ? `${fmt(i.start)} → ${fmt(i.end)}` : fmt(i.start);
-        const extras = [];
-        if(i.confirm) extras.push(["Ref", i.confirm]);
-        if(isFinite(+i.cost) && +i.cost>0) extras.push(["Cost", `${state.meta.currency||"USD"} ${(+i.cost).toFixed(2)}`]);
-        if(i.where) extras.push(["Where", i.where]);
-        const grid = extras.length ? `
-          <div class="detailsGrid">
-            ${extras.slice(0,4).map(([k,v])=>`
-              <div class="mini">
-                <div class="k">${escapeHtml(k)}</div>
-                <div class="v">${escapeHtml(v)}</div>
-              </div>
-            `).join("")}
-          </div>
-        ` : `<div class="helper" style="margin-top:8px">Add confirmations or costs to show more detail here.</div>`;
-
+      const currency = state.meta.currency || "USD";
+      legListEl.innerHTML = legs.map(leg=>{
+        const c = countsForLeg(leg.id);
+        const total = getCostItemsForLeg(leg.id).reduce((s,i)=>s+i.cost,0);
+        const signals = missingSignals(leg.id);
         return `
-          <article class="item" draggable="true" data-id="${escapeHtml(i.id)}" aria-label="Itinerary item">
-            <div class="node ${nodeClass(i.type)}" aria-hidden="true"></div>
-
-            <div class="dateBox" aria-label="Date and route">
-              <div class="d">${escapeHtml(dateTitle)}</div>
-              <div class="t">${escapeHtml(i.where || "")}</div>
-            </div>
-
-            <div class="card">
-              <div class="cardTop">
-                <div>
-                  <h3>${escapeHtml(i.title || "(untitled)")}</h3>
-                  <div class="meta">${escapeHtml(i.details || "")}</div>
-                </div>
-                <div class="badges">
-                  ${typeBadge(i.type)}
-                  ${i.confirm ? `<span class="badge">Has ref</span>` : ``}
+          <div class="legCard" role="button" tabindex="0" aria-selected="${leg.id===selectedLegId ? "true" : "false"}" data-leg="${escapeHtml(leg.id)}">
+            <div class="legTop">
+              <div>
+                <div class="legTitle">${escapeHtml(leg.title)}</div>
+                <div class="legMeta">
+                  <span style="font-family:var(--mono); font-weight:900">${escapeHtml(legSpan(leg))}</span>
+                  <span style="margin-left:8px">• ${escapeHtml(leg.from || "")}${leg.to ? " → " + escapeHtml(leg.to) : ""}</span>
                 </div>
               </div>
-
-              <details ${expandedByDefault ? "open" : ""}>
-                <summary aria-label="Toggle details">Details & quick actions</summary>
-                ${grid}
-                <div class="cardBtns">
-                  <button class="smallBtn" data-edit="${escapeHtml(i.id)}">Edit</button>
-                  ${i.type==="todo" ? `<button class="smallBtn primary" data-convert="${escapeHtml(i.id)}">Convert</button>` : ``}
-                </div>
-              </details>
+              <div class="chip" title="Status">${escapeHtml(leg.status.toUpperCase())}</div>
             </div>
-          </article>
+
+            <div class="chips">
+              <span class="chip"><span class="dot flight"></span>Flights <b>${c.flight}</b></span>
+              <span class="chip"><span class="dot lodging"></span>Stay <b>${c.lodging}</b></span>
+              <span class="chip"><span class="dot event"></span>Events <b>${c.event}</b></span>
+              <span class="chip"><span class="dot todo"></span>TBD <b>${c.todo}</b></span>
+              <span class="chip"><span class="dot expense"></span>${escapeHtml(currency)} <b>${total.toFixed(2)}</b></span>
+              ${signals.length ? `<span class="chip"><span class="dot todo"></span><b>${escapeHtml(signals.join(", "))}</b></span>` : ``}
+            </div>
+          </div>
         `;
       }).join("");
 
-      timelineEl.querySelectorAll("button[data-edit]").forEach(b=> b.addEventListener("click", ()=> openModal(b.dataset.edit)));
-      timelineEl.querySelectorAll("button[data-convert]").forEach(b=> b.addEventListener("click", ()=> convertTodo(b.dataset.convert)));
-
-      wireDragSort();
-
-      const mode = document.getElementById("sortOrder").value;
-      dragHintEl.innerHTML = mode === "manual"
-        ? `Manual order is ON. Dragging will be saved across sessions.`
-        : `Drag works, but to persist custom order choose <b>Sort: Manual</b>.`;
+      legListEl.querySelectorAll(".legCard").forEach(card=>{
+        const id = card.dataset.leg;
+        const activate = ()=>{
+          selectedLegId = id;
+          renderLegList();
+          renderLegDetail();
+        };
+        card.addEventListener("click", activate);
+        card.addEventListener("keydown", (e)=>{
+          if(e.key==="Enter" || e.key===" "){ e.preventDefault(); activate(); }
+        });
+      });
     }
 
-    const chart = document.getElementById("costChart");
-    const ctx = chart.getContext("2d");
-    const breakdownEl = document.getElementById("costBreakdown");
-    const tip = document.getElementById("tip");
-    let chartBars = [];
+    const detailTitleEl = document.getElementById("detailTitle");
+    const detailSubEl = document.getElementById("detailSub");
+    const detailBodyEl = document.getElementById("detailBody");
+    const btnEditLeg = document.getElementById("btnEditLeg");
+    const btnDeleteLeg = document.getElementById("btnDeleteLeg");
 
-    function cssVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-    function hexToRgba(hex, a){
-      if(hex.startsWith("rgb")){
-        const m = hex.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-        if(!m) return `rgba(120,140,180,${a})`;
-        return `rgba(${m[1]},${m[2]},${m[3]},${a})`;
+    function renderLegDetail(){
+      const leg = state.legs.find(l=>l.id===selectedLegId);
+      if(!leg){
+        detailTitleEl.textContent = "Select a leg";
+        detailSubEl.textContent = "Pick a leg on the left to see a clean, editable plan.";
+        detailBodyEl.innerHTML = `<div class="help">No leg selected.</div>`;
+        btnEditLeg.style.display = "none";
+        btnDeleteLeg.style.display = "none";
+        return;
       }
-      const h = hex.replace("#","").trim();
-      if(h.length !== 6) return `rgba(120,140,180,${a})`;
-      const r = parseInt(h.slice(0,2),16);
-      const g = parseInt(h.slice(2,4),16);
-      const b = parseInt(h.slice(4,6),16);
-      return `rgba(${r},${g},${b},${a})`;
-    }
-    function roundRect(ctx, x, y, w, h, r, fill){
-      ctx.beginPath();
-      ctx.moveTo(x+r, y);
-      ctx.lineTo(x+w-r, y);
-      ctx.quadraticCurveTo(x+w, y, x+w, y+r);
-      ctx.lineTo(x+w, y+h-r);
-      ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-      ctx.lineTo(x+r, y+h);
-      ctx.quadraticCurveTo(x, y+h, x, y+h-r);
-      ctx.lineTo(x, y+r);
-      ctx.quadraticCurveTo(x, y, x+r, y);
-      ctx.closePath();
-      ctx.fillStyle = fill;
-      ctx.fill();
-    }
 
-    function drawCosts(){
+      btnEditLeg.style.display = "inline-flex";
+      btnDeleteLeg.style.display = "inline-flex";
+      detailTitleEl.textContent = leg.title;
+      detailSubEl.textContent = `${legSpan(leg)} • ${leg.from || ""}${leg.to ? " → " + leg.to : ""}`;
+
+      const c = countsForLeg(leg.id);
       const currency = state.meta.currency || "USD";
-      const items = getCostItems();
-      const buckets = bucketCosts(items);
-      const w = chart.width, h = chart.height;
-      ctx.clearRect(0,0,w,h);
+      const costItems = getCostItemsForLeg(leg.id);
+      const total = costItems.reduce((s,i)=>s+i.cost,0);
+      const budget = (leg.budget && isFinite(+leg.budget)) ? +leg.budget : null;
+      const remaining = (budget != null) ? (budget - total) : null;
 
-      ctx.strokeStyle = "rgba(128,128,128,0.18)";
-      ctx.lineWidth = 1;
-      for(let i=0;i<5;i++){
-        const y = 26 + i*((h-60)/4);
-        ctx.beginPath(); ctx.moveTo(44,y); ctx.lineTo(w-16,y); ctx.stroke();
+      const missing = missingSignals(leg.id);
+      const warn = missing.length ? `<div class="warn">⚠ Missing: ${escapeHtml(missing.join(", "))}</div>` : `<div class="help">Looks good. Keep adding details as bookings confirm.</div>`;
+
+      const items = itemsForLeg(leg.id).slice().sort((a,b)=> byDate(a.start,b.start) || String(a.title||"").localeCompare(String(b.title||"")));
+
+      const groups = [
+        { type:"flight", title:"Flights", hint:"Segments, layovers, confirmation numbers." },
+        { type:"lodging", title:"Lodging", hint:"Hotels/Airbnb with check-in/out and address." },
+        { type:"event", title:"Events", hint:"Races, shows, key dates." },
+        { type:"todo", title:"TBD / Missing", hint:"Open loops to fill in later." },
+        { type:"expense", title:"Expenses", hint:"Budget tracking (tickets, trains, hotels, etc.)." },
+        { type:"note", title:"Notes", hint:"Anything else." }
+      ];
+
+      function tableRows(type){
+        const rows = items.filter(i=>i.type===type);
+        if(!rows.length) return `<tr><td colspan="6" style="color:var(--muted);">No ${escapeHtml(type)} items yet.</td></tr>`;
+        return rows.map(i=>`
+          <tr>
+            <td style="width:140px; font-family:var(--mono); font-weight:900; color:var(--muted);">
+              ${escapeHtml(fmt(i.start))}${i.end ? `<div style="margin-top:4px; color:var(--muted2); font-weight:800">${escapeHtml(fmt(i.end))}</div>` : ``}
+            </td>
+            <td>
+              <div style="font-weight:950">${escapeHtml(i.title || "(untitled)")}</div>
+              ${i.details ? `<div style="margin-top:6px; color:var(--muted); line-height:1.45">${escapeHtml(i.details)}</div>` : ``}
+            </td>
+            <td style="width:220px; color:var(--muted);">${escapeHtml(i.where || "")}</td>
+            <td style="width:160px; font-family:var(--mono); font-weight:900;">${escapeHtml(i.ref || "")}</td>
+            <td style="width:120px; font-family:var(--mono); font-weight:900;">${isFinite(+i.cost) && +i.cost!==0 ? `${escapeHtml(currency)} ${( +i.cost ).toFixed(2)}` : ""}</td>
+            <td style="width:120px;">
+              <button class="rowBtn" data-edit="${escapeHtml(i.id)}">Edit</button>
+              <button class="rowBtn" data-del="${escapeHtml(i.id)}">Delete</button>
+            </td>
+          </tr>
+        `).join("");
       }
 
-      const max = Math.max(...buckets.map(b=>b.total), 1);
-      const barW = (w-70) / Math.max(buckets.length,1);
-      const baseY = h-26;
-      chartBars = [];
+      const sectionsHtml = groups.map(g=>`
+        <div class="section">
+          <div class="sh">
+            <h4><span class="dot ${typeColorDot(g.type)}" aria-hidden="true"></span>${escapeHtml(g.title)}</h4>
+            <div class="hint">${escapeHtml(g.hint)}</div>
+          </div>
+          <div class="sb">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date/Time</th>
+                  <th>Title + details</th>
+                  <th>Where</th>
+                  <th>Ref</th>
+                  <th>Cost</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRows(g.type)}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `).join("");
 
-      buckets.forEach((b, idx)=>{
-        const x = 52 + idx*barW + 10;
-        const bw = barW - 20;
-        const barH = Math.max(10, (b.total/max)*(h-82));
-        const y = baseY - barH;
+      detailBodyEl.innerHTML = `
+        <div class="hero">
+          <div>
+            <h3>${escapeHtml(leg.title)}</h3>
+            <div class="sub">${escapeHtml(leg.notes || "")}</div>
+          </div>
+          <div class="heroRight">
+            <div class="pill"><span>Status:</span>
+              <select id="legStatus">
+                <option value="planned" ${leg.status==="planned"?"selected":""}>planned</option>
+                <option value="tbd" ${leg.status==="tbd"?"selected":""}>tbd</option>
+                <option value="locked" ${leg.status==="locked"?"selected":""}>locked</option>
+              </select>
+            </div>
+            <div class="pill"><span>Currency:</span>
+              <select id="currencySel">
+                <option ${currency==="USD"?"selected":""}>USD</option>
+                <option ${currency==="EUR"?"selected":""}>EUR</option>
+                <option ${currency==="PLN"?"selected":""}>PLN</option>
+              </select>
+            </div>
+          </div>
+        </div>
 
-        let fill = hexToRgba(cssVar("--muted-2"), 0.22);
-        if(b.key==="Flights") fill = hexToRgba(cssVar("--flight"), 0.28);
-        if(b.key==="Lodging") fill = hexToRgba(cssVar("--lodging"), 0.24);
+        <div class="kpiRow">
+          <div class="kpi"><div class="k">Items</div><div class="v">${c.flight+c.lodging+c.event+c.todo+c.note+c.expense}</div><div class="h">Total items in this leg.</div></div>
+          <div class="kpi"><div class="k">Known spend</div><div class="v">${escapeHtml(currency)} ${total.toFixed(2)}</div><div class="h">${state.meta.costMode==="expenseOnly"?"Expense-only mode":"Any-cost mode"}.</div></div>
+          <div class="kpi"><div class="k">Budget</div><div class="v">${budget!=null? `${escapeHtml(currency)} ${budget.toFixed(2)}`:"—"}</div><div class="h">Set per leg (Edit leg).</div></div>
+          <div class="kpi"><div class="k">Remaining</div><div class="v">${remaining!=null? `${escapeHtml(currency)} ${remaining.toFixed(2)}`:"—"}</div><div class="h">Budget - spend.</div></div>
+        </div>
 
-        roundRect(ctx, x, y, bw, barH, 12, fill);
+        <div class="help" style="margin-top:12px">${warn}</div>
 
-        ctx.fillStyle = cssVar("--text");
-        ctx.font = "12px " + cssVar("--mono");
-        ctx.fillText(`${currency} ${b.total.toFixed(2)}`, x, y-7);
+        ${sectionsHtml}
 
-        ctx.fillStyle = cssVar("--muted");
-        ctx.font = "12px " + cssVar("--sans");
-        ctx.fillText(b.key, x, baseY+16);
+        <div class="section">
+          <div class="sh">
+            <h4>＋ Add item (inline)</h4>
+            <div class="hint">Fast capture. Add “Expense” for clean budget tracking.</div>
+          </div>
+          <div class="sb">
+            <div class="inlineForm" id="addForm">
+              <div class="field">
+                <label for="aType">Type</label>
+                <select id="aType">
+                  <option value="flight">Flight</option>
+                  <option value="lodging">Lodging</option>
+                  <option value="event">Event</option>
+                  <option value="todo">TBD</option>
+                  <option value="expense">Expense</option>
+                  <option value="note">Note</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="aStart">Start</label>
+                <input id="aStart" placeholder="e.g., 2026-04-05 09:55" />
+              </div>
+              <div class="field">
+                <label for="aEnd">End (optional)</label>
+                <input id="aEnd" placeholder="optional" />
+              </div>
 
-        chartBars.push({ x, y, w:bw, h:barH, bucket:b });
+              <div class="field" style="grid-column:1/-1;">
+                <label for="aTitle">Title</label>
+                <input id="aTitle" placeholder="e.g., Vilnius hotel / Train to Riga / Ticket / etc." />
+              </div>
+
+              <div class="field">
+                <label for="aWhere">Where</label>
+                <input id="aWhere" placeholder="Airport/city/address" />
+              </div>
+              <div class="field">
+                <label for="aRef">Ref (optional)</label>
+                <input id="aRef" placeholder="PNR / confirmation" />
+              </div>
+
+              <div class="field">
+                <label for="aCost">Cost (optional)</label>
+                <input id="aCost" placeholder="e.g., 120.00" />
+              </div>
+
+              <div class="field" style="grid-column:1/-1;">
+                <label for="aDetails">Details</label>
+                <textarea id="aDetails" placeholder="Layovers, check-in/out, reminders, etc."></textarea>
+              </div>
+
+              <div style="grid-column:1/-1; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+                <button class="btn primary" id="btnAddItem">Add item</button>
+              </div>
+
+              <div class="help" id="addError" style="display:none; color:color-mix(in srgb, var(--todo) 70%, var(--text)); font-weight:900;"></div>
+            </div>
+
+            <div class="editBox" id="editBox" data-open="false"></div>
+          </div>
+        </div>
+
+        <div class="help">Planner workflow: keep adding TBD items → convert them into flight/lodging/event as bookings lock.</div>
+      `;
+
+      document.getElementById("legStatus").addEventListener("change", (e)=>{
+        leg.status = e.target.value;
+        save();
+        renderLegList();
+      });
+      document.getElementById("currencySel").addEventListener("change", (e)=>{
+        state.meta.currency = e.target.value;
+        save();
+        renderLegList();
+        renderLegDetail();
+        renderCosts();
       });
 
-      const total = buckets.reduce((s,b)=>s+b.total,0);
-      breakdownEl.innerHTML = `
-        <div><b>Total:</b> ${escapeHtml(currency)} ${total.toFixed(2)}</div>
-        <div style="margin-top:6px">
-          ${buckets.map(b=>`${escapeHtml(b.key)}: ${escapeHtml(currency)} ${b.total.toFixed(2)}`).join(" · ")}
-        </div>
-        <div style="margin-top:8px">Mode: <b>${state.meta.costMode==="expenseOnly" ? "Expense items only" : "Any item with cost"}</b></div>
-      `;
+      document.getElementById("btnAddItem").addEventListener("click", (e)=>{
+        e.preventDefault();
+        addItemFromForm(leg.id);
+      });
+
+      detailBodyEl.querySelectorAll("button[data-edit]").forEach(b=> b.addEventListener("click", ()=> openInlineEdit(b.dataset.edit)));
+      detailBodyEl.querySelectorAll("button[data-del]").forEach(b=> b.addEventListener("click", ()=> deleteItem(b.dataset.del)));
+
+      btnEditLeg.onclick = ()=> editLegPrompt(leg.id);
+      btnDeleteLeg.onclick = ()=> deleteLegPrompt(leg.id);
     }
 
-    function hitBar(evt){
-      const rect = chart.getBoundingClientRect();
-      const x = (evt.clientX - rect.left) * (chart.width / rect.width);
-      const y = (evt.clientY - rect.top) * (chart.height / rect.height);
-      return chartBars.find(b => x>=b.x && x<=b.x+b.w && y>=b.y && y<=b.y+b.h) || null;
+    function addItemInlineFocus(){
+      setActiveTab("tabLegs");
+      setTimeout(()=>{
+        const el = document.getElementById("aTitle");
+        if(el) el.focus({preventScroll:false});
+      }, 80);
     }
-    chart.addEventListener("mousemove", (e)=>{
-      const h = hitBar(e);
-      if(!h){ tip.style.display="none"; return; }
-      const currency = state.meta.currency || "USD";
-      const lines = h.bucket.items.slice(0,5).map(i => `• ${escapeHtml(i.title)} — ${escapeHtml(currency)} ${(+i.cost).toFixed(2)}`).join("<br>");
-      tip.innerHTML = `<div style="font-weight:900">${escapeHtml(h.bucket.key)}</div>
-        <div style="margin-top:4px"><b>${escapeHtml(currency)} ${h.bucket.total.toFixed(2)}</b></div>
-        <div style="margin-top:6px; color:var(--muted); line-height:1.35">${lines}${h.bucket.items.length>5 ? "<br>…":""}</div>`;
-      tip.style.display="block";
-      tip.style.left = (e.clientX + 12) + "px";
-      tip.style.top = (e.clientY + 12) + "px";
-    });
-    chart.addEventListener("mouseleave", ()=> tip.style.display="none");
 
-    const modalBack = document.getElementById("modalBack");
-    const btnAdd = document.getElementById("btnAdd");
-    const btnClose = document.getElementById("btnClose");
-    const btnSave = document.getElementById("btnSave");
-    const btnDelete = document.getElementById("btnDelete");
-    const formError = document.getElementById("formError");
-    let editingId = null;
+    function validateDateOrEmpty(v){ return !v || !!parseDate(v); }
 
-    function openModal(id=null){
-      editingId = id;
-      const isEdit = !!id;
-      const item = isEdit ? state.items.find(x=>x.id===id) : null;
-
-      document.getElementById("modalTitle").textContent = isEdit ? "Edit item" : "Add item";
-      document.getElementById("modalHint").textContent = isEdit
-        ? "Update fields and Save. Use Expense type for cost tracking."
-        : "Add a new itinerary item. Expense type updates the Costs tab.";
-
-      btnDelete.style.display = isEdit ? "inline-flex" : "none";
-      formError.style.display = "none";
-      formError.textContent = "";
-
-      document.getElementById("mType").value = item?.type || "flight";
-      document.getElementById("mStart").value = item?.start || "";
-      document.getElementById("mEnd").value = item?.end || "";
-      document.getElementById("mTitle").value = item?.title || "";
-      document.getElementById("mWhere").value = item?.where || "";
-      document.getElementById("mConfirm").value = item?.confirm || "";
-      document.getElementById("mCost").value = (item?.cost ?? "");
-      document.getElementById("mDetails").value = item?.details || "";
-
-      modalBack.style.display = "flex";
-      modalBack.setAttribute("open","true");
-      setTimeout(()=> document.getElementById("mType").focus({preventScroll:true}), 10);
-    }
-    function closeModal(){
-      modalBack.style.display = "none";
-      modalBack.removeAttribute("open");
-      editingId = null;
-    }
-    function validDateOrEmpty(v){ return !v || !!parseDate(v); }
-
-    function showError(msg){
-      formError.textContent = msg;
-      formError.style.display = "block";
-    }
-    function saveModal(){
+    function addItemFromForm(legId){
+      const err = document.getElementById("addError");
+      const get = (id)=> document.getElementById(id).value.trim();
       const item = {
-        id: editingId || uid(),
-        type: document.getElementById("mType").value,
-        start: document.getElementById("mStart").value.trim(),
-        end: document.getElementById("mEnd").value.trim(),
-        title: document.getElementById("mTitle").value.trim(),
-        where: document.getElementById("mWhere").value.trim(),
-        confirm: document.getElementById("mConfirm").value.trim(),
-        cost: document.getElementById("mCost").value.trim(),
-        details: document.getElementById("mDetails").value.trim()
+        id: uid(),
+        legId,
+        type: get("aType"),
+        start: get("aStart"),
+        end: get("aEnd"),
+        title: get("aTitle"),
+        where: get("aWhere"),
+        ref: get("aRef"),
+        cost: get("aCost"),
+        details: document.getElementById("aDetails").value.trim()
       };
 
-      if(!item.title) return showError("Title is required.");
-      if(!validDateOrEmpty(item.start) || !validDateOrEmpty(item.end)) return showError("Date must be YYYY-MM-DD or YYYY-MM-DD HH:MM.");
+      const showErr = (m)=>{ err.textContent = m; err.style.display = "block"; };
+      err.style.display = "none";
+
+      if(!item.title) return showErr("Title is required.");
+      if(!validateDateOrEmpty(item.start) || !validateDateOrEmpty(item.end)) return showErr("Date must be YYYY-MM-DD or YYYY-MM-DD HH:MM.");
       if(item.cost === "") item.cost = "";
       else if(isFinite(+item.cost)) item.cost = +item.cost;
-      else return showError("Cost must be a number (e.g., 511.92).");
+      else return showErr("Cost must be numeric (e.g., 511.92).");
 
-      if(editingId){
-        const idx = state.items.findIndex(x=>x.id===editingId);
-        if(idx>=0) state.items[idx] = item;
-      }else{
-        state.items.push(item);
-        const order = state.meta.manualOrder || [];
-        order.push(item.id);
-        state.meta.manualOrder = order;
-      }
-      save(); renderAll(); closeModal();
+      state.items.push(item);
+      save();
+      renderLegList();
+      renderLegDetail();
+
+      document.getElementById("aTitle").value = "";
+      document.getElementById("aWhere").value = "";
+      document.getElementById("aRef").value = "";
+      document.getElementById("aCost").value = "";
+      document.getElementById("aDetails").value = "";
+      document.getElementById("aTitle").focus();
     }
-    function deleteItem(){
-      if(!editingId) return;
-      state.items = state.items.filter(x=>x.id !== editingId);
-      state.meta.manualOrder = (state.meta.manualOrder || []).filter(id=>id!==editingId);
-      save(); renderAll(); closeModal();
+
+    function deleteItem(itemId){
+      if(!confirm("Delete this item?")) return;
+      state.items = state.items.filter(i=>i.id !== itemId);
+      save();
+      renderLegList();
+      renderLegDetail();
+      renderAgenda();
+      renderCosts();
     }
-    function convertTodo(id){
-      const item = state.items.find(x=>x.id===id);
+
+    function openInlineEdit(itemId){
+      const item = state.items.find(i=>i.id===itemId);
       if(!item) return;
-      item.type="note";
-      item.title=(item.title||"TBD")+" (converted)";
-      save(); renderAll(); openModal(id);
+      const box = document.getElementById("editBox");
+      box.setAttribute("data-open","true");
+      box.innerHTML = `
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+          <div>
+            <div style="font-weight:950; font-size:13px;">Edit item</div>
+            <div class="help" style="margin-top:6px;">Update fields and Save. Use type “Expense” for budget tracking.</div>
+          </div>
+          <button class="rowBtn" id="closeEdit">Close</button>
+        </div>
+
+        <div class="inlineForm" style="margin-top:10px; border-top:none; padding-top:0;">
+          <div class="field">
+            <label for="eType">Type</label>
+            <select id="eType">
+              ${["flight","lodging","event","todo","expense","note"].map(t=>`<option value="${t}" ${item.type===t?"selected":""}>${t}</option>`).join("")}
+            </select>
+          </div>
+          <div class="field">
+            <label for="eStart">Start</label>
+            <input id="eStart" value="${escapeHtml(item.start||"")}" />
+          </div>
+          <div class="field">
+            <label for="eEnd">End</label>
+            <input id="eEnd" value="${escapeHtml(item.end||"")}" />
+          </div>
+
+          <div class="field" style="grid-column:1/-1;">
+            <label for="eTitle">Title</label>
+            <input id="eTitle" value="${escapeHtml(item.title||"")}" />
+          </div>
+
+          <div class="field">
+            <label for="eWhere">Where</label>
+            <input id="eWhere" value="${escapeHtml(item.where||"")}" />
+          </div>
+          <div class="field">
+            <label for="eRef">Ref</label>
+            <input id="eRef" value="${escapeHtml(item.ref||"")}" />
+          </div>
+
+          <div class="field">
+            <label for="eCost">Cost</label>
+            <input id="eCost" value="${escapeHtml(item.cost ?? "")}" />
+          </div>
+
+          <div class="field" style="grid-column:1/-1;">
+            <label for="eDetails">Details</label>
+            <textarea id="eDetails">${escapeHtml(item.details||"")}</textarea>
+          </div>
+
+          <div style="grid-column:1/-1; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
+            <button class="btn primary" id="saveEdit">Save changes</button>
+            <button class="btn danger" id="deleteEdit">Delete</button>
+          </div>
+
+          <div class="help" id="editError" style="display:none; color:color-mix(in srgb, var(--todo) 70%, var(--text)); font-weight:900;"></div>
+        </div>
+      `;
+
+      document.getElementById("closeEdit").onclick = ()=> box.setAttribute("data-open","false");
+      document.getElementById("deleteEdit").onclick = ()=> deleteItem(itemId);
+
+      document.getElementById("saveEdit").onclick = (e)=>{
+        e.preventDefault();
+        const err = document.getElementById("editError");
+        const get = (id)=> document.getElementById(id).value.trim();
+        const upd = {
+          type: get("eType"),
+          start: get("eStart"),
+          end: get("eEnd"),
+          title: get("eTitle"),
+          where: get("eWhere"),
+          ref: get("eRef"),
+          cost: get("eCost"),
+          details: document.getElementById("eDetails").value.trim()
+        };
+
+        const showErr = (m)=>{ err.textContent=m; err.style.display="block"; };
+        err.style.display="none";
+
+        if(!upd.title) return showErr("Title is required.");
+        if(!validateDateOrEmpty(upd.start) || !validateDateOrEmpty(upd.end)) return showErr("Date must be YYYY-MM-DD or YYYY-MM-DD HH:MM.");
+        if(upd.cost === "") upd.cost = "";
+        else if(isFinite(+upd.cost)) upd.cost = +upd.cost;
+        else return showErr("Cost must be numeric.");
+
+        Object.assign(item, upd);
+        save();
+        renderLegList();
+        renderLegDetail();
+        renderAgenda();
+        renderCosts();
+      };
+
+      box.scrollIntoView({behavior:"smooth", block:"start"});
     }
 
-    btnAdd.addEventListener("click", ()=> openModal(null));
-    btnClose.addEventListener("click", closeModal);
-    modalBack.addEventListener("click", (e)=>{ if(e.target === modalBack) closeModal(); });
-    btnSave.addEventListener("click", saveModal);
-    btnDelete.addEventListener("click", deleteItem);
-    document.addEventListener("keydown", (e)=>{ if(e.key==="Escape" && modalBack.style.display==="flex") closeModal(); });
+    function addLegPrompt(){
+      const title = prompt("Leg title (e.g., Vilnius + Riga + Belgrade)", "New leg");
+      if(!title) return;
+      const id = "leg-" + uid();
+      const leg = { id, title, status:"tbd", start:"", end:"", from:"", to:"", budget:"", notes:"" };
+      state.legs.push(leg);
+      save();
+      selectedLegId = id;
+      renderLegList();
+      renderLegDetail();
+    }
+
+    function editLegPrompt(legId){
+      const leg = state.legs.find(l=>l.id===legId);
+      if(!leg) return;
+
+      leg.title = prompt("Leg title", leg.title) ?? leg.title;
+      leg.start = prompt("Start date (YYYY-MM-DD)", leg.start || "") ?? leg.start;
+      leg.end = prompt("End date (YYYY-MM-DD, optional)", leg.end || "") ?? leg.end;
+      leg.from = prompt("From (city/airport)", leg.from || "") ?? leg.from;
+      leg.to = prompt("To (city/airport)", leg.to || "") ?? leg.to;
+      leg.budget = prompt("Budget (number, optional)", leg.budget || "") ?? leg.budget;
+      leg.notes = prompt("Notes (optional)", leg.notes || "") ?? leg.notes;
+
+      save();
+      renderLegList();
+      renderLegDetail();
+      renderAgenda();
+      renderCosts();
+    }
+
+    function deleteLegPrompt(legId){
+      const leg = state.legs.find(l=>l.id===legId);
+      if(!leg) return;
+      if(!confirm(`Delete leg "${leg.title}" and all its items?`)) return;
+      state.legs = state.legs.filter(l=>l.id !== legId);
+      state.items = state.items.filter(i=>i.legId !== legId);
+      selectedLegId = state.legs[0]?.id || null;
+      save();
+      renderLegList();
+      renderLegDetail();
+      renderAgenda();
+      renderCosts();
+    }
+
+    const agendaBody = document.getElementById("agendaBody");
+    function typeEmoji(t){
+      return ({flight:"✈️", lodging:"🏨", event:"🏁", todo:"🧩", note:"📝", expense:"💸"})[t] || "•";
+    }
+
+    function renderAgenda(){
+      const q = (document.getElementById("search").value || "").toLowerCase().trim();
+      const items = state.items
+        .filter(i=>i.type !== "expense")
+        .filter(i=> q ? JSON.stringify(i).toLowerCase().includes(q) : true)
+        .slice()
+        .sort((a,b)=> byDate(a.start,b.start) || String(a.title||"").localeCompare(String(b.title||"")));
+
+      const byDay = new Map();
+      items.forEach(i=>{
+        const dk = dayKey(i.start) || "TBD";
+        if(!byDay.has(dk)) byDay.set(dk, []);
+        byDay.get(dk).push(i);
+      });
+
+      const keys = Array.from(byDay.keys()).sort((a,b)=>{
+        if(a==="TBD") return 1;
+        if(b==="TBD") return -1;
+        return a.localeCompare(b);
+      });
+
+      if(keys.length===0){
+        agendaBody.innerHTML = `<div class="help">No items yet.</div>`;
+        return;
+      }
+
+      agendaBody.innerHTML = keys.map(k=>{
+        const lines = byDay.get(k);
+        const dateLabel = (k==="TBD") ? "TBD dates" : k;
+        const sub = (k==="TBD") ? "Items without dates — fill dates to get a clean agenda." : `${lines.length} item(s)`;
+
+        return `
+          <div class="agendaDay">
+            <div class="agendaHead">
+              <h4>${escapeHtml(dateLabel)}</h4>
+              <div class="sub">${escapeHtml(sub)}</div>
+            </div>
+            <div class="agendaBody">
+              ${lines.map(i=>{
+                const t = (i.start && /\d{2}:\d{2}/.test(i.start)) ? fmt(i.start).slice(11) : "—";
+                const leg = state.legs.find(l=>l.id===i.legId);
+                const legName = leg ? leg.title : "Unknown leg";
+                const where = i.where ? ` · ${escapeHtml(i.where)}` : "";
+                return `
+                  <div class="line">
+                    <div class="time">${escapeHtml(t)}</div>
+                    <div class="desc">
+                      <b>${escapeHtml(typeEmoji(i.type))} ${escapeHtml(i.title || "")}</b>${where}
+                      <span class="tag">${escapeHtml(legName)}</span>
+                      ${i.details ? `<div style="margin-top:6px; color:var(--muted);">${escapeHtml(i.details)}</div>` : ``}
+                    </div>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    document.getElementById("btnPrint").addEventListener("click", ()=> window.print());
+
+    const costGrid = document.getElementById("costGrid");
+    const costModeSel = document.getElementById("costMode");
+
+    function renderCosts(){
+      const currency = state.meta.currency || "USD";
+      const totals = state.legs.map(leg=>{
+        const costItems = getCostItemsForLeg(leg.id);
+        const total = costItems.reduce((s,i)=>s+i.cost,0);
+        const budget = (leg.budget && isFinite(+leg.budget)) ? +leg.budget : null;
+        const buckets = bucketCosts(costItems);
+        return { leg, total, budget, buckets };
+      });
+
+      const max = Math.max(...totals.map(t=>t.total), 1);
+
+      costGrid.innerHTML = totals.map(t=>{
+        const pct = Math.min(100, (t.total/max)*100);
+        const budgetLine = t.budget!=null
+          ? `<div style="margin-top:6px; color:var(--muted);">Budget: <b>${escapeHtml(currency)} ${t.budget.toFixed(2)}</b> · Remaining: <b>${escapeHtml(currency)} ${(t.budget - t.total).toFixed(2)}</b></div>`
+          : `<div style="margin-top:6px; color:var(--muted);">Budget: <b>—</b> (Edit leg to set one)</div>`;
+
+        const bucketLine = t.buckets.map(b=> `${escapeHtml(b.key)}: <b>${escapeHtml(currency)} ${b.total.toFixed(2)}</b>`).join(" · ");
+
+        return `
+          <div class="section">
+            <div class="sh">
+              <h4>${escapeHtml(t.leg.title)}</h4>
+              <div class="hint">${escapeHtml(legSpan(t.leg))}</div>
+            </div>
+            <div class="sb">
+              <div style="font-weight:980; font-family:var(--mono); font-size:14px;">${escapeHtml(currency)} ${t.total.toFixed(2)}</div>
+              <div class="bar"><div style="width:${pct}%;"></div></div>
+              ${budgetLine}
+              <div style="margin-top:10px; color:var(--muted); line-height:1.45;">${bucketLine}</div>
+              <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+                <button class="rowBtn primary" data-openleg="${escapeHtml(t.leg.id)}">Open leg</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      costGrid.querySelectorAll("button[data-openleg]").forEach(b=>{
+        b.addEventListener("click", ()=>{
+          selectedLegId = b.dataset.openleg;
+          setActiveTab("tabLegs");
+          renderLegList();
+          renderLegDetail();
+        });
+      });
+    }
+
+    const fileInput = document.getElementById("fileInput");
 
     function exportJson(){
       const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "itinerary-data.json";
+      a.download = "trip-legs-data.json";
       a.click();
       URL.revokeObjectURL(a.href);
     }
-    document.getElementById("btnExport").addEventListener("click", exportJson);
-    document.getElementById("btnImport").addEventListener("click", ()=> document.getElementById("fileInput").click());
-    document.getElementById("fileInput").addEventListener("change", async (e)=>{
-      const f = e.target.files?.[0];
-      if(!f) return;
-      try{
-        const txt = await f.text();
+
+    function importJsonFile(file){
+      file.text().then(txt=>{
         const data = JSON.parse(txt);
-        if(!data?.items || !data?.meta) throw new Error("Invalid file");
+        if(!data?.legs || !data?.items || !data?.meta) throw new Error("Invalid");
         state = data;
+        selectedLegId = state.legs?.[0]?.id || null;
         save();
         applyTheme(state.meta.theme || "dark");
         renderAll();
+      }).catch(_=>{
+        alert("Could not import JSON. Make sure it's an export from this page.");
+      });
+    }
+
+    function makeShareLink(){
+      try{
+        const json = JSON.stringify(state);
+        const b64 = btoa(json);
+        const url = location.origin + location.pathname + "#data=" + encodeURIComponent(b64);
+        (navigator.clipboard?.writeText(url) ? navigator.clipboard.writeText(url) : Promise.reject())
+          .then(()=> alert("Share link copied to clipboard."))
+          .catch(()=> prompt("Copy this share link:", url));
       }catch(_){
-        alert("Could not import JSON. Make sure it's an export from this itinerary page.");
-      }finally{
-        e.target.value = "";
+        alert("Could not create share link (data too large). Use Export instead.");
       }
+    }
+
+    document.getElementById("btnExport").addEventListener("click", exportJson);
+    document.getElementById("btnImport").addEventListener("click", ()=> fileInput.click());
+    fileInput.addEventListener("change", (e)=>{
+      const f = e.target.files?.[0];
+      if(!f) return;
+      importJsonFile(f);
+      e.target.value = "";
     });
+
+    document.getElementById("btnShare").addEventListener("click", makeShareLink);
+
     document.getElementById("btnReset").addEventListener("click", ()=>{
-      if(!confirm("Reset itinerary to your initial plan? This will overwrite local edits.")) return;
+      if(!confirm("Reset to the initial seed plan? This overwrites local edits.")) return;
       state = structuredClone(SEED);
+      selectedLegId = state.legs?.[0]?.id || null;
       save();
       applyTheme(state.meta.theme || "dark");
       renderAll();
     });
 
-    let dragId=null;
-    function wireDragSort(){
-      const items = Array.from(document.querySelectorAll("article.item"));
-      items.forEach(el=>{
-        el.addEventListener("dragstart", (e)=>{
-          dragId = el.dataset.id;
-          el.classList.add("dragging");
-          e.dataTransfer.effectAllowed="move";
-        });
-        el.addEventListener("dragend", ()=>{
-          dragId=null;
-          el.classList.remove("dragging");
-          items.forEach(x=>x.classList.remove("dropTarget"));
-        });
-        el.addEventListener("dragover", (e)=>{
-          e.preventDefault();
-          if(!dragId || el.dataset.id===dragId) return;
-          el.classList.add("dropTarget");
-        });
-        el.addEventListener("dragleave", ()=> el.classList.remove("dropTarget"));
-        el.addEventListener("drop", (e)=>{
-          e.preventDefault();
-          el.classList.remove("dropTarget");
-          if(!dragId || el.dataset.id===dragId) return;
-
-          const list = Array.from(document.querySelectorAll("article.item")).map(x=>x.dataset.id);
-          const from = list.indexOf(dragId);
-          const to = list.indexOf(el.dataset.id);
-          if(from<0 || to<0) return;
-          list.splice(from, 1);
-          list.splice(to, 0, dragId);
-          state.meta.manualOrder = list;
-          save();
-          renderTimeline();
-        });
-      });
-    }
-
-    const metaMap = [
-      ["homeBase","homeBase"],
-      ["purpose","purpose"],
-      ["pacing","pacing"],
-      ["budgetFocus","budgetFocus"],
-      ["currency","currency"],
-      ["notes","notes"],
-      ["costMode","costMode"],
-      ["costNote","costNote"]
-    ];
-    metaMap.forEach(([id,key])=>{
-      const el = document.getElementById(id);
-      if(!el) return;
-      el.addEventListener("input", ()=>{ state.meta[key]=el.value; save(); renderOverview(); drawCosts(); });
-      el.addEventListener("change", ()=>{ state.meta[key]=el.value; save(); renderOverview(); drawCosts(); });
-    });
-
-    document.getElementById("search").addEventListener("input", debounce(()=>{ renderTimeline(); renderOverview(); }, 250));
-    document.querySelectorAll(".typeCheck").forEach(c=> c.addEventListener("change", renderTimeline));
-    document.getElementById("sortOrder").addEventListener("change", renderTimeline);
-    document.getElementById("showLevel").addEventListener("change", renderTimeline);
-
     document.getElementById("btnTheme").addEventListener("click", ()=>{
       const cur = state.meta.theme || "dark";
       applyTheme(cur==="dark" ? "light" : "dark");
-      drawCosts();
+      renderAll();
     });
 
-    function hydrateInputs(){
-      document.getElementById("homeBase").value = state.meta.homeBase || "";
-      document.getElementById("purpose").value = state.meta.purpose || "";
-      document.getElementById("pacing").value = state.meta.pacing || "Efficient & clustered";
-      document.getElementById("budgetFocus").value = state.meta.budgetFocus || "Comfort/value";
-      document.getElementById("currency").value = state.meta.currency || "USD";
-      document.getElementById("notes").value = state.meta.notes || "";
-      document.getElementById("costMode").value = state.meta.costMode || "expenseOnly";
-      document.getElementById("costNote").value = state.meta.costNote || "";
-    }
+    document.getElementById("btnAddLeg").addEventListener("click", addLegPrompt);
+
+    legFilterEl.addEventListener("change", renderLegList);
+
+    costModeSel.addEventListener("change", ()=>{
+      state.meta.costMode = costModeSel.value;
+      save();
+      renderLegList();
+      renderLegDetail();
+      renderCosts();
+    });
+
+    document.getElementById("search").addEventListener("input", debounce(()=>{
+      renderLegList();
+      renderLegDetail();
+      renderAgenda();
+      renderCosts();
+    }, 250));
 
     function renderAll(){
-      hydrateInputs();
-      renderOverview();
-      renderTimeline();
-      drawCosts();
+      costModeSel.value = state.meta.costMode || "expenseOnly";
+      renderLegList();
+      renderLegDetail();
+      renderAgenda();
+      renderCosts();
     }
 
     applyTheme(state.meta.theme || "dark");
