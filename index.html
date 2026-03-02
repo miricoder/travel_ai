@@ -1,1730 +1,418 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Travel Tracker Pro</title>
-  <meta name="color-scheme" content="dark light">
+  <meta name="color-scheme" content="dark">
   <style>
     * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; }
+    html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, sans-serif; }
     :root {
-      --primary: #2563eb;
-      --primary-light: #3b82f6;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface-alt: #334155;
-      --border: #475569;
-      --text: #f1f5f9;
-      --text-muted: #cbd5e1;
-      --radius: 12px;
-      --shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
-      --transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      --primary: #2563eb; --surface: #1e293b; --border: #334155;
+      --text: #f1f5f9; --text-muted: #cbd5e1; --danger: #ef4444;
+      --success: #10b981; --bg: #0f172a;
     }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%); color: var(--text); line-height: 1.6; }
-    .container { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: 64px 1fr; height: 100vh; }
-    .header { grid-column: 1 / -1; background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
-    .header h1 { margin: 0; font-size: 24px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .sidebar { grid-row: 2; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; overflow-y: auto; }
-    .nav-item { display: block; width: 100%; padding: 12px 16px; border: none; color: var(--text); cursor: pointer; border-radius: 8px; margin: 4px 0; }
-    .nav-item.active { background: var(--primary); color: white; }
-    .main { grid-row: 2; overflow-y: auto; padding: 32px; }
-    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-    .btn-primary { background: var(--primary); color: white; padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; }
-    .btn-danger { background: var(--danger); color: white; padding: 6px 12px; border: none; border-radius: 8px; cursor: pointer; }
-    .stat-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
-    .stat-value { font-size: 28px; font-weight: 700; color: var(--primary-light); }
-    .item-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 16px; margin-bottom: 12px; border-radius: 8px; display: flex; justify-content: space-between; }
-    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
-    .modal.open { display: flex; }
-    .modal-content { background: var(--surface); padding: 32px; border-radius: 12px; max-width: 500px; width: 90%; }
-    input, textarea, select { width: 100%; padding: 10px; background: var(--surface-alt); border: 1px solid var(--border); color: var(--text); border-radius: 8px; margin-top: 6px; }
-    .hidden { display: none !important; }
-    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    body { background: linear-gradient(135deg, #0f172a 0%, #1a1f36 100%); color: var(--text); }
+    .container { display: grid; grid-template-columns: 280px 1fr; height: 100vh; }
+    .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; }
+    .sidebar h2 { margin: 0 0 20px 0; font-size: 18px; }
+    .nav-item { display: block; padding: 12px; margin: 8px 0; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; cursor: pointer; color: var(--text); text-align: center; transition: all 0.2s; }
+    .nav-item:hover { background: var(--primary); border-color: var(--primary); }
+    .nav-item.active { background: var(--primary); border-color: var(--primary); }
+    .main { padding: 30px; overflow-y: auto; }
+    .header { margin-bottom: 30px; }
+    .header h1 { margin: 0 0 10px 0; font-size: 28px; }
+    .header p { margin: 0; color: var(--text-muted); }
+    .view { display: none; }
+    .view.active { display: block; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; }
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 15px; text-align: center; }
+    .kpi-value { font-size: 28px; font-weight: bold; color: var(--primary); }
+    .kpi-label { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
+    .list-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .list-item { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;
+      align-items: center; transition: background 0.2s; }
+    .list-item:last-child { border-bottom: none; }
+    .list-item:hover { background: var(--bg); }
+    .list-item-main { flex: 1; }
+    .list-item-title { font-size: 16px; font-weight: 500; margin: 0 0 5px 0; }
+    .list-item-subtitle { font-size: 12px; color: var(--text-muted); margin: 0; }
+    .list-item-actions { display: flex; gap: 8px; }
+    .btn { padding: 10px 15px; background: var(--primary); border: none; border-radius: 6px; color: white;
+      cursor: pointer; transition: opacity 0.2s; font-size: 14px; }
+    .btn:hover { opacity: 0.8; }
+    .btn-danger { background: var(--danger); }
+    .btn-secondary { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 14px; margin-bottom: 5px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text);
+      font-family: inherit; }
+    .form-group textarea { resize: vertical; min-height: 100px; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
+      z-index: 100; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 30px; max-width: 500px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+    .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+    .expense-category { display: inline-block; background: var(--primary); color: white; padding: 4px 8px;
+      border-radius: 4px; font-size: 12px; margin-right: 8px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <header class="header">
-      <h1>✈️ Travel Tracker Pro</h1>
-      <div><button class="btn-primary" id="themeToggle">🌙</button><button class="btn-primary" id="exportBtn">💾</button></div>
-    </header>
-    <nav class="sidebar">
-      <button class="nav-item active" data-view="dashboard">📊 Overview</button>
-      <button class="nav-item" data-view="trips">✈️ Trips</button>
-      <button class="nav-item" data-view="expenses">💰 Expenses</button>
-      <button class="nav-item" data-view="notes">📝 Notes</button>
-      <button class="nav-item" id="importBtn" style="margin-top: auto;">📥 Import</button>
-    </nav>
-    <main class="main">
-      <div id="dashboard-view" class="view">
-        <div class="grid-3">
-          <div class="stat-card"><div style="font-size:12px;color:var(--text-muted)">Active Trips</div><div class="stat-value" id="activeTripsCount">0</div></div>
-          <div class="stat-card"><div style="font-size:12px;color:var(--text-muted)">Total Spent</div><div class="stat-value" id="totalSpent">$0.00</div></div>
-          <div class="stat-card"><div style="font-size:12px;color:var(--text-muted)">Notes</div><div class="stat-value" id="totalNotes">0</div></div>
+    <div class="sidebar">
+      <h2>Travel Tracker</h2>
+      <button class="nav-item active" onclick="switchView('dashboard')">📊 Overview</button>
+      <button class="nav-item" onclick="switchView('trips')">✈️ Trips</button>
+      <button class="nav-item" onclick="switchView('expenses')">💳 Expenses</button>
+      <button class="nav-item" onclick="switchView('notes')">📝 Notes</button>
+      <button class="btn" style="width: 100%; margin-top: 30px;" onclick="exportData()">⬇️ Export</button>
+      <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="document.getElementById('importFile').click()">⬆️ Import</button>
+      <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+    </div>
+    <div class="main">
+      <div class="header">
+        <h1>Travel Tracker Pro</h1>
+        <p>Organize your trips, expenses, and travel notes</p>
+      </div>
+
+      <div id="dashboard-view" class="view active">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-value" id="tripCount">0</div>
+            <div class="kpi-label">Active Trips</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-value" id="totalSpent">$0</div>
+            <div class="kpi-label">Total Spent</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-value" id="noteCount">0</div>
+            <div class="kpi-label">Notes</div>
+          </div>
         </div>
-        <div class="panel"><h2>Recent Activity</h2><div id="recentActivity" style="text-align:center;color:var(--text-muted)">No activity yet.</div></div>
+        <button class="btn" style="width: 100%;" onclick="openModal('tripModal')">+ Add Trip</button>
       </div>
-      <div id="trips-view" class="view hidden">
-        <button class="btn-primary" id="newTripBtn" style="margin-bottom:16px">+ Create Trip</button>
-        <div class="panel"><h2>Your Trips</h2><div id="tripsList"></div></div>
+
+      <div id="trips-view" class="view">
+        <button class="btn" style="margin-bottom: 20px;" onclick="openModal('tripModal')">+ New Trip</button>
+        <div class="list-container" id="tripsList"></div>
       </div>
-      <div id="expenses-view" class="view hidden">
-        <button class="btn-primary" id="newExpenseBtn" style="margin-bottom:16px">+ Add Expense</button>
-        <div class="panel"><h2>Expenses</h2><div id="expensesList"></div></div>
+
+      <div id="expenses-view" class="view">
+        <button class="btn" style="margin-bottom: 20px;" onclick="openModal('expenseModal')">+ New Expense</button>
+        <div class="list-container" id="expensesList"></div>
       </div>
-      <div id="notes-view" class="view hidden">
-        <button class="btn-primary" id="newNoteBtn" style="margin-bottom:16px">+ Add Note</button>
-        <div class="panel"><h2>Travel Notes</h2><div id="notesList"></div></div>
+
+      <div id="notes-view" class="view">
+        <button class="btn" style="margin-bottom: 20px;" onclick="openModal('noteModal')">+ New Note</button>
+        <div class="list-container" id="notesList"></div>
       </div>
-    </main>
+    </div>
   </div>
 
-  <div class="modal" id="tripModal">
+  <div id="tripModal" class="modal">
     <div class="modal-content">
-      <h2>Create Trip</h2>
-      <form id="tripForm">
-        <label>Name</label><input type="text" id="tripName" required>
-        <label style="margin-top:12px">Destination</label><input type="text" id="tripDestination">
-        <label style="margin-top:12px">Start Date</label><input type="date" id="tripStart" required>
-        <label style="margin-top:12px">End Date</label><input type="date" id="tripEnd" required>
-        <label style="margin-top:12px">Budget</label><input type="number" id="tripBudget" step="0.01">
-        <div style="margin-top:16px;display:flex;gap:12px"><button type="button" class="btn-danger" onclick="closeModal('tripModal')">Cancel</button><button type="submit" class="btn-primary" style="flex:1">Create</button></div>
+      <div class="modal-header">
+        <h2>Add Trip</h2>
+        <button class="modal-close" onclick="closeModal('tripModal')">&times;</button>
+      </div>
+      <form onsubmit="saveTrip(event)">
+        <div class="form-group">
+          <label>Trip Name</label>
+          <input type="text" id="tripName" required>
+        </div>
+        <div class="form-group">
+          <label>Destination</label>
+          <input type="text" id="tripDestination" required>
+        </div>
+        <div class="form-group">
+          <label>Budget ($)</label>
+          <input type="number" id="tripBudget" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label>Start Date</label>
+          <input type="date" id="tripStart" required>
+        </div>
+        <div class="form-group">
+          <label>End Date</label>
+          <input type="date" id="tripEnd" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('tripModal')">Cancel</button>
+          <button type="submit" class="btn">Save Trip</button>
+        </div>
       </form>
     </div>
   </div>
 
-  <div class="modal" id="expenseModal">
+  <div id="expenseModal" class="modal">
     <div class="modal-content">
-      <h2>Add Expense</h2>
-      <form id="expenseForm">
-        <label>Trip</label><select id="expenseTrip" required><option>Select...</option></select>
-        <label style="margin-top:12px">Category</label><select id="expenseCategory" required><option>🏨 Accommodation</option><option>✈️ Flights</option><option>🍽️ Food</option><option>🚗 Transport</option><option>🎫 Activities</option><option>🛍️ Shopping</option><option>💊 Other</option></select>
-        <label style="margin-top:12px">Amount</label><input type="number" id="expenseAmount" step="0.01" required>
-        <label style="margin-top:12px">Description</label><input type="text" id="expenseDesc">
-        <label style="margin-top:12px">Date</label><input type="date" id="expenseDate" required>
-        <div style="margin-top:16px;display:flex;gap:12px"><button type="button" class="btn-danger" onclick="closeModal('expenseModal')">Cancel</button><button type="submit" class="btn-primary" style="flex:1">Add</button></div>
+      <div class="modal-header">
+        <h2>Add Expense</h2>
+        <button class="modal-close" onclick="closeModal('expenseModal')">&times;</button>
+      </div>
+      <form onsubmit="saveExpense(event)">
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="expenseDesc" required>
+        </div>
+        <div class="form-group">
+          <label>Amount ($)</label>
+          <input type="number" id="expenseAmount" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="expenseCategory" required>
+            <option>Food</option>
+            <option>Transport</option>
+            <option>Accommodation</option>
+            <option>Activities</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Trip (optional)</label>
+          <select id="expenseTrip"></select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="expenseDate" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('expenseModal')">Cancel</button>
+          <button type="submit" class="btn">Save Expense</button>
+        </div>
       </form>
     </div>
   </div>
 
-  <div class="modal" id="noteModal">
+  <div id="noteModal" class="modal">
     <div class="modal-content">
-      <h2>Add Note</h2>
-      <form id="noteForm">
-        <label>Trip</label><select id="noteTrip"><option>General Note</option></select>
-        <label style="margin-top:12px">Type</label><select id="noteType"><option>📌 Reminder</option><option>💡 Tip</option><option>⚠️ Warning</option><option>✅ Decision</option><option>📍 Location</option></select>
-        <label style="margin-top:12px">Content</label><textarea id="noteContent" required></textarea>
-        <label style="margin-top:12px">Date</label><input type="date" id="noteDate" required>
-        <div style="margin-top:16px;display:flex;gap:12px"><button type="button" class="btn-danger" onclick="closeModal('noteModal')">Cancel</button><button type="submit" class="btn-primary" style="flex:1">Save</button></div>
+      <div class="modal-header">
+        <h2>Add Note</h2>
+        <button class="modal-close" onclick="closeModal('noteModal')">&times;</button>
+      </div>
+      <form onsubmit="saveNote(event)">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="noteTitle" required>
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="noteType">
+            <option>Tip</option>
+            <option>Warning</option>
+            <option>Memory</option>
+            <option>Itinerary</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Content</label>
+          <textarea id="noteContent" required></textarea>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('noteModal')">Cancel</button>
+          <button type="submit" class="btn">Save Note</button>
+        </div>
       </form>
     </div>
   </div>
 
   <script>
     const store = {
-      trips: [], expenses: [], notes: [],
-      load() { const s = localStorage.getItem('travelTrackerData'); if(s) { const d = JSON.parse(s); this.trips=d.trips||[]; this.expenses=d.expenses||[]; this.notes=d.notes||[]; } },
-      save() { localStorage.setItem('travelTrackerData', JSON.stringify({trips:this.trips, expenses:this.expenses, notes:this.notes})); render(); },
-      addTrip(t) { t.id=Date.now(); this.trips.push(t); this.save(); },
-      addExpense(e) { e.id=Date.now(); this.expenses.push(e); this.save(); },
-      addNote(n) { n.id=Date.now(); this.notes.push(n); this.save(); },
-      deleteTrip(id) { this.trips=this.trips.filter(t=>t.id!==id); this.expenses=this.expenses.filter(e=>e.tripId!==id); this.save(); },
-      deleteExpense(id) { this.expenses=this.expenses.filter(e=>e.id!==id); this.save(); },
-      deleteNote(id) { this.notes=this.notes.filter(n=>n.id!==id); this.save(); }
+      trips: [],
+      expenses: [],
+      notes: [],
+      load() {
+        const data = localStorage.getItem('travelTrackerData');
+        if (data) {
+          const parsed = JSON.parse(data);
+          this.trips = parsed.trips || [];
+          this.expenses = parsed.expenses || [];
+          this.notes = parsed.notes || [];
+        }
+      },
+      save() {
+        localStorage.setItem('travelTrackerData', JSON.stringify({
+          trips: this.trips,
+          expenses: this.expenses,
+          notes: this.notes
+        }));
+      },
+      addTrip(trip) {
+        this.trips.push({ ...trip, id: Date.now() });
+        this.save();
+      },
+      addExpense(expense) {
+        this.expenses.push({ ...expense, id: Date.now() });
+        this.save();
+      },
+      addNote(note) {
+        this.notes.push({ ...note, id: Date.now() });
+        this.save();
+      },
+      deleteTrip(id) {
+        this.trips = this.trips.filter(t => t.id !== id);
+        this.save();
+      },
+      deleteExpense(id) {
+        this.expenses = this.expenses.filter(e => e.id !== id);
+        this.save();
+      },
+      deleteNote(id) {
+        this.notes = this.notes.filter(n => n.id !== id);
+        this.save();
+      }
     };
 
-    function openModal(id) { document.getElementById(id).classList.add('open'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-    function switchView(name) { document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden')); document.getElementById(name+'-view').classList.remove('hidden'); document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('active')); document.querySelector('[data-view="'+name+'"]').classList.add('active'); }
-    function formatCurrency(a) { return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(a); }
-    function getOptions(trips) { return trips.map(t=>`<option value="${t.id}">${t.name}</option>`).join(''); }
-    function render() { renderDashboard(); renderTrips(); renderExpenses(); renderNotes(); }
+    function openModal(id) {
+      document.getElementById(id).classList.add('active');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+    function switchView(name) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      document.getElementById(name + '-view').classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+    function formatCurrency(num) {
+      return '$' + num.toFixed(2);
+    }
     function renderDashboard() {
-      const active = store.trips.length; const spent = store.expenses.reduce((s,e)=>s+(e.amount||0),0);
-      document.getElementById('activeTripsCount').textContent = active;
-      document.getElementById('totalSpent').textContent = formatCurrency(spent);
-      document.getElementById('totalNotes').textContent = store.notes.length;
+      document.getElementById('tripCount').textContent = store.trips.length;
+      document.getElementById('totalSpent').textContent = formatCurrency(store.expenses.reduce((sum, e) => sum + parseFloat(e.amount), 0));
+      document.getElementById('noteCount').textContent = store.notes.length;
     }
     function renderTrips() {
-      const html = store.trips.length===0 ? '<p style="color:var(--text-muted)">No trips yet</p>' : store.trips.map(t=>{
-        const exp = store.expenses.filter(e=>e.tripId==t.id).reduce((s,e)=>s+(e.amount||0),0);
-        return `<div class="item-card"><div><strong>${t.name}</strong><p style="color:var(--text-muted);margin:6px 0 0">📍 ${t.destination||'N/A'} | 📅 ${t.start} → ${t.end}</p>${t.budget ? `<p style="color:var(--text-muted);margin:4px 0 0">Budget: ${formatCurrency(t.budget)} | Spent: ${formatCurrency(exp)}</p>` : ''}</div><button class="btn-danger" onclick="deleteTrip(${t.id})">×</button></div>`;
-      }).join('');
+      const html = store.trips.length ? store.trips.map(t => `
+        <div class="list-item">
+          <div class="list-item-main">
+            <p class="list-item-title">${t.name}</p>
+            <p class="list-item-subtitle">${t.destination} • ${formatCurrency(t.budget)} budget</p>
+            <p class="list-item-subtitle">${t.start} to ${t.end}</p>
+          </div>
+          <button class="btn btn-danger" onclick="deleteTrip(${t.id})">Delete</button>
+        </div>
+      `).join('') : '<div class="empty-state">No trips yet. Create one to get started!</div>';
       document.getElementById('tripsList').innerHTML = html;
-      const sel = document.getElementById('expenseTrip');
-      sel.innerHTML = '<option>Select...</option>' + getOptions(store.trips);
-      document.getElementById('noteTrip').innerHTML = '<option>General Note</option>' + getOptions(store.trips);
     }
     function renderExpenses() {
-      const html = store.expenses.length===0 ? '<p style="color:var(--text-muted)">No expenses</p>' : store.expenses.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(e=>{
-        const t = store.trips.find(x=>x.id==e.tripId);
-        return `<div class="item-card"><div><strong>${e.category}</strong><p style="color:var(--text-muted);margin:6px 0 0">${e.desc||'N/A'} | 📅 ${e.date} | Trip: ${t?t.name:'Uncategorized'}</p></div><div style="text-align:right"><strong style="font-size:18px;color:var(--danger)">${formatCurrency(e.amount)}</strong><br><button class="btn-danger" onclick="deleteExpense(${e.id})">×</button></div></div>`;
-      }).join('');
+      const html = store.expenses.length ? store.expenses.map(e => `
+        <div class="list-item">
+          <div class="list-item-main">
+            <p class="list-item-title">${e.description}</p>
+            <p class="list-item-subtitle">
+              <span class="expense-category">${e.category}</span>
+              ${e.trip ? `Trip: ${e.trip}` : 'No trip assigned'}
+            </p>
+          </div>
+          <div>
+            <p style="margin: 0; font-weight: bold;">${formatCurrency(e.amount)}</p>
+            <button class="btn btn-danger btn-sm" onclick="deleteExpense(${e.id})">Delete</button>
+          </div>
+        </div>
+      `).join('') : '<div class="empty-state">No expenses yet.</div>';
       document.getElementById('expensesList').innerHTML = html;
     }
     function renderNotes() {
-      const html = store.notes.length===0 ? '<p style="color:var(--text-muted)">No notes</p>' : store.notes.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(n=>{
-        const t = store.trips.find(x=>x.id==n.tripId);
-        return `<div class="item-card"><div><strong>${n.type}</strong><p style="color:var(--text);margin:8px 0 0">${n.content}</p><p style="color:var(--text-muted);margin:6px 0 0">📅 ${n.date}${t ? ' | Trip: '+t.name : ''}</p></div><button class="btn-danger" onclick="deleteNote(${n.id})">×</button></div>`;
-      }).join('');
+      const html = store.notes.length ? store.notes.map(n => `
+        <div class="list-item">
+          <div class="list-item-main">
+            <p class="list-item-title">${n.title}</p>
+            <p class="list-item-subtitle">${n.type} • ${n.content.substring(0, 50)}...</p>
+          </div>
+          <button class="btn btn-danger" onclick="deleteNote(${n.id})">Delete</button>
+        </div>
+      `).join('') : '<div class="empty-state">No notes yet.</div>';
       document.getElementById('notesList').innerHTML = html;
     }
-
-    document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',e=>switchView(e.target.dataset.view)));
-    document.getElementById('newTripBtn').onclick=()=>openModal('tripModal');
-    document.getElementById('newExpenseBtn').onclick=()=>openModal('expenseModal');
-    document.getElementById('newNoteBtn').onclick=()=>openModal('noteModal');
-    document.getElementById('tripForm').onsubmit=(e)=>{e.preventDefault();store.addTrip({name:document.getElementById('tripName').value,destination:document.getElementById('tripDestination').value,start:document.getElementById('tripStart').value,end:document.getElementById('tripEnd').value,budget:parseFloat(document.getElementById('tripBudget').value)||0});closeModal('tripModal');document.getElementById('tripForm').reset();};
-    document.getElementById('expenseForm').onsubmit=(e)=>{e.preventDefault();store.addExpense({tripId:parseInt(document.getElementById('expenseTrip').value)||null,category:document.getElementById('expenseCategory').value,amount:parseFloat(document.getElementById('expenseAmount').value),desc:document.getElementById('expenseDesc').value,date:document.getElementById('expenseDate').value});closeModal('expenseModal');document.getElementById('expenseForm').reset();};
-    document.getElementById('noteForm').onsubmit=(e)=>{e.preventDefault();store.addNote({tripId:parseInt(document.getElementById('noteTrip').value)||null,type:document.getElementById('noteType').value,content:document.getElementById('noteContent').value,date:document.getElementById('noteDate').value});closeModal('noteModal');document.getElementById('noteForm').reset();};
-    document.getElementById('exportBtn').onclick=()=>{const d=JSON.stringify(store,null,2);const b=new Blob([d],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`travel-tracker-${new Date().toISOString().split('T')[0]}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);};
-    document.getElementById('importBtn').onclick=()=>{const i=document.createElement('input');i.type='file';i.accept='.json';i.onchange=(e)=>{const f=e.target.files[0];const r=new FileReader();r.onload=(ev)=>{try{const d=JSON.parse(ev.target.result);store.trips=d.trips||[];store.expenses=d.expenses||[];store.notes=d.notes||[];store.save();alert('Imported!');}catch(err){alert('Error: '+err.message);}};r.readAsText(f);};i.click();};
-    window.addEventListener('click',(e)=>{if(e.target.classList.contains('modal'))e.target.classList.remove('open');});
+    function render() {
+      renderDashboard();
+      renderTrips();
+      renderExpenses();
+      renderNotes();
+      updateTripSelect();
+    }
+    function saveTrip(e) {
+      e.preventDefault();
+      store.addTrip({
+        name: document.getElementById('tripName').value,
+        destination: document.getElementById('tripDestination').value,
+        budget: document.getElementById('tripBudget').value,
+        start: document.getElementById('tripStart').value,
+        end: document.getElementById('tripEnd').value
+      });
+      document.getElementById('tripModal').querySelector('form').reset();
+      closeModal('tripModal');
+      render();
+    }
+    function saveExpense(e) {
+      e.preventDefault();
+      store.addExpense({
+        description: document.getElementById('expenseDesc').value,
+        amount: document.getElementById('expenseAmount').value,
+        category: document.getElementById('expenseCategory').value,
+        trip: document.getElementById('expenseTrip').value,
+        date: document.getElementById('expenseDate').value
+      });
+      document.getElementById('expenseModal').querySelector('form').reset();
+      closeModal('expenseModal');
+      render();
+    }
+    function saveNote(e) {
+      e.preventDefault();
+      store.addNote({
+        title: document.getElementById('noteTitle').value,
+        type: document.getElementById('noteType').value,
+        content: document.getElementById('noteContent').value
+      });
+      document.getElementById('noteModal').querySelector('form').reset();
+      closeModal('noteModal');
+      render();
+    }
+    function deleteTrip(id) { store.deleteTrip(id); render(); }
+    function deleteExpense(id) { store.deleteExpense(id); render(); }
+    function deleteNote(id) { store.deleteNote(id); render(); }
+    function updateTripSelect() {
+      const select = document.getElementById('expenseTrip');
+      select.innerHTML = '<option value="">-- None --</option>' + store.trips.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
+    }
+    function exportData() {
+      const json = JSON.stringify(store, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'travel-tracker-' + new Date().toISOString().split('T')[0] + '.json';
+      a.click();
+    }
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const data = JSON.parse(event.target.result);
+        store.trips = data.trips || [];
+        store.expenses = data.expenses || [];
+        store.notes = data.notes || [];
+        store.save();
+        render();
+        alert('Data imported successfully!');
+      };
+      reader.readAsText(file);
+    }
     store.load();
     render();
-  </script>
-</body>
-</html>
-      --radius-sm:10px;
-
-      --bg:#f7f8fc;
-      --surface:#ffffff;
-      --surface2:#f3f5ff;
-      --border:rgba(20,30,60,.12);
-      --text:#0b1324;
-      --muted:rgba(11,19,36,.70);
-      --muted2:rgba(11,19,36,.55);
-
-      --shadow: 0 10px 28px rgba(10,18,35,.10);
-      --shadow-sm: 0 8px 18px rgba(10,18,35,.08);
-
-      --flight:#2f6bff;
-      --lodging:#12b981;
-      --event:#f4b740;
-      --todo:#ff5a6f;
-      --note:#7a8aa6;
-      --expense:#7a5cff;
-
-      --focus: 0 0 0 4px rgba(47,107,255,.20);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-
-      --anim: 160ms cubic-bezier(.2,.8,.2,1);
-    }
-    [data-theme="dark"]{
-      --bg:#0b1220;
-      --surface:#0f1730;
-      --surface2:#101a30;
-      --border:rgba(255,255,255,.10);
-      --text:#e7eefc;
-      --muted:rgba(231,238,252,.72);
-      --muted2:rgba(231,238,252,.56);
-
-      --shadow: 0 18px 44px rgba(0,0,0,.38);
-      --shadow-sm: 0 12px 26px rgba(0,0,0,.30);
-
-      --focus: 0 0 0 4px rgba(122,162,255,.18);
-    }
-
-    *{ box-sizing:border-box; }
-    html, body{ height:100%; }
-    body{
-      margin:0;
-      font-family:var(--sans);
-      color:var(--text);
-      background:
-        radial-gradient(1100px 800px at 10% 0%, rgba(47,107,255,.10), transparent 60%),
-        radial-gradient(1000px 700px at 90% 20%, rgba(18,185,129,.08), transparent 62%),
-        radial-gradient(900px 900px at 55% 100%, rgba(244,183,64,.06), transparent 55%),
-        var(--bg);
-      line-height:1.35;
-    }
-
-    .appbar{
-      position:sticky; top:0; z-index:30;
-      background: color-mix(in srgb, var(--bg) 72%, transparent);
-      backdrop-filter: blur(14px);
-      border-bottom:1px solid var(--border);
-    }
-    .appbarInner{
-      max-width:1280px; margin:0 auto;
-      padding:14px 16px 10px;
-      display:flex; gap:12px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap;
-    }
-    .brand{ display:flex; gap:10px; align-items:center; min-width:260px; }
-    .logo{
-      width:36px; height:36px; border-radius:12px;
-      background: linear-gradient(135deg, color-mix(in srgb, var(--flight) 78%, transparent), color-mix(in srgb, var(--lodging) 58%, transparent));
-      border:1px solid color-mix(in srgb, var(--border) 80%, transparent);
-      box-shadow: var(--shadow-sm);
-      flex:0 0 auto;
-    }
-    .brand h1{ margin:0; font-size: clamp(16px, 2vw, 18px); font-weight: 920; letter-spacing:.2px; }
-    .brand p{ margin:6px 0 0; color:var(--muted); font-size:13px; max-width:740px; }
-
-    .actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
-    .btn{
-      appearance:none; border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 86%, transparent);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      box-shadow: var(--shadow-sm);
-      font-weight: 850;
-      font-size: 13px;
-      cursor:pointer;
-      transition: transform var(--anim), box-shadow var(--anim), border-color var(--anim);
-      display:inline-flex; align-items:center; gap:10px;
-      touch-action: manipulation;
-      user-select:none;
-    }
-    .btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--flight) 45%, var(--border)); }
-    .btn:active{ transform: translateY(0px) scale(.99); }
-    .btn:focus-visible{ outline:none; box-shadow: var(--shadow-sm), var(--focus); }
-    .btn.primary{
-      border-color: color-mix(in srgb, var(--flight) 55%, var(--border));
-      background: linear-gradient(180deg, color-mix(in srgb, var(--flight) 14%, var(--surface)), color-mix(in srgb, var(--flight) 7%, var(--surface)));
-    }
-    .btn.danger{
-      border-color: color-mix(in srgb, var(--todo) 55%, var(--border));
-      background: linear-gradient(180deg, color-mix(in srgb, var(--todo) 12%, var(--surface)), color-mix(in srgb, var(--todo) 6%, var(--surface)));
-    }
-
-    .tabs{
-      max-width:1280px; margin:0 auto;
-      padding:0 16px 12px;
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-    }
-    .tabRow{
-      display:flex; gap:8px;
-      background: color-mix(in srgb, var(--surface) 82%, transparent);
-      border:1px solid var(--border);
-      border-radius:999px;
-      padding:6px;
-      box-shadow: var(--shadow-sm);
-    }
-    .tab{
-      border:none; background:transparent;
-      color:var(--muted);
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:13px;
-      font-weight:900;
-      cursor:pointer;
-      transition: background var(--anim), color var(--anim);
-    }
-    .tab[aria-selected="true"]{
-      color:var(--text);
-      background: color-mix(in srgb, var(--flight) 14%, var(--surface));
-      box-shadow: 0 10px 18px rgba(0,0,0,.08);
-    }
-    .tab:focus-visible{ outline:none; box-shadow: var(--focus); }
-
-    .search{
-      display:flex; align-items:center; gap:10px;
-      background: color-mix(in srgb, var(--surface) 86%, transparent);
-      border:1px solid var(--border);
-      border-radius:999px;
-      padding:9px 12px;
-      box-shadow: var(--shadow-sm);
-      min-width:min(560px, 88vw);
-    }
-    .search input{
-      border:none; outline:none; background:transparent; color:var(--text);
-      width:100%;
-      font-size:13px;
-    }
-    .search input::placeholder{ color:var(--muted2); }
-
-    .container{ max-width:1280px; margin:0 auto; padding:10px 16px 86px; }
-    .split{
-      display:grid;
-      grid-template-columns: 370px 1fr;
-      gap:14px;
-      align-items:start;
-    }
-    @media (max-width: 980px){
-      .split{ grid-template-columns: 1fr; }
-      .search{ min-width: 100%; }
-    }
-
-    .panel{
-      background: color-mix(in srgb, var(--surface) 84%, transparent);
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .ph{
-      padding:14px 14px 12px;
-      border-bottom:1px solid var(--border);
-      display:flex; gap:12px; align-items:flex-end; justify-content:space-between; flex-wrap:wrap;
-    }
-    .ph h2{ margin:0; font-size:14px; font-weight: 950; letter-spacing:.2px; }
-    .ph .sub{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35; max-width:760px; }
-    .pb{ padding:14px; }
-
-    .sticky{ position:sticky; top:112px; }
-    @media (max-width:980px){ .sticky{ position:static; top:auto; } }
-
-    .legList{ display:flex; flex-direction:column; gap:10px; }
-    .legCard{
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 76%, transparent);
-      border-radius: var(--radius);
-      padding:12px;
-      box-shadow: var(--shadow-sm);
-      cursor:pointer;
-      transition: transform var(--anim), box-shadow var(--anim), border-color var(--anim);
-    }
-    .legCard:hover{ transform: translateY(-1px); box-shadow: var(--shadow); border-color: color-mix(in srgb, var(--flight) 40%, var(--border)); }
-    .legCard[aria-selected="true"]{
-      border-color: color-mix(in srgb, var(--flight) 60%, var(--border));
-      box-shadow: var(--shadow);
-      background: linear-gradient(180deg, color-mix(in srgb, var(--flight) 9%, var(--surface)), color-mix(in srgb, var(--surface) 90%, transparent));
-    }
-    .legTop{ display:flex; gap:10px; align-items:flex-start; justify-content:space-between; }
-    .legTitle{ margin:0; font-weight: 950; font-size: 14px; }
-    .legMeta{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35; }
-    .chips{ display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
-    .chip{
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface2) 70%, transparent);
-      border-radius:999px;
-      padding:5px 8px;
-      font-size:11px;
-      color:var(--text);
-      user-select:none;
-      display:inline-flex; gap:8px; align-items:center;
-    }
-    .dot{ width:8px; height:8px; border-radius:50%; background: var(--note); }
-    .dot.flight{ background: var(--flight); }
-    .dot.lodging{ background: var(--lodging); }
-    .dot.event{ background: var(--event); }
-    .dot.todo{ background: var(--todo); }
-    .dot.expense{ background: var(--expense); }
-
-    .pill{
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 86%, transparent);
-      border-radius:999px;
-      padding:6px 10px;
-      font-size:12px;
-      color:var(--muted);
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-    }
-    .pill select{ border:none; background:transparent; color:var(--text); font-size:12px; outline:none; }
-
-    .hero{
-      display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
-    }
-    .hero h3{ margin:0; font-size:16px; font-weight: 980; letter-spacing:.2px; }
-    .hero .sub{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35; max-width:860px; }
-    .heroRight{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:flex-end; }
-    .kpiRow{ display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px; margin-top:12px; }
-    @media (max-width: 980px){ .kpiRow{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
-    .kpi{
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 70%, transparent);
-      border-radius: var(--radius);
-      padding:12px;
-      box-shadow: var(--shadow-sm);
-    }
-    .kpi .k{ color:var(--muted); font-size:12px; }
-    .kpi .v{ margin-top:6px; font-size:16px; font-weight: 980; font-family: var(--mono); }
-    .kpi .h{ margin-top:6px; color:var(--muted); font-size:12px; line-height:1.35; }
-
-    .section{
-      margin-top:14px;
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      background: color-mix(in srgb, var(--surface) 78%, transparent);
-      box-shadow: var(--shadow-sm);
-      overflow:hidden;
-    }
-    .sh{
-      padding:12px 12px 10px;
-      border-bottom:1px solid var(--border);
-      display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
-    }
-    .sh h4{ margin:0; font-size:13px; font-weight: 950; letter-spacing:.2px; display:flex; gap:8px; align-items:center; }
-    .sh .hint{ color:var(--muted); font-size:12px; }
-    .sb{ padding:12px; }
-
-    .table{
-      width:100%;
-      border-collapse: collapse;
-      font-size: 12px;
-    }
-    .table th, .table td{
-      text-align:left;
-      padding:10px 8px;
-      border-bottom:1px solid color-mix(in srgb, var(--border) 80%, transparent);
-      vertical-align: top;
-    }
-    .table th{
-      color:var(--muted);
-      font-weight: 900;
-      font-size: 11px;
-      letter-spacing:.3px;
-      text-transform: uppercase;
-    }
-    .rowBtn{
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 88%, transparent);
-      border-radius: 12px;
-      padding:7px 10px;
-      font-size:12px;
-      font-weight:900;
-      cursor:pointer;
-      transition: transform var(--anim);
-      display:inline-flex; gap:8px; align-items:center;
-    }
-    .rowBtn:hover{ transform: translateY(-1px); }
-    .rowBtn:focus-visible{ outline:none; box-shadow: var(--focus); }
-    .rowBtn.primary{
-      border-color: color-mix(in srgb, var(--flight) 55%, var(--border));
-      background: color-mix(in srgb, var(--flight) 12%, var(--surface));
-    }
-
-    .inlineForm{
-      display:grid;
-      grid-template-columns: 140px 1fr 1fr;
-      gap:10px;
-      align-items:end;
-      margin-top:12px;
-      padding-top:12px;
-      border-top:1px dashed color-mix(in srgb, var(--border) 80%, transparent);
-    }
-    @media (max-width: 980px){
-      .inlineForm{ grid-template-columns: 1fr; }
-    }
-    .field label{ display:block; color:var(--muted); font-size:12px; margin-bottom:6px; }
-    .field input, .field select, .field textarea{
-      width:100%;
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 70%, transparent);
-      border-radius: 12px;
-      padding:10px 10px;
-      font-size: 13px;
-      color: var(--text);
-      outline:none;
-    }
-    .field textarea{ min-height:84px; resize:vertical; grid-column: 1 / -1; }
-    .field input:focus, .field select:focus, .field textarea:focus{ box-shadow: var(--focus); }
-
-    .editBox{
-      margin-top:10px;
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface2) 70%, transparent);
-      border-radius: var(--radius);
-      padding:12px;
-      box-shadow: var(--shadow-sm);
-      display:none;
-    }
-    .editBox[data-open="true"]{ display:block; }
-
-    .help{
-      margin-top:10px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.35;
-    }
-    .warn{
-      display:inline-flex; gap:8px; align-items:center;
-      color: color-mix(in srgb, var(--todo) 70%, var(--text));
-      font-weight:900;
-      font-size:12px;
-    }
-
-    .agendaDay{
-      border:1px solid var(--border);
-      border-radius: var(--radius);
-      background: color-mix(in srgb, var(--surface) 78%, transparent);
-      box-shadow: var(--shadow-sm);
-      overflow:hidden;
-      margin-bottom:12px;
-    }
-    .agendaHead{
-      padding:12px 12px 10px;
-      border-bottom:1px solid var(--border);
-      display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap;
-      align-items:flex-end;
-    }
-    .agendaHead h4{ margin:0; font-size:13px; font-weight: 950; }
-    .agendaHead .sub{ color:var(--muted); font-size:12px; }
-    .agendaBody{ padding:10px 12px; }
-    .line{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px dashed color-mix(in srgb, var(--border) 70%, transparent); }
-    .line:last-child{ border-bottom:none; }
-    .time{ font-family:var(--mono); font-weight: 950; font-size:12px; width:130px; color:var(--muted); }
-    @media (max-width: 520px){ .time{ width: 86px; } }
-    .desc{ font-size:12px; color:var(--text); line-height:1.45; }
-    .tag{
-      display:inline-flex; gap:8px; align-items:center;
-      border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface2) 70%, transparent);
-      border-radius:999px;
-      padding:4px 8px;
-      font-size:11px;
-      color:var(--muted);
-      margin-left:8px;
-      user-select:none;
-    }
-
-    .costGrid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
-    @media (max-width: 980px){ .costGrid{ grid-template-columns: 1fr; } }
-    .bar{
-      height:10px;
-      border-radius:999px;
-      background: color-mix(in srgb, var(--border) 60%, transparent);
-      overflow:hidden;
-      margin-top:8px;
-    }
-    .bar > div{ height:100%; width:0; border-radius:999px; background: color-mix(in srgb, var(--flight) 65%, transparent); }
-
-    .bottomNav{
-      position:fixed; left:0; right:0; bottom:0; z-index:40;
-      display:none;
-      border-top:1px solid var(--border);
-      background: color-mix(in srgb, var(--bg) 75%, transparent);
-      backdrop-filter: blur(14px);
-    }
-    .bottomNavInner{
-      max-width:1280px; margin:0 auto;
-      padding:10px 12px;
-      display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;
-    }
-    .navBtn{
-      appearance:none; border:1px solid var(--border);
-      background: color-mix(in srgb, var(--surface) 82%, transparent);
-      border-radius: 14px;
-      padding:10px 10px;
-      cursor:pointer;
-      box-shadow: var(--shadow-sm);
-      font-size:12px;
-      font-weight:900;
-      color:var(--text);
-      display:flex; align-items:center; justify-content:center; gap:8px;
-      touch-action: manipulation;
-    }
-    .navBtn:focus-visible{ outline:none; box-shadow: var(--shadow-sm), var(--focus); }
-
-    @media (max-width: 600px){
-      .bottomNav{ display:block; }
-      .container{ padding-bottom: 92px; }
-      .ph, .pb{ padding:12px; }
-      .sh, .sb{ padding:12px; }
-      .kpiRow{ grid-template-columns: 1fr 1fr; }
-      .split{ gap:12px; }
-    }
-    @media (prefers-reduced-motion: reduce){
-      *{ transition:none !important; animation:none !important; }
-    }
-  </style>
-</head>
-<body>
-  <header class="appbar" role="banner">
-    <div class="appbarInner">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div>
-          <h1>Trip Legs Planner</h1>
-          <p>Plan by <b>legs</b> (Bologna → Warsaw → TBD → DFW → PA). Cleaner planning now, clean agenda later.</p>
-        </div>
-      </div>
-      <div class="actions" role="toolbar" aria-label="Top actions">
-        <button class="btn primary" id="btnAddLeg" aria-label="Add leg">＋ Add leg</button>
-        <button class="btn" id="btnTheme" aria-label="Toggle theme">☾ Theme</button>
-        <button class="btn" id="btnShare" aria-label="Create share link">Share</button>
-        <button class="btn" id="btnExport" aria-label="Export JSON">Export</button>
-        <button class="btn" id="btnImport" aria-label="Import JSON">Import</button>
-        <button class="btn danger" id="btnReset" aria-label="Reset">Reset</button>
-      </div>
-    </div>
-
-    <div class="tabs" role="navigation" aria-label="Primary tabs">
-      <div class="tabRow" role="tablist" aria-label="Views">
-        <button class="tab" id="tabLegs" role="tab" aria-selected="true" aria-controls="panelLegs">Legs</button>
-        <button class="tab" id="tabAgenda" role="tab" aria-selected="false" aria-controls="panelAgenda">Agenda</button>
-        <button class="tab" id="tabCosts" role="tab" aria-selected="false" aria-controls="panelCosts">Costs</button>
-      </div>
-      <div class="search" role="search">
-        <span aria-hidden="true">🔎</span>
-        <input id="search" placeholder="Search across all legs: city, airport, event, venue…" aria-label="Search items" />
-      </div>
-    </div>
-  </header>
-
-  <main class="container" role="main">
-    <section id="panelLegs" role="tabpanel" aria-labelledby="tabLegs" data-active="true">
-      <div class="split">
-        <aside class="panel sticky" aria-label="Legs list">
-          <div class="ph">
-            <div>
-              <h2>Trip legs</h2>
-              <div class="sub">Think in chunks: a leg contains flights, lodging, events, and budgets. Click a leg to focus.</div>
-            </div>
-            <div class="pill" aria-label="Leg status filter">
-              <span>Filter:</span>
-              <select id="legFilter">
-                <option value="all">All</option>
-                <option value="planned">Planned</option>
-                <option value="tbd">TBD</option>
-                <option value="locked">Locked</option>
-              </select>
-            </div>
-          </div>
-          <div class="pb">
-            <div class="legList" id="legList"></div>
-            <div class="help">Pro tip: keep the Baltics/Serbia stretch as one TBD leg now; split later once cities are locked.</div>
-          </div>
-        </aside>
-
-        <section class="panel" aria-label="Leg detail">
-          <div class="ph">
-            <div>
-              <h2 id="detailTitle">Select a leg</h2>
-              <div class="sub" id="detailSub">Pick a leg on the left to see a clean, editable plan. No clutter.</div>
-            </div>
-            <div class="heroRight">
-              <button class="btn" id="btnEditLeg" style="display:none;">Edit leg</button>
-              <button class="btn danger" id="btnDeleteLeg" style="display:none;">Delete leg</button>
-            </div>
-          </div>
-          <div class="pb" id="detailBody">
-            <div class="help">Your data is saved locally on this device. Use Export or Share to move it to another device.</div>
-          </div>
-        </section>
-      </div>
-    </section>
-
-    <section id="panelAgenda" role="tabpanel" aria-labelledby="tabAgenda" data-active="false">
-      <div class="panel" aria-label="Agenda">
-        <div class="ph">
-          <div>
-            <h2>Agenda (day-by-day)</h2>
-            <div class="sub">Auto-generated from your legs and items. Great for “final itinerary” viewing.</div>
-          </div>
-          <div class="heroRight">
-            <button class="btn" id="btnPrint" aria-label="Print agenda">Print</button>
-          </div>
-        </div>
-        <div class="pb" id="agendaBody"></div>
-      </div>
-    </section>
-
-    <section id="panelCosts" role="tabpanel" aria-labelledby="tabCosts" data-active="false">
-      <div class="panel" aria-label="Costs">
-        <div class="ph">
-          <div>
-            <h2>Costs (by leg)</h2>
-            <div class="sub">Track budgets + confirmed spend. Expenses are easiest (but any item can have cost).</div>
-          </div>
-          <div class="pill" aria-label="Cost mode">
-            <span>Mode:</span>
-            <select id="costMode">
-              <option value="expenseOnly">Expenses only</option>
-              <option value="allCosts">Any item with cost</option>
-            </select>
-          </div>
-        </div>
-        <div class="pb">
-          <div class="costGrid" id="costGrid"></div>
-          <div class="help">Tip: set a leg budget (Edit leg) and add “Expense” items (e.g., trains, hotels, tickets).</div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <nav class="bottomNav" aria-label="Mobile quick actions">
-    <div class="bottomNavInner">
-      <button class="navBtn" id="navLegs">🧩 Legs</button>
-      <button class="navBtn" id="navAgenda">📅 Agenda</button>
-      <button class="navBtn" id="navCosts">💳 Costs</button>
-      <button class="navBtn" id="navAdd">＋ Add</button>
-    </div>
-  </nav>
-
-  <input type="file" id="fileInput" accept="application/json" style="display:none" />
-
-  <script>
-    const KEY_V3 = "trip_legs_planner_v3";
-    const KEY_V2 = "itinerary_dashboard_v2";
-
-    const uid = () => Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
-    const pad = n => String(n).padStart(2,'0');
-
-    function parseDate(s){
-      if(!s) return null;
-      const m = String(s).trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?$/);
-      if(!m) return null;
-      const y=+m[1], mo=+m[2]-1, d=+m[3], hh=+(m[4]||0), mi=+(m[5]||0);
-      const dt = new Date(Date.UTC(y,mo,d,hh,mi));
-      return isNaN(dt.getTime()) ? null : dt;
-    }
-
-    function fmt(iso){
-      if(!iso) return "TBD";
-      const d = parseDate(iso);
-      if(!d) return iso;
-      const local = new Date(d.getTime());
-      const yyyy = local.getFullYear();
-      const mm = pad(local.getMonth()+1);
-      const dd = pad(local.getDate());
-      const hh = pad(local.getHours());
-      const mi = pad(local.getMinutes());
-      const hasTime = /\d{2}:\d{2}/.test(iso);
-      return hasTime ? `${yyyy}-${mm}-${dd} ${hh}:${mi}` : `${yyyy}-${mm}-${dd}`;
-    }
-
-    function dayKey(iso){
-      if(!iso) return null;
-      const d = parseDate(iso);
-      if(!d) return null;
-      const local = new Date(d.getTime());
-      return `${local.getFullYear()}-${pad(local.getMonth()+1)}-${pad(local.getDate())}`;
-    }
-
-    function escapeHtml(s){
-      return String(s ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    function debounce(fn, ms){
-      let t=null;
-      return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn(...args), ms); };
-    }
-
-    function byDate(a,b){
-      const da = parseDate(a)?.getTime() ?? 1e12;
-      const db = parseDate(b)?.getTime() ?? 1e12;
-      return da - db;
-    }
-
-    const SEED = {
-      meta:{
-        theme:"dark",
-        tripName:"Hyrox Europe + US Events",
-        homeBase:"Falls Church, VA",
-        currency:"USD",
-        costMode:"expenseOnly",
-        createdAt: Date.now()
-      },
-      legs:[
-        { id:"leg-bologna", title:"Bologna — HYROX Singles Pro", status:"planned", start:"2026-04-02", end:"2026-04-05", from:"Washington DC (IAD)", to:"Bologna (BLQ)", budget:"", notes:"Purpose: compete at HYROX Bologna Singles Pro on Apr 4." },
-        { id:"leg-warsaw", title:"Warsaw — HYROX Singles Open + Pro", status:"planned", start:"2026-04-05", end:"2026-04-19", from:"Bologna (BLQ)", to:"Warsaw (WAW)", budget:"", notes:"Competitions: Singles Open (Apr 16) + Singles Pro (Apr 17)." },
-        { id:"leg-tbd-europe", title:"Baltics + Serbia — TBD stretch", status:"tbd", start:"2026-04-19", end:"2026-04-30", from:"Warsaw", to:"Milan (MXP)", budget:"", notes:"Likely Lithuania, Latvia, Serbia. Decide order + transport + lodging." },
-        { id:"leg-return", title:"Return — MXP → IST → IAD", status:"planned", start:"2026-04-30", end:"2026-05-01", from:"Milan (MXP)", to:"Washington DC (IAD)", budget:"", notes:"Depart MXP 8:10 PM. Layover IST ~7h35. Land IAD May 1 11:35 AM." },
-        { id:"leg-dfw", title:"Dallas/Fort Worth — PBR World Finals", status:"tbd", start:"2026-05-10", end:"2026-05-16", from:"BWI", to:"DFW", budget:"", notes:"Purpose: Attend 2026 PBR Unleash the Beast World Finals. Lodging TBD." },
-        { id:"leg-pa", title:"PA road trip — Shane Gillis", status:"tbd", start:"2026-07-17", end:"", from:"Virginia", to:"Pennsylvania", budget:"", notes:"Drive VA → PA. Show July 17 at 8:00 PM. Lodging TBD." }
-      ],
-      items:[
-        { id: uid(), legId:"leg-bologna", type:"flight", start:"2026-04-02 13:20", end:"2026-04-03 09:30", title:"IAD → BLQ (one-way)", where:"Washington Dulles (IAD) → Bologna (BLQ)", ref:"", cost:752.83, details:"Paid with Capital One (multi-city: IAD→BLQ + MXP→IAD)." },
-        { id: uid(), legId:"leg-bologna", type:"lodging", start:"2026-04-02 15:00", end:"2026-04-05 12:00", title:"The Social Hub Bologna", where:"Via Aristotele Fioravanti 27, Bologna, IT", ref:"", cost:511.92, details:"Check-in 3:00 PM; check-out 12:00 PM. Paid with Capital One." },
-        { id: uid(), legId:"leg-bologna", type:"event", start:"2026-04-04", end:"", title:"HYROX Bologna — Singles Pro", where:"Bologna, Italy", ref:"", cost:"", details:"Athlete event day." },
-
-        { id: uid(), legId:"leg-warsaw", type:"flight", start:"2026-04-05 09:55", end:"2026-04-05 15:35", title:"BLQ → WAW (via CDG) — verify times", where:"BLQ → CDG → WAW", ref:"", cost:248.10, details:"As provided: layover ~1h25 at CDG. Times look inconsistent; update when confirmed." },
-        { id: uid(), legId:"leg-warsaw", type:"lodging", start:"2026-04-05 16:00", end:"2026-04-19 11:00", title:"Warsaw Airbnb (Hosted by Vermouth Sp. Zoo)", where:"Warsaw, Poland", ref:"", cost:787.76, details:"Check-in Apr 5 4:00 PM; checkout Apr 19 11:00 AM." },
-        { id: uid(), legId:"leg-warsaw", type:"event", start:"2026-04-16", end:"", title:"HYROX Warsaw — Singles Open", where:"Warsaw, Poland", ref:"", cost:"", details:"Thursday Apr 16." },
-        { id: uid(), legId:"leg-warsaw", type:"event", start:"2026-04-17", end:"", title:"HYROX Warsaw — Singles Pro", where:"Warsaw, Poland", ref:"", cost:"", details:"Friday Apr 17." },
-
-        { id: uid(), legId:"leg-tbd-europe", type:"todo", start:"2026-04-19", end:"2026-04-30", title:"Decide route: Lithuania → Latvia → Serbia (or reorder)", where:"Vilnius / Riga / Belgrade (TBD)", ref:"", cost:"", details:"Add transport + hotels once sequence is decided." },
-        { id: uid(), legId:"leg-tbd-europe", type:"todo", start:"2026-04-30", end:"", title:"Positioning to Milan (MXP)", where:"From TBD leg to MXP", ref:"", cost:"", details:"Plan flight/train and consider an overnight near MXP." },
-
-        { id: uid(), legId:"leg-return", type:"flight", start:"2026-04-30 20:10", end:"2026-05-01 11:35", title:"MXP → IST → IAD (return)", where:"Milan (MXP) → Istanbul (IST) → Washington Dulles (IAD)", ref:"", cost:0, details:"Depart MXP 8:10 PM; arrive IAD May 1 11:35 AM." },
-
-        { id: uid(), legId:"leg-dfw", type:"flight", start:"2026-05-10 10:58", end:"2026-05-10 13:44", title:"BWI → DFW (Frontier) — direct", where:"BWI → DFW", ref:"", cost:379.96, details:"Paid with Capital One." },
-        { id: uid(), legId:"leg-dfw", type:"flight", start:"2026-05-16 12:00", end:"2026-05-16 16:11", title:"DFW → BWI (Frontier) — direct", where:"DFW → BWI", ref:"", cost:0, details:"Return flight." },
-        { id: uid(), legId:"leg-dfw", type:"event", start:"2026-05-10", end:"2026-05-16", title:"PBR World Finals (2026)", where:"Fort Worth / Arlington area (confirm venue)", ref:"", cost:"", details:"Main purpose of the DFW leg." },
-        { id: uid(), legId:"leg-dfw", type:"todo", start:"2026-05-10", end:"2026-05-16", title:"DFW lodging — TBD", where:"Fort Worth / Arlington / Dallas", ref:"", cost:"", details:"Pick based on venue + transit + budget." },
-
-        { id: uid(), legId:"leg-pa", type:"event", start:"2026-07-17 20:00", end:"", title:"Shane Gillis show", where:"Pennsylvania (confirm city/venue)", ref:"", cost:"", details:"Drive VA → PA." },
-        { id: uid(), legId:"leg-pa", type:"todo", start:"2026-07-17", end:"", title:"PA lodging — TBD", where:"Near venue", ref:"", cost:"", details:"Book ~1 week prior; add parking plan." },
-
-        { id: uid(), legId:"leg-bologna", type:"expense", start:"2026-04-02", end:"", title:"Flights: IAD→BLQ + MXP→IAD", where:"Capital One", ref:"", cost:752.83, details:"Cost captured as provided." },
-        { id: uid(), legId:"leg-warsaw", type:"expense", start:"2026-04-05", end:"", title:"Flight: BLQ→WAW", where:"Capital One", ref:"", cost:248.10, details:"Cost captured as provided." },
-        { id: uid(), legId:"leg-dfw", type:"expense", start:"2026-05-10", end:"", title:"Flights: BWI↔DFW (Frontier)", where:"Capital One", ref:"", cost:379.96, details:"Cost captured as provided." },
-        { id: uid(), legId:"leg-bologna", type:"expense", start:"2026-04-02", end:"", title:"Hotel: Social Hub Bologna", where:"Capital One", ref:"", cost:511.92, details:"Cost captured as provided." },
-        { id: uid(), legId:"leg-warsaw", type:"expense", start:"2026-04-05", end:"", title:"Airbnb: Warsaw (Apr 5–19)", where:"Airbnb", ref:"", cost:787.76, details:"Cost captured as provided." }
-      ]
-    };
-
-    function migrateFromV2(v2){
-      const s = structuredClone(SEED);
-      s.meta.theme = v2?.meta?.theme || "dark";
-      s.meta.currency = v2?.meta?.currency || "USD";
-
-      const items = (v2.items || []).filter(i=>i.type !== "expense");
-      const mapLeg = (start)=>{
-        const d = parseDate(start);
-        if(!d) return "leg-tbd-europe";
-        const t = d.getTime();
-        const inRange = (a,b)=> t >= parseDate(a).getTime() && t <= parseDate(b).getTime();
-        if(inRange("2026-04-02","2026-04-05")) return "leg-bologna";
-        if(inRange("2026-04-05","2026-04-19")) return "leg-warsaw";
-        if(inRange("2026-04-19","2026-04-30")) return "leg-tbd-europe";
-        if(inRange("2026-04-30","2026-05-01")) return "leg-return";
-        if(inRange("2026-05-10","2026-05-16")) return "leg-dfw";
-        if(inRange("2026-07-17","2026-07-18")) return "leg-pa";
-        return "leg-tbd-europe";
-      };
-
-      const mapped = items.map(i=>({
-        id: uid(),
-        legId: mapLeg(i.start),
-        type: i.type || "note",
-        start: i.start || "",
-        end: i.end || "",
-        title: i.title || "(untitled)",
-        where: i.where || i.location || "",
-        ref: i.confirm || "",
-        cost: (typeof i.cost === "number" || typeof i.cost === "string") ? i.cost : "",
-        details: i.details || ""
-      }));
-
-      const key = x => `${(x.title||"").toLowerCase()}|${x.start||""}`;
-      const existing = new Set(s.items.map(key));
-      mapped.forEach(it=>{
-        if(!existing.has(key(it))){
-          s.items.push(it);
-          existing.add(key(it));
-        }
-      });
-
-      return s;
-    }
-
-    function load(){
-      const hash = location.hash || "";
-      const m = hash.match(/data=([^&]+)/);
-      if(m){
-        try{
-          const decoded = decodeURIComponent(m[1]);
-          const json = atob(decoded);
-          const data = JSON.parse(json);
-          if(data?.legs && data?.items && data?.meta) return data;
-        }catch(_){}
-      }
-
-      try{
-        const raw = localStorage.getItem(KEY_V3);
-        if(raw){
-          const data = JSON.parse(raw);
-          if(data?.legs && data?.items && data?.meta) return data;
-        }
-      }catch(_){}
-
-      try{
-        const raw2 = localStorage.getItem(KEY_V2);
-        if(raw2){
-          const v2 = JSON.parse(raw2);
-          if(v2?.items && v2?.meta) return migrateFromV2(v2);
-        }
-      }catch(_){}
-
-      return structuredClone(SEED);
-    }
-
-    function save(){ localStorage.setItem(KEY_V3, JSON.stringify(state)); }
-
-    let state = load();
-    let selectedLegId = state.legs?.[0]?.id || null;
-
-    function applyTheme(theme){
-      document.documentElement.setAttribute("data-theme", theme || "dark");
-      state.meta.theme = theme || "dark";
-      save();
-      document.getElementById("btnTheme").textContent = (theme==="dark" ? "☾" : "☀") + " Theme";
-    }
-
-    const tabs = [
-      { id:"tabLegs", panel:"panelLegs" },
-      { id:"tabAgenda", panel:"panelAgenda" },
-      { id:"tabCosts", panel:"panelCosts" }
-    ];
-    function setActiveTab(tabId){
-      tabs.forEach(t=>{
-        const el = document.getElementById(t.id);
-        const p = document.getElementById(t.panel);
-        const active = (t.id === tabId);
-        el.setAttribute("aria-selected", active ? "true" : "false");
-        p.setAttribute("data-active", active ? "true" : "false");
-      });
-      document.getElementById(tabId).focus({preventScroll:true});
-      if(tabId==="tabAgenda") renderAgenda();
-      if(tabId==="tabCosts") renderCosts();
-    }
-    tabs.forEach(t=>{
-      document.getElementById(t.id).addEventListener("click", ()=> setActiveTab(t.id));
-      document.getElementById(t.id).addEventListener("keydown", (e)=>{
-        if(e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-        e.preventDefault();
-        const idx = tabs.findIndex(x=>x.id===t.id);
-        const next = e.key==="ArrowRight" ? (idx+1)%tabs.length : (idx-1+tabs.length)%tabs.length;
-        setActiveTab(tabs[next].id);
-      });
-    });
-
-    document.getElementById("navLegs").addEventListener("click", ()=> setActiveTab("tabLegs"));
-    document.getElementById("navAgenda").addEventListener("click", ()=> setActiveTab("tabAgenda"));
-    document.getElementById("navCosts").addEventListener("click", ()=> setActiveTab("tabCosts"));
-    document.getElementById("navAdd").addEventListener("click", ()=> addItemInlineFocus());
-
-    function itemsForLeg(legId){ return state.items.filter(i=>i.legId === legId); }
-    function countsForLeg(legId){
-      const items = itemsForLeg(legId);
-      const c = { flight:0,lodging:0,event:0,todo:0,note:0,expense:0 };
-      items.forEach(i=>{ if(c[i.type] !== undefined) c[i.type]++; else c.note++; });
-      return c;
-    }
-
-    function getCostItemsForLeg(legId){
-      const mode = state.meta.costMode || "expenseOnly";
-      const items = itemsForLeg(legId);
-      const filtered = mode==="expenseOnly" ? items.filter(i=>i.type==="expense") : items;
-      return filtered.filter(i=>isFinite(+i.cost)).map(i=>({ ...i, cost:+i.cost }));
-    }
-
-    function bucketCosts(costItems){
-      const buckets = [
-        { key:"Flights", total:0, test:(t)=>/flight|air|airline|iad|blq|waw|bwi|dfw|mxp|ist|cdg/i.test(t) },
-        { key:"Lodging", total:0, test:(t)=>/hotel|airbnb|stay|lodg|hub/i.test(t) },
-        { key:"Other", total:0, test:(_)=>true }
-      ];
-      costItems.forEach(e=>{
-        const t = ((e.title||"") + " " + (e.where||"")).toLowerCase();
-        const b = buckets.find(b=>b.test(t)) || buckets[2];
-        b.total += e.cost;
-      });
-      return buckets;
-    }
-
-    function legSpan(leg){
-      const s = leg.start ? parseDate(leg.start) : null;
-      const e = leg.end ? parseDate(leg.end) : null;
-      if(!s && !e) return "TBD";
-      if(s && !e) return fmt(leg.start);
-      return `${fmt(leg.start)} → ${fmt(leg.end)}`;
-    }
-
-    function missingSignals(legId){
-      const c = countsForLeg(legId);
-      const signals = [];
-      if(c.flight===0 && c.todo>0) signals.push("Flight?");
-      if(c.lodging===0 && (c.todo>0 || c.event>0)) signals.push("Stay?");
-      if(c.todo>0) signals.push("TBD");
-      return signals;
-    }
-
-    function typeColorDot(type){
-      const map = { flight:"flight", lodging:"lodging", event:"event", todo:"todo", note:"", expense:"expense" };
-      return map[type] || "";
-    }
-
-    const legListEl = document.getElementById("legList");
-    const legFilterEl = document.getElementById("legFilter");
-
-    function renderLegList(){
-      const q = (document.getElementById("search").value || "").toLowerCase().trim();
-      const filter = legFilterEl.value;
-      let legs = [...state.legs];
-      if(filter !== "all") legs = legs.filter(l => l.status === filter);
-
-      if(q){
-        legs = legs.filter(leg=>{
-          const legText = JSON.stringify(leg).toLowerCase();
-          if(legText.includes(q)) return true;
-          return itemsForLeg(leg.id).some(it => JSON.stringify(it).toLowerCase().includes(q));
-        });
-      }
-
-      const currency = state.meta.currency || "USD";
-      legListEl.innerHTML = legs.map(leg=>{
-        const c = countsForLeg(leg.id);
-        const total = getCostItemsForLeg(leg.id).reduce((s,i)=>s+i.cost,0);
-        const signals = missingSignals(leg.id);
-        return `
-          <div class="legCard" role="button" tabindex="0" aria-selected="${leg.id===selectedLegId ? "true" : "false"}" data-leg="${escapeHtml(leg.id)}">
-            <div class="legTop">
-              <div>
-                <div class="legTitle">${escapeHtml(leg.title)}</div>
-                <div class="legMeta">
-                  <span style="font-family:var(--mono); font-weight:900">${escapeHtml(legSpan(leg))}</span>
-                  <span style="margin-left:8px">• ${escapeHtml(leg.from || "")}${leg.to ? " → " + escapeHtml(leg.to) : ""}</span>
-                </div>
-              </div>
-              <div class="chip" title="Status">${escapeHtml(leg.status.toUpperCase())}</div>
-            </div>
-
-            <div class="chips">
-              <span class="chip"><span class="dot flight"></span>Flights <b>${c.flight}</b></span>
-              <span class="chip"><span class="dot lodging"></span>Stay <b>${c.lodging}</b></span>
-              <span class="chip"><span class="dot event"></span>Events <b>${c.event}</b></span>
-              <span class="chip"><span class="dot todo"></span>TBD <b>${c.todo}</b></span>
-              <span class="chip"><span class="dot expense"></span>${escapeHtml(currency)} <b>${total.toFixed(2)}</b></span>
-              ${signals.length ? `<span class="chip"><span class="dot todo"></span><b>${escapeHtml(signals.join(", "))}</b></span>` : ``}
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      legListEl.querySelectorAll(".legCard").forEach(card=>{
-        const id = card.dataset.leg;
-        const activate = ()=>{
-          selectedLegId = id;
-          renderLegList();
-          renderLegDetail();
-        };
-        card.addEventListener("click", activate);
-        card.addEventListener("keydown", (e)=>{
-          if(e.key==="Enter" || e.key===" "){ e.preventDefault(); activate(); }
-        });
-      });
-    }
-
-    const detailTitleEl = document.getElementById("detailTitle");
-    const detailSubEl = document.getElementById("detailSub");
-    const detailBodyEl = document.getElementById("detailBody");
-    const btnEditLeg = document.getElementById("btnEditLeg");
-    const btnDeleteLeg = document.getElementById("btnDeleteLeg");
-
-    function renderLegDetail(){
-      const leg = state.legs.find(l=>l.id===selectedLegId);
-      if(!leg){
-        detailTitleEl.textContent = "Select a leg";
-        detailSubEl.textContent = "Pick a leg on the left to see a clean, editable plan.";
-        detailBodyEl.innerHTML = `<div class="help">No leg selected.</div>`;
-        btnEditLeg.style.display = "none";
-        btnDeleteLeg.style.display = "none";
-        return;
-      }
-
-      btnEditLeg.style.display = "inline-flex";
-      btnDeleteLeg.style.display = "inline-flex";
-      detailTitleEl.textContent = leg.title;
-      detailSubEl.textContent = `${legSpan(leg)} • ${leg.from || ""}${leg.to ? " → " + leg.to : ""}`;
-
-      const c = countsForLeg(leg.id);
-      const currency = state.meta.currency || "USD";
-      const costItems = getCostItemsForLeg(leg.id);
-      const total = costItems.reduce((s,i)=>s+i.cost,0);
-      const budget = (leg.budget && isFinite(+leg.budget)) ? +leg.budget : null;
-      const remaining = (budget != null) ? (budget - total) : null;
-
-      const missing = missingSignals(leg.id);
-      const warn = missing.length ? `<div class="warn">⚠ Missing: ${escapeHtml(missing.join(", "))}</div>` : `<div class="help">Looks good. Keep adding details as bookings confirm.</div>`;
-
-      const items = itemsForLeg(leg.id).slice().sort((a,b)=> byDate(a.start,b.start) || String(a.title||"").localeCompare(String(b.title||"")));
-
-      const groups = [
-        { type:"flight", title:"Flights", hint:"Segments, layovers, confirmation numbers." },
-        { type:"lodging", title:"Lodging", hint:"Hotels/Airbnb with check-in/out and address." },
-        { type:"event", title:"Events", hint:"Races, shows, key dates." },
-        { type:"todo", title:"TBD / Missing", hint:"Open loops to fill in later." },
-        { type:"expense", title:"Expenses", hint:"Budget tracking (tickets, trains, hotels, etc.)." },
-        { type:"note", title:"Notes", hint:"Anything else." }
-      ];
-
-      function tableRows(type){
-        const rows = items.filter(i=>i.type===type);
-        if(!rows.length) return `<tr><td colspan="6" style="color:var(--muted);">No ${escapeHtml(type)} items yet.</td></tr>`;
-        return rows.map(i=>`
-          <tr>
-            <td style="width:140px; font-family:var(--mono); font-weight:900; color:var(--muted);">
-              ${escapeHtml(fmt(i.start))}${i.end ? `<div style="margin-top:4px; color:var(--muted2); font-weight:800">${escapeHtml(fmt(i.end))}</div>` : ``}
-            </td>
-            <td>
-              <div style="font-weight:950">${escapeHtml(i.title || "(untitled)")}</div>
-              ${i.details ? `<div style="margin-top:6px; color:var(--muted); line-height:1.45">${escapeHtml(i.details)}</div>` : ``}
-            </td>
-            <td style="width:220px; color:var(--muted);">${escapeHtml(i.where || "")}</td>
-            <td style="width:160px; font-family:var(--mono); font-weight:900;">${escapeHtml(i.ref || "")}</td>
-            <td style="width:120px; font-family:var(--mono); font-weight:900;">${isFinite(+i.cost) && +i.cost!==0 ? `${escapeHtml(currency)} ${( +i.cost ).toFixed(2)}` : ""}</td>
-            <td style="width:120px;">
-              <button class="rowBtn" data-edit="${escapeHtml(i.id)}">Edit</button>
-              <button class="rowBtn" data-del="${escapeHtml(i.id)}">Delete</button>
-            </td>
-          </tr>
-        `).join("");
-      }
-
-      const sectionsHtml = groups.map(g=>`
-        <div class="section">
-          <div class="sh">
-            <h4><span class="dot ${typeColorDot(g.type)}" aria-hidden="true"></span>${escapeHtml(g.title)}</h4>
-            <div class="hint">${escapeHtml(g.hint)}</div>
-          </div>
-          <div class="sb">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Date/Time</th>
-                  <th>Title + details</th>
-                  <th>Where</th>
-                  <th>Ref</th>
-                  <th>Cost</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${tableRows(g.type)}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      `).join("");
-
-      detailBodyEl.innerHTML = `
-        <div class="hero">
-          <div>
-            <h3>${escapeHtml(leg.title)}</h3>
-            <div class="sub">${escapeHtml(leg.notes || "")}</div>
-          </div>
-          <div class="heroRight">
-            <div class="pill"><span>Status:</span>
-              <select id="legStatus">
-                <option value="planned" ${leg.status==="planned"?"selected":""}>planned</option>
-                <option value="tbd" ${leg.status==="tbd"?"selected":""}>tbd</option>
-                <option value="locked" ${leg.status==="locked"?"selected":""}>locked</option>
-              </select>
-            </div>
-            <div class="pill"><span>Currency:</span>
-              <select id="currencySel">
-                <option ${currency==="USD"?"selected":""}>USD</option>
-                <option ${currency==="EUR"?"selected":""}>EUR</option>
-                <option ${currency==="PLN"?"selected":""}>PLN</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="kpiRow">
-          <div class="kpi"><div class="k">Items</div><div class="v">${c.flight+c.lodging+c.event+c.todo+c.note+c.expense}</div><div class="h">Total items in this leg.</div></div>
-          <div class="kpi"><div class="k">Known spend</div><div class="v">${escapeHtml(currency)} ${total.toFixed(2)}</div><div class="h">${state.meta.costMode==="expenseOnly"?"Expense-only mode":"Any-cost mode"}.</div></div>
-          <div class="kpi"><div class="k">Budget</div><div class="v">${budget!=null? `${escapeHtml(currency)} ${budget.toFixed(2)}`:"—"}</div><div class="h">Set per leg (Edit leg).</div></div>
-          <div class="kpi"><div class="k">Remaining</div><div class="v">${remaining!=null? `${escapeHtml(currency)} ${remaining.toFixed(2)}`:"—"}</div><div class="h">Budget - spend.</div></div>
-        </div>
-
-        <div class="help" style="margin-top:12px">${warn}</div>
-
-        ${sectionsHtml}
-
-        <div class="section">
-          <div class="sh">
-            <h4>＋ Add item (inline)</h4>
-            <div class="hint">Fast capture. Add “Expense” for clean budget tracking.</div>
-          </div>
-          <div class="sb">
-            <div class="inlineForm" id="addForm">
-              <div class="field">
-                <label for="aType">Type</label>
-                <select id="aType">
-                  <option value="flight">Flight</option>
-                  <option value="lodging">Lodging</option>
-                  <option value="event">Event</option>
-                  <option value="todo">TBD</option>
-                  <option value="expense">Expense</option>
-                  <option value="note">Note</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="aStart">Start</label>
-                <input id="aStart" placeholder="e.g., 2026-04-05 09:55" />
-              </div>
-              <div class="field">
-                <label for="aEnd">End (optional)</label>
-                <input id="aEnd" placeholder="optional" />
-              </div>
-
-              <div class="field" style="grid-column:1/-1;">
-                <label for="aTitle">Title</label>
-                <input id="aTitle" placeholder="e.g., Vilnius hotel / Train to Riga / Ticket / etc." />
-              </div>
-
-              <div class="field">
-                <label for="aWhere">Where</label>
-                <input id="aWhere" placeholder="Airport/city/address" />
-              </div>
-              <div class="field">
-                <label for="aRef">Ref (optional)</label>
-                <input id="aRef" placeholder="PNR / confirmation" />
-              </div>
-
-              <div class="field">
-                <label for="aCost">Cost (optional)</label>
-                <input id="aCost" placeholder="e.g., 120.00" />
-              </div>
-
-              <div class="field" style="grid-column:1/-1;">
-                <label for="aDetails">Details</label>
-                <textarea id="aDetails" placeholder="Layovers, check-in/out, reminders, etc."></textarea>
-              </div>
-
-              <div style="grid-column:1/-1; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
-                <button class="btn primary" id="btnAddItem">Add item</button>
-              </div>
-
-              <div class="help" id="addError" style="display:none; color:color-mix(in srgb, var(--todo) 70%, var(--text)); font-weight:900;"></div>
-            </div>
-
-            <div class="editBox" id="editBox" data-open="false"></div>
-          </div>
-        </div>
-
-        <div class="help">Planner workflow: keep adding TBD items → convert them into flight/lodging/event as bookings lock.</div>
-      `;
-
-      document.getElementById("legStatus").addEventListener("change", (e)=>{
-        leg.status = e.target.value;
-        save();
-        renderLegList();
-      });
-      document.getElementById("currencySel").addEventListener("change", (e)=>{
-        state.meta.currency = e.target.value;
-        save();
-        renderLegList();
-        renderLegDetail();
-        renderCosts();
-      });
-
-      document.getElementById("btnAddItem").addEventListener("click", (e)=>{
-        e.preventDefault();
-        addItemFromForm(leg.id);
-      });
-
-      detailBodyEl.querySelectorAll("button[data-edit]").forEach(b=> b.addEventListener("click", ()=> openInlineEdit(b.dataset.edit)));
-      detailBodyEl.querySelectorAll("button[data-del]").forEach(b=> b.addEventListener("click", ()=> deleteItem(b.dataset.del)));
-
-      btnEditLeg.onclick = ()=> editLegPrompt(leg.id);
-      btnDeleteLeg.onclick = ()=> deleteLegPrompt(leg.id);
-    }
-
-    function addItemInlineFocus(){
-      setActiveTab("tabLegs");
-      setTimeout(()=>{
-        const el = document.getElementById("aTitle");
-        if(el) el.focus({preventScroll:false});
-      }, 80);
-    }
-
-    function validateDateOrEmpty(v){ return !v || !!parseDate(v); }
-
-    function addItemFromForm(legId){
-      const err = document.getElementById("addError");
-      const get = (id)=> document.getElementById(id).value.trim();
-      const item = {
-        id: uid(),
-        legId,
-        type: get("aType"),
-        start: get("aStart"),
-        end: get("aEnd"),
-        title: get("aTitle"),
-        where: get("aWhere"),
-        ref: get("aRef"),
-        cost: get("aCost"),
-        details: document.getElementById("aDetails").value.trim()
-      };
-
-      const showErr = (m)=>{ err.textContent = m; err.style.display = "block"; };
-      err.style.display = "none";
-
-      if(!item.title) return showErr("Title is required.");
-      if(!validateDateOrEmpty(item.start) || !validateDateOrEmpty(item.end)) return showErr("Date must be YYYY-MM-DD or YYYY-MM-DD HH:MM.");
-      if(item.cost === "") item.cost = "";
-      else if(isFinite(+item.cost)) item.cost = +item.cost;
-      else return showErr("Cost must be numeric (e.g., 511.92).");
-
-      state.items.push(item);
-      save();
-      renderLegList();
-      renderLegDetail();
-
-      document.getElementById("aTitle").value = "";
-      document.getElementById("aWhere").value = "";
-      document.getElementById("aRef").value = "";
-      document.getElementById("aCost").value = "";
-      document.getElementById("aDetails").value = "";
-      document.getElementById("aTitle").focus();
-    }
-
-    function deleteItem(itemId){
-      if(!confirm("Delete this item?")) return;
-      state.items = state.items.filter(i=>i.id !== itemId);
-      save();
-      renderLegList();
-      renderLegDetail();
-      renderAgenda();
-      renderCosts();
-    }
-
-    function openInlineEdit(itemId){
-      const item = state.items.find(i=>i.id===itemId);
-      if(!item) return;
-      const box = document.getElementById("editBox");
-      box.setAttribute("data-open","true");
-      box.innerHTML = `
-        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-end;">
-          <div>
-            <div style="font-weight:950; font-size:13px;">Edit item</div>
-            <div class="help" style="margin-top:6px;">Update fields and Save. Use type “Expense” for budget tracking.</div>
-          </div>
-          <button class="rowBtn" id="closeEdit">Close</button>
-        </div>
-
-        <div class="inlineForm" style="margin-top:10px; border-top:none; padding-top:0;">
-          <div class="field">
-            <label for="eType">Type</label>
-            <select id="eType">
-              ${["flight","lodging","event","todo","expense","note"].map(t=>`<option value="${t}" ${item.type===t?"selected":""}>${t}</option>`).join("")}
-            </select>
-          </div>
-          <div class="field">
-            <label for="eStart">Start</label>
-            <input id="eStart" value="${escapeHtml(item.start||"")}" />
-          </div>
-          <div class="field">
-            <label for="eEnd">End</label>
-            <input id="eEnd" value="${escapeHtml(item.end||"")}" />
-          </div>
-
-          <div class="field" style="grid-column:1/-1;">
-            <label for="eTitle">Title</label>
-            <input id="eTitle" value="${escapeHtml(item.title||"")}" />
-          </div>
-
-          <div class="field">
-            <label for="eWhere">Where</label>
-            <input id="eWhere" value="${escapeHtml(item.where||"")}" />
-          </div>
-          <div class="field">
-            <label for="eRef">Ref</label>
-            <input id="eRef" value="${escapeHtml(item.ref||"")}" />
-          </div>
-
-          <div class="field">
-            <label for="eCost">Cost</label>
-            <input id="eCost" value="${escapeHtml(item.cost ?? "")}" />
-          </div>
-
-          <div class="field" style="grid-column:1/-1;">
-            <label for="eDetails">Details</label>
-            <textarea id="eDetails">${escapeHtml(item.details||"")}</textarea>
-          </div>
-
-          <div style="grid-column:1/-1; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;">
-            <button class="btn primary" id="saveEdit">Save changes</button>
-            <button class="btn danger" id="deleteEdit">Delete</button>
-          </div>
-
-          <div class="help" id="editError" style="display:none; color:color-mix(in srgb, var(--todo) 70%, var(--text)); font-weight:900;"></div>
-        </div>
-      `;
-
-      document.getElementById("closeEdit").onclick = ()=> box.setAttribute("data-open","false");
-      document.getElementById("deleteEdit").onclick = ()=> deleteItem(itemId);
-
-      document.getElementById("saveEdit").onclick = (e)=>{
-        e.preventDefault();
-        const err = document.getElementById("editError");
-        const get = (id)=> document.getElementById(id).value.trim();
-        const upd = {
-          type: get("eType"),
-          start: get("eStart"),
-          end: get("eEnd"),
-          title: get("eTitle"),
-          where: get("eWhere"),
-          ref: get("eRef"),
-          cost: get("eCost"),
-          details: document.getElementById("eDetails").value.trim()
-        };
-
-        const showErr = (m)=>{ err.textContent=m; err.style.display="block"; };
-        err.style.display="none";
-
-        if(!upd.title) return showErr("Title is required.");
-        if(!validateDateOrEmpty(upd.start) || !validateDateOrEmpty(upd.end)) return showErr("Date must be YYYY-MM-DD or YYYY-MM-DD HH:MM.");
-        if(upd.cost === "") upd.cost = "";
-        else if(isFinite(+upd.cost)) upd.cost = +upd.cost;
-        else return showErr("Cost must be numeric.");
-
-        Object.assign(item, upd);
-        save();
-        renderLegList();
-        renderLegDetail();
-        renderAgenda();
-        renderCosts();
-      };
-
-      box.scrollIntoView({behavior:"smooth", block:"start"});
-    }
-
-    function addLegPrompt(){
-      const title = prompt("Leg title (e.g., Vilnius + Riga + Belgrade)", "New leg");
-      if(!title) return;
-      const id = "leg-" + uid();
-      const leg = { id, title, status:"tbd", start:"", end:"", from:"", to:"", budget:"", notes:"" };
-      state.legs.push(leg);
-      save();
-      selectedLegId = id;
-      renderLegList();
-      renderLegDetail();
-    }
-
-    function editLegPrompt(legId){
-      const leg = state.legs.find(l=>l.id===legId);
-      if(!leg) return;
-
-      leg.title = prompt("Leg title", leg.title) ?? leg.title;
-      leg.start = prompt("Start date (YYYY-MM-DD)", leg.start || "") ?? leg.start;
-      leg.end = prompt("End date (YYYY-MM-DD, optional)", leg.end || "") ?? leg.end;
-      leg.from = prompt("From (city/airport)", leg.from || "") ?? leg.from;
-      leg.to = prompt("To (city/airport)", leg.to || "") ?? leg.to;
-      leg.budget = prompt("Budget (number, optional)", leg.budget || "") ?? leg.budget;
-      leg.notes = prompt("Notes (optional)", leg.notes || "") ?? leg.notes;
-
-      save();
-      renderLegList();
-      renderLegDetail();
-      renderAgenda();
-      renderCosts();
-    }
-
-    function deleteLegPrompt(legId){
-      const leg = state.legs.find(l=>l.id===legId);
-      if(!leg) return;
-      if(!confirm(`Delete leg "${leg.title}" and all its items?`)) return;
-      state.legs = state.legs.filter(l=>l.id !== legId);
-      state.items = state.items.filter(i=>i.legId !== legId);
-      selectedLegId = state.legs[0]?.id || null;
-      save();
-      renderLegList();
-      renderLegDetail();
-      renderAgenda();
-      renderCosts();
-    }
-
-    const agendaBody = document.getElementById("agendaBody");
-    function typeEmoji(t){
-      return ({flight:"✈️", lodging:"🏨", event:"🏁", todo:"🧩", note:"📝", expense:"💸"})[t] || "•";
-    }
-
-    function renderAgenda(){
-      const q = (document.getElementById("search").value || "").toLowerCase().trim();
-      const items = state.items
-        .filter(i=>i.type !== "expense")
-        .filter(i=> q ? JSON.stringify(i).toLowerCase().includes(q) : true)
-        .slice()
-        .sort((a,b)=> byDate(a.start,b.start) || String(a.title||"").localeCompare(String(b.title||"")));
-
-      const byDay = new Map();
-      items.forEach(i=>{
-        const dk = dayKey(i.start) || "TBD";
-        if(!byDay.has(dk)) byDay.set(dk, []);
-        byDay.get(dk).push(i);
-      });
-
-      const keys = Array.from(byDay.keys()).sort((a,b)=>{
-        if(a==="TBD") return 1;
-        if(b==="TBD") return -1;
-        return a.localeCompare(b);
-      });
-
-      if(keys.length===0){
-        agendaBody.innerHTML = `<div class="help">No items yet.</div>`;
-        return;
-      }
-
-      agendaBody.innerHTML = keys.map(k=>{
-        const lines = byDay.get(k);
-        const dateLabel = (k==="TBD") ? "TBD dates" : k;
-        const sub = (k==="TBD") ? "Items without dates — fill dates to get a clean agenda." : `${lines.length} item(s)`;
-
-        return `
-          <div class="agendaDay">
-            <div class="agendaHead">
-              <h4>${escapeHtml(dateLabel)}</h4>
-              <div class="sub">${escapeHtml(sub)}</div>
-            </div>
-            <div class="agendaBody">
-              ${lines.map(i=>{
-                const t = (i.start && /\d{2}:\d{2}/.test(i.start)) ? fmt(i.start).slice(11) : "—";
-                const leg = state.legs.find(l=>l.id===i.legId);
-                const legName = leg ? leg.title : "Unknown leg";
-                const where = i.where ? ` · ${escapeHtml(i.where)}` : "";
-                return `
-                  <div class="line">
-                    <div class="time">${escapeHtml(t)}</div>
-                    <div class="desc">
-                      <b>${escapeHtml(typeEmoji(i.type))} ${escapeHtml(i.title || "")}</b>${where}
-                      <span class="tag">${escapeHtml(legName)}</span>
-                      ${i.details ? `<div style="margin-top:6px; color:var(--muted);">${escapeHtml(i.details)}</div>` : ``}
-                    </div>
-                  </div>
-                `;
-              }).join("")}
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    document.getElementById("btnPrint").addEventListener("click", ()=> window.print());
-
-    const costGrid = document.getElementById("costGrid");
-    const costModeSel = document.getElementById("costMode");
-
-    function renderCosts(){
-      const currency = state.meta.currency || "USD";
-      const totals = state.legs.map(leg=>{
-        const costItems = getCostItemsForLeg(leg.id);
-        const total = costItems.reduce((s,i)=>s+i.cost,0);
-        const budget = (leg.budget && isFinite(+leg.budget)) ? +leg.budget : null;
-        const buckets = bucketCosts(costItems);
-        return { leg, total, budget, buckets };
-      });
-
-      const max = Math.max(...totals.map(t=>t.total), 1);
-
-      costGrid.innerHTML = totals.map(t=>{
-        const pct = Math.min(100, (t.total/max)*100);
-        const budgetLine = t.budget!=null
-          ? `<div style="margin-top:6px; color:var(--muted);">Budget: <b>${escapeHtml(currency)} ${t.budget.toFixed(2)}</b> · Remaining: <b>${escapeHtml(currency)} ${(t.budget - t.total).toFixed(2)}</b></div>`
-          : `<div style="margin-top:6px; color:var(--muted);">Budget: <b>—</b> (Edit leg to set one)</div>`;
-
-        const bucketLine = t.buckets.map(b=> `${escapeHtml(b.key)}: <b>${escapeHtml(currency)} ${b.total.toFixed(2)}</b>`).join(" · ");
-
-        return `
-          <div class="section">
-            <div class="sh">
-              <h4>${escapeHtml(t.leg.title)}</h4>
-              <div class="hint">${escapeHtml(legSpan(t.leg))}</div>
-            </div>
-            <div class="sb">
-              <div style="font-weight:980; font-family:var(--mono); font-size:14px;">${escapeHtml(currency)} ${t.total.toFixed(2)}</div>
-              <div class="bar"><div style="width:${pct}%;"></div></div>
-              ${budgetLine}
-              <div style="margin-top:10px; color:var(--muted); line-height:1.45;">${bucketLine}</div>
-              <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
-                <button class="rowBtn primary" data-openleg="${escapeHtml(t.leg.id)}">Open leg</button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join("");
-
-      costGrid.querySelectorAll("button[data-openleg]").forEach(b=>{
-        b.addEventListener("click", ()=>{
-          selectedLegId = b.dataset.openleg;
-          setActiveTab("tabLegs");
-          renderLegList();
-          renderLegDetail();
-        });
-      });
-    }
-
-    const fileInput = document.getElementById("fileInput");
-
-    function exportJson(){
-      const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "trip-legs-data.json";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-
-    function importJsonFile(file){
-      file.text().then(txt=>{
-        const data = JSON.parse(txt);
-        if(!data?.legs || !data?.items || !data?.meta) throw new Error("Invalid");
-        state = data;
-        selectedLegId = state.legs?.[0]?.id || null;
-        save();
-        applyTheme(state.meta.theme || "dark");
-        renderAll();
-      }).catch(_=>{
-        alert("Could not import JSON. Make sure it's an export from this page.");
-      });
-    }
-
-    function makeShareLink(){
-      try{
-        const json = JSON.stringify(state);
-        const b64 = btoa(json);
-        const url = location.origin + location.pathname + "#data=" + encodeURIComponent(b64);
-        (navigator.clipboard?.writeText(url) ? navigator.clipboard.writeText(url) : Promise.reject())
-          .then(()=> alert("Share link copied to clipboard."))
-          .catch(()=> prompt("Copy this share link:", url));
-      }catch(_){
-        alert("Could not create share link (data too large). Use Export instead.");
-      }
-    }
-
-    document.getElementById("btnExport").addEventListener("click", exportJson);
-    document.getElementById("btnImport").addEventListener("click", ()=> fileInput.click());
-    fileInput.addEventListener("change", (e)=>{
-      const f = e.target.files?.[0];
-      if(!f) return;
-      importJsonFile(f);
-      e.target.value = "";
-    });
-
-    document.getElementById("btnShare").addEventListener("click", makeShareLink);
-
-    document.getElementById("btnReset").addEventListener("click", ()=>{
-      if(!confirm("Reset to the initial seed plan? This overwrites local edits.")) return;
-      state = structuredClone(SEED);
-      selectedLegId = state.legs?.[0]?.id || null;
-      save();
-      applyTheme(state.meta.theme || "dark");
-      renderAll();
-    });
-
-    document.getElementById("btnTheme").addEventListener("click", ()=>{
-      const cur = state.meta.theme || "dark";
-      applyTheme(cur==="dark" ? "light" : "dark");
-      renderAll();
-    });
-
-    document.getElementById("btnAddLeg").addEventListener("click", addLegPrompt);
-
-    legFilterEl.addEventListener("change", renderLegList);
-
-    costModeSel.addEventListener("change", ()=>{
-      state.meta.costMode = costModeSel.value;
-      save();
-      renderLegList();
-      renderLegDetail();
-      renderCosts();
-    });
-
-    document.getElementById("search").addEventListener("input", debounce(()=>{
-      renderLegList();
-      renderLegDetail();
-      renderAgenda();
-      renderCosts();
-    }, 250));
-
-    function renderAll(){
-      costModeSel.value = state.meta.costMode || "expenseOnly";
-      renderLegList();
-      renderLegDetail();
-      renderAgenda();
-      renderCosts();
-    }
-
-    applyTheme(state.meta.theme || "dark");
-    renderAll();
   </script>
 </body>
 </html>
